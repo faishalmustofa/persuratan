@@ -1,0 +1,70 @@
+.landing-footer {
+  .footer-link {
+    transition: light.$btn-transition;
+    &:hover {
+      opacity: 0.8;
+    }
+  } //assets/img/front-pages/backgrounds/footer-bg.png
+  .footer-top {
+    background: $footer-top-bg url('../../../img/front-pages/backgrounds/footer-bg.png') center no-repeat;
+    background-size: cover;
+    padding: 3.5rem 0;
+    @include light.media-breakpoint-down(md) {
+      padding: 3rem 0;
+    }
+  }
+  @include light.media-breakpoint-up(lg) {
+    .footer-logo-description {
+      max-width: 322px;
+    }
+  }
+  .footer-bottom {
+    background-color: $footer-bottom-bg;
+  }
+  .form-floating {
+    &.form-floating-outline {
+      > label {
+        &::after {
+          background-color: $footer-top-bg !important;
+        }
+      }
+    }
+  }
+}
+
+// Light style
+@if $enable-light-style {
+  .light-style {
+    .landing-footer {
+      .footer-link,
+      .footer-text,
+      .footer-title {
+        color: light.$white;
+        opacity: 0.78;
+      }
+      .footer-title {
+        opacity: 0.92;
+      }
+      .footer-link {
+        &:hover {
+          opacity: 1;
+        }
+      }
+    }
+  }
+}
+
+// Dark style
+@if $enable-dark-style {
+  .dark-style {
+    .landing-footer {
+      .footer-link,
+      .footer-text {
+        color: dark.$body-color;
+      }
+      .footer-title {
+        color: dark.$headings-color;
+      }
+    }
+  }
+}

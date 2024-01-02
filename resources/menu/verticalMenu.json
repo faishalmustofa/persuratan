@@ -1,0 +1,97 @@
+{
+  "menu": [
+    {
+      "name": "Dashboards",
+      "icon": "menu-icon tf-icons mdi mdi-home-outline",
+      "slug": "dashboard",
+      "badge": [
+        "primary",
+        "5"
+      ],
+      "submenu": [
+        {
+          "url": "/",
+          "name": "Dashboard",
+          "slug": "main-dashboard"
+        }
+      ]
+    },
+    {
+      "name": "Surat Masuk",
+      "icon": "menu-icon tf-icons mdi mdi-inbox-arrow-down",
+      "slug": "surat-masuk",
+      "submenu": [
+        {
+          "url": "",
+          "name": "Surat Masuk",
+          "slug": "main-surat-masuk"
+        }
+      ]
+    },
+    {
+      "name": "Surat Keluar",
+      "icon": "menu-icon tf-icons mdi mdi-inbox-arrow-up",
+      "slug": "surat-keluar",
+      "submenu": [
+        {
+          "url": "",
+          "name": "Surat Keluar",
+          "slug": "main-surat-keluar"
+        }
+      ]
+    },
+    {
+      "menuHeader": "Settings"
+    },
+    {
+      "name": "Users",
+      "icon": "menu-icon tf-icons mdi mdi-account-outline",
+      "slug": "app-user",
+      "submenu": [
+        {
+          "url": "app/user/list",
+          "name": "List",
+          "slug": "app-user-list"
+        },
+        {
+          "name": "View",
+          "slug": "app-user-view",
+          "submenu": [
+            {
+              "url": "app/user/view/account",
+              "name": "Account",
+              "slug": "app-user-view-account"
+            },
+            {
+              "url": "app/user/view/security",
+              "name": "Security",
+              "slug": "app-user-view-security"
+            },
+            {
+              "url": "app/user/view/notifications",
+              "name": "Notifications",
+              "slug": "app-user-view-notifications"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Roles & Permissions",
+      "icon": "menu-icon tf-icons mdi mdi-shield-outline",
+      "slug": "app-access",
+      "submenu": [
+        {
+          "url": "app/access-roles",
+          "name": "Roles",
+          "slug": "app-access-roles"
+        },
+        {
+          "url": "app/access-permission",
+          "name": "Permission",
+          "slug": "app-access-permission"
+        }
+      ]
+    }
+  ]
+}
