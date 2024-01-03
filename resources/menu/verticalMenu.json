@@ -122,6 +122,34 @@
           "slug": "app-access-permission"
         }
       ]
+    },
+
+    {
+      "menuHeader": "Master Data"
+    },
+    {
+      "name": "Asal Surat",
+      "icon": "menu-icon tf-icons mdi mdi-account-box-multiple",
+      "slug": "asal-surat",
+      "url": "master-data/asal-surat/"
+    },
+    {
+      "name": "Organization",
+      "icon": "menu-icon tf-icons mdi mdi-briefcase-account",
+      "slug": "organization",
+      "url": "master-data/organization/"
+    },
+    {
+      "name": "Status Disposisi",
+      "icon": "menu-icon tf-icons mdi mdi-database-cog",
+      "slug": "status-disposisi",
+      "url": "master-data/status-disposisi/"
+    },
+    {
+      "name": "Status Surat",
+      "icon": "menu-icon tf-icons mdi mdi-database-cog",
+      "slug": "status-disposisi",
+      "url": "master-data/status-surat/"
     }
   ]
 }
