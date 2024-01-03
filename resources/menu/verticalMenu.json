@@ -25,6 +25,16 @@
           "url": "",
           "name": "Surat Masuk",
           "slug": "main-surat-masuk"
+        },
+        {
+          "url": "",
+          "name": "Buku Agenda",
+          "slug": "buku-agenda-surat-masuk"
+        },
+        {
+          "url": "",
+          "name": "Disposisi",
+          "slug": "disposisi"
         }
       ]
     },
@@ -37,6 +47,26 @@
           "url": "",
           "name": "Surat Keluar",
           "slug": "main-surat-keluar"
+        },
+        {
+          "url": "",
+          "name": "Buku Agenda",
+          "slug": "buku-agenda-surat-keluar"
+        },
+        {
+          "url": "",
+          "name": "Permintaan Nomor",
+          "slug": "permintaan-nomor"
+        },
+        {
+          "url": "",
+          "name": "Pengiriman Surat",
+          "slug": "pengiriman-surat"
+        },
+        {
+          "url": "",
+          "name": "Laporan Penerimaan",
+          "slug": "laporan-penerimaan"
         }
       ]
     },
