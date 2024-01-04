@@ -1,8 +1,8 @@
 <?php
 // Variables
 return [
-  "creatorName" => "Pixinvent",
-  "creatorUrl" => "https://pixinvent.com",
+  "creatorName" => "PROPAM POLRI",
+  "creatorUrl" => "",
   "templateName" => "Materialize",
   "templateSuffix" => "Materialize - Bootstrap 5 HTML Laravel Admin Template",
   "templateVersion" => "1.3.0",
