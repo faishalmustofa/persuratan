@@ -15,6 +15,9 @@ mix.options({
   postCss: [require('autoprefixer')]
 });
 
+mix.js('resources/assets/js/surat-masuk/surat-masuk.js', 'public/assets/js')
+  .js('resources/assets/js/base.js','public/assets/js');
+
 /*
  |--------------------------------------------------------------------------
  | Configure Webpack
