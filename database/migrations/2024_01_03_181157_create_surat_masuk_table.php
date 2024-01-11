@@ -28,6 +28,7 @@ return new class extends Migration
             $table->foreign('asal_surat')->references('id')->on('m_asal_surat');
             $table->foreign('status_surat')->references('id')->on('m_status_surat');
             $table->foreign('created_by')->references('id')->on('users');
+            $table->foreign('tujuan_surat')->references('id')->on('organization');
             $table->timestamps();
         });
     }

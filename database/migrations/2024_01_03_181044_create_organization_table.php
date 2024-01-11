@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('organization', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
+            $table->string('leader_alias')->nullable();
             $table->integer('parent_id')->nullable();
             $table->string('description')->nullable();
             $table->timestamps();

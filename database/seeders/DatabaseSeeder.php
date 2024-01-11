@@ -3,6 +3,8 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+use App\Models\Master\Organization;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -12,7 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
+        \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
@@ -25,7 +27,7 @@ class DatabaseSeeder extends Seeder
             EntityAsalSuratSeeder::class,
             KlasifikasiSuratSeeder::class,
             StatusDisposisiSeeder::class,
-            StatusSuratSeeder::class
+            StatusSuratSeeder::class,
         ]);
     }
 }

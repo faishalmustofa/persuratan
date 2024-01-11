@@ -22,17 +22,17 @@
       "slug": "surat-masuk",
       "submenu": [
         {
-          "url": "/surat-masuk",
+          "url": "transaction/surat-masuk",
           "name": "Surat Masuk",
           "slug": "main-surat-masuk"
         },
         {
-          "url": "/buku-agenda",
+          "url": "transaction/buku-agenda",
           "name": "Buku Agenda",
           "slug": "buku-agenda-surat-masuk"
         },
         {
-          "url": "/disposisi",
+          "url": "transaction/disposisi",
           "name": "Disposisi",
           "slug": "disposisi"
         }

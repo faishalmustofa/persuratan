@@ -15,13 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('tx_number');
             $table->string('no_agenda');
-            $table->text('isi_disposisi');
+            $table->text('isi_disposisi')->nullable();
             $table->integer('tujuan_disposisi');
-            $table->integer('status')->nullable();
 
             $table->foreign('tx_number')->references('tx_number')->on('surat_masuk');
             $table->foreign('tujuan_disposisi')->references('id')->on('organization');
-            $table->foreign('status')->references('id')->on('m_status_disposisi');
             $table->timestamps();
         });
     }
