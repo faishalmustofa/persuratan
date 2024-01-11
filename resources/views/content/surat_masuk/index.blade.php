@@ -2,6 +2,25 @@
 
 @section('title', 'Surat Masuk - Form Surat Masuk')
 
+@section('vendor-style')
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
+
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/tagify/tagify.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-select/bootstrap-select.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/typeahead-js/typeahead.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/jquery-timepicker/jquery-timepicker.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/dropzone/dropzone.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/toastr/toastr.css')}}" />
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/animate-css/animate.css')}}" />
+@endsection
+
 @section('page-script')
     <script src="{{asset('assets/js/transaction/surat-masuk.js')}}"></script>
 @endsection
@@ -126,7 +145,6 @@
                     <option value="{{$item->id}}">{{$item->nama}}</option>
                 @endforeach
               </select>
-              {{-- <label for="klasifikasi">Klasifikasi Surat</label> --}}
               <div class="invalid-feedback"> Mohon pilih klasifikasi surat. </div>
             </div>
 
@@ -137,15 +155,14 @@
                     <option value="{{$item->id}}">{{$item->nama}}</option>
                 @endforeach
               </select>
-              {{-- <label for="derajat">Derajat Surat</label> --}}
               <div class="invalid-feedback"> Mohon pilih derajat surat. </div>
             </div>
 
             <div class="mb-4 form-floating form-floating-outline">
               <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required readonly/>
               <label for="tanggal_surat">Pilih Tanggal Surat</label>
-              <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
-            </div>
+            <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
+          </div>
 
             <div class="form-floating form-floating-outline mb-4">
                 <select id="asal_surat" name="asal_surat" class="select2 form-select" required>

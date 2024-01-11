@@ -1,18 +1,14 @@
 
 'use strict';
 
-const tanggalSurat = document.querySelector('#tanggal-surat'),
-    tanggalDiterima = document.querySelector('#tanggal-diterima'),
+const tanggalSurat = $('#tanggal-surat'),
+    tanggalDiterima = $('#tanggal-diterima'),
     klasifikasi = $('#klasifikasi'),
     derajat = $('#derajat'),
     asal_surat = $('#asal_surat');
 var table
 
 $(function () {
-
-    // console.log('dropzone : ',dropzoneBasic);
-    const dropzoneBasic = document.querySelector('#dropzone-basic');
-
     tanggalSurat.flatpickr({
         altInput: true,
         altFormat: 'F j, Y',
@@ -24,17 +20,44 @@ $(function () {
         dateFormat: 'Y-m-d'
     });
 
+    // Init custom option check
+  window.Helpers.initCustomOptionCheck();
+
+  // Bootstrap validation example
+  //------------------------------------------------------------------------------------------
+  // const flatPickrEL = $('.flatpickr-validation');
+  const flatPickrList = [].slice.call(document.querySelectorAll('.flatpickr-validation')),
+    selectPicker = $('.selectpicker');
+
+  // Bootstrap Select
+  // --------------------------------------------------------------------
+  if (selectPicker.length) {
+    selectPicker.selectpicker();
+    handleBootstrapSelectEvents();
+  }
+
+  // Flat pickr
+  if (flatPickrList) {
+    flatPickrList.forEach(flatPickr => {
+      flatPickr.flatpickr({
+        allowInput: true,
+        monthSelectorType: 'static'
+      });
+    });
+  }
+
     var forms = document.querySelectorAll('.needs-validation')
-    Array.prototype.slice.call(forms)
-        .forEach(function (form) {
-            form.addEventListener('submit', function (event) {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
+    console.log(forms)
+    
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
 
     $('#form-surat-masuk').on('submit', function (e) {
         if (this.checkValidity()) {
@@ -79,14 +102,6 @@ $(function () {
         </div>
         </div>`;
 
-    // const myDropzone = new Dropzone(dropzoneBasic, {
-    //     previewTemplate: previewTemplate,
-    //     parallelUploads: 1,
-    //     url: '/transaction/surat-masuk/store' ,
-    //     maxFilesize: 5,
-    //     addRemoveLinks: true,
-    //     maxFiles: 1
-    // });
 
     // Init select2
     $("#klasifikasi").wrap('<div class="position-relative"></div>').select2({
@@ -142,7 +157,7 @@ function getDataSuratMasuk(){
             }
         },
         columns: [
-            { data: '', name: '' },
+            // { data: '', name: '' },
             {
                 data: 'no_agenda',
                 name: 'no_agenda',
@@ -160,8 +175,8 @@ function getDataSuratMasuk(){
                 name: 'tgl_diterima',
             },
             {
-                data: 'asal_surat.name',
-                name: 'asal_surat.name',
+                data: 'asal_surat',
+                name: 'asal_surat',
             },
             {
                 data: 'tujuan_surat',
@@ -172,8 +187,8 @@ function getDataSuratMasuk(){
                 name: 'perihal',
             },
             {
-                data: 'status_surat.name',
-                name: 'status_surat.name',
+                data: 'status_surat',
+                name: 'status_surat',
             }
         ],
         columnDefs: [
@@ -227,7 +242,6 @@ function getDataSuratMasuk(){
 
 function postForm() {
     let form =  new FormData($("#form-surat-masuk")[0])
-    // let form = $('#form-surat-masuk').serialize()
     ajaxPostFile('/transaction/surat-masuk/store', form, 'input_success', 'input_error')
 }
 
