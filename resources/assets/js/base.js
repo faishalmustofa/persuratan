@@ -14,10 +14,18 @@ async function ajaxGetJson(url, onsuccess, onerror) {
         type: 'get',
         dataType: 'json',
         beforeSend: function () {
-            $('.load_process').css('display', 'block')
+            Swal.fire({
+                html: "<h5>Please Wait...</h5>",
+                customClass: {
+                },
+                buttonsStyling: false,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+            })
+            Swal.showLoading()
         },
         success: function (data, status, xhr) {   // success callback function
-            $('.load_process').css('display', 'none')
+            Swal.close()
             window[onsuccess](data);
         },
         error: function (jqXhr, textStatus, errorMessage) { // error callback
@@ -40,13 +48,21 @@ async function ajaxPostJson(url, form, onsuccess, onerror) {
         dataType: 'json',
         data: form,
         beforeSend: function () {
-            $('.load_process').css('display', 'block')
+            Swal.fire({
+                html: "<h5>Please Wait...</h5>",
+                customClass: {
+                },
+                buttonsStyling: false,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+            })
+            Swal.showLoading()
         }, success: function (data, status, xhr) {   // success callback function
-            $('.load_process').css('display', 'none')
+            Swal.close()
             window[onsuccess](data);
         },
         error: function (jqXhr, textStatus, errorMessage) { // error callback
-            $('.load_process').css('display', 'none')
+            Swal.close()
             // let text = jqXhr.responseJSON?.message == undefined ? "Terjadi Kesalahan Pada Sistem!" : jqXhr.responseJSON.message
             // var option = {
             //     text: text,
@@ -62,20 +78,28 @@ async function ajaxPostJson(url, form, onsuccess, onerror) {
 }
 
 async function ajaxPostFile(url, form, onsuccess, onerror) {
-    console.log(form)
     $.ajax(url, {
         type: 'post',
         data: form,
         processData: false,
 		contentType: false,
-		cache: false,
         beforeSend: function () {
-            $('.load_process').css('display', 'block')
+            Swal.fire({
+                html: "<h5>Please Wait...</h5>",
+                customClass: {
+                },
+                buttonsStyling: false,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+            })
+            Swal.showLoading()
         }, success: function (data, status, xhr) {   // success callback function
-            $('.load_process').css('display', 'none')
+            // $('.load_process').css('display', 'none')
+            Swal.close()
             window[onsuccess](data);
         },
         error: function (jqXhr, textStatus, errorMessage) { // error callback
+            Swal.close()
             $('.load_process').css('display', 'none')
             // let text = jqXhr.responseJSON?.message == undefined ? "Terjadi Kesalahan Pada Sistem!" : jqXhr.responseJSON.message
             // var option = {

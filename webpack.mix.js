@@ -15,7 +15,7 @@ mix.options({
   postCss: [require('autoprefixer')]
 });
 
-mix.js('resources/assets/js/surat-masuk/surat-masuk.js', 'public/assets/js')
+mix.js('resources/assets/js/transaction/surat-masuk.js', 'public/assets/js/transaction')
   .js('resources/assets/js/base.js','public/assets/js');
 
 /*

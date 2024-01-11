@@ -2,56 +2,15 @@
 
 @section('title', 'Surat Masuk - Form Surat Masuk')
 
-@section('vendor-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
-
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/tagify/tagify.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-select/bootstrap-select.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/typeahead-js/typeahead.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/jquery-timepicker/jquery-timepicker.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/dropzone/dropzone.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/toastr/toastr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/animate-css/animate.css')}}" />
-@endsection
-
-@section('page-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/css/pages/app-logistics-dashboard.css')}}" />
-
-@endsection
-
-@section('vendor-script')
-<script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/bootstrap-select/bootstrap-select.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/jquery-timepicker/jquery-timepicker.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/pickr/pickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/dropzone/dropzone.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/toastr/toastr.js')}}"></script>
-@endsection
-
 @section('page-script')
-{{-- <script src="{{asset('assets/js/form-validation.js')}}"></script> --}}
-{{-- <script src="{{asset('assets/js/forms-file-upload.js')}}"></script> --}}
-<script src="{{asset('assets/js/surat-masuk/surat-masuk.js')}}"></script>
-{{-- <script src="{{asset('assets/js/ui-toasts.js')}}"></script> --}}
+    <script src="{{asset('assets/js/transaction/surat-masuk.js')}}"></script>
 @endsection
 
 @section('content')
 <!-- Toast with Animation -->
 <div class="bs-toast toast toast-ex animate__animated my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
     <div class="toast-header">
-        <i class="mdi mdi-home me-2"></i>
+        <i class="mdi mdi-alert-circle-outline me-2"></i>
         <div class="me-auto fw-medium">ERROR</div>
         {{-- <small class="text-muted">11 mins ago</small> --}}
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -157,115 +116,132 @@
             <div class="form-floating form-floating-outline mb-4">
               <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" required />
               <label for="nomor_surat">Nomor Surat</label>
-              <div class="valid-feedback"> OK! </div>
               <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
             </div>
 
             <div class="form-floating form-floating-outline mb-4">
-              <select id="klasifikasi" name="klasifikasi" class="form-select select2" data-allow-clear="true">
-                <option value="">Pilih Klasifikasi Surat</option>
-                <option value="1">Biasa</option>
-                <option value="2">Rahasia</option>
+              <select id="klasifikasi" name="klasifikasi" class="form-select select2" data-allow-clear="true" required>
+                <option>Pilih Klasifikasi Surat</option>
+                @foreach ($klasifikasi as $item)
+                    <option value="{{$item->id}}">{{$item->nama}}</option>
+                @endforeach
               </select>
               {{-- <label for="klasifikasi">Klasifikasi Surat</label> --}}
-              <div class="valid-feedback"> OK! </div>
               <div class="invalid-feedback"> Mohon pilih klasifikasi surat. </div>
             </div>
 
             <div class="form-floating form-floating-outline mb-4">
-              <select id="derajat" name="derajat" class="form-select select2" data-allow-clear="true">
-                <option value="">Pilih Derajat Surat</option>
-                <option value="1">Biasa</option>
-                <option value="2">Segera</option>
-                <option value="3">Kilat</option>
+              <select id="derajat" name="derajat" class="form-select select2" data-allow-clear="true" required>
+                <option>Pilih Derajat Surat</option>
+                @foreach ($derajat as $item)
+                    <option value="{{$item->id}}">{{$item->nama}}</option>
+                @endforeach
               </select>
               {{-- <label for="derajat">Derajat Surat</label> --}}
-              <div class="valid-feedback"> OK! </div>
               <div class="invalid-feedback"> Mohon pilih derajat surat. </div>
             </div>
 
             <div class="mb-4 form-floating form-floating-outline">
               <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required readonly/>
               <label for="tanggal_surat">Pilih Tanggal Surat</label>
-              <div class="valid-feedback"> OK! </div>
               <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
             </div>
 
             <div class="form-floating form-floating-outline mb-4">
-              <select id="asal_surat" name="asal_surat" class="select2 form-select">
-                <option value="">Pilih Asal Surat</option>
-                <optgroup label="Internal">
-                  <option value="divpropam">Divpropam</option>
-                  <option value="mabes_polri" >Mabes Polri</option>
-                  <option value="polda" >Polda</option>
-                </optgroup>
-                <optgroup label="External">
-                  <option value="kl">kementrian / Lembaga Pemerintahan</option>
-                  <option value="non_gov">Lembaga Non-Pemerintahan</option>
-                  <option value="individu">Perseorangan / Pribadi / Lain-lain</option>
-                  <option value="dumas">Aduan Masyarakat (Dumas)</option>
-                </optgroup>
-              </select>
-              <div class="valid-feedback"> OK! </div>
-              <div class="invalid-feedback"> Mohon pilih asal surat. </div>
-              {{-- <label for="asal_surat">Pilih Asal Surat</label> --}}
+                <select id="asal_surat" name="asal_surat" class="select2 form-select" required>
+                    <option value="">Pilih Asal Surat</option>
+                    @foreach ($asalSurat as $header)
+                        <optgroup label="{{$header->name}}">
+                            @foreach ($entityAsal as $detail)
+                                @if ($detail->asal_surat_id == $header->id)
+                                    <option value="{{$detail->id}}">{{$detail->entity_name}}</option>
+                                @endif
+                            @endforeach
+                        </optgroup>
+                    @endforeach
+                </select>
+                <div class="invalid-feedback"> Mohon pilih asal surat. </div>
             </div>
 
             <div class="form-floating form-floating-outline mb-4">
-                <input type="text" class="form-control" id="entity_asal_surat" placeholder="Asal Surat" name="entity_asal_surat" required />
-                <label for="entity_asal_surat">Asal Surat</label>
-                <div class="valid-feedback"> OK! </div>
-                <div class="invalid-feedback"> Mohon masukan entity asal surat. </div>
+                <input type="text" class="form-control" id="entity_asal_surat_detail" placeholder="Detail Entity Asal Surat" name="entity_asal_surat_detail" required />
+                <label for="entity_asal_surat_detail">Detail Entity Asal Surat</label>
+                <div class="invalid-feedback"> Mohon masukan detail entity asal surat. </div>
             </div>
-            
+
             <div class="form-floating form-floating-outline mb-4">
-                <input type="text" class="form-control" id="tujuan_surat" placeholder="Tujuan Surat" name="tujuan_surat" required />
-                <label for="tujuan_surat">Tujuan Surat</label>
-                <div class="valid-feedback"> OK! </div>
-                <div class="invalid-feedback"> Mohon masukan tujuan surat. </div>
+                <select id="tujuan_surat" name="tujuan_surat" class="select2 form-select" required>
+                    <option value="">Pilih Tujuan Surat</option>
+                    @foreach ($organization as $org)
+                        <option value="{{$org->id}}">{{$org->nama}}</option>
+                    @endforeach
+                </select>
+                {{-- <input type="text" class="form-control" id="tujuan_surat" placeholder="Tujuan Surat" name="tujuan_surat" required /> --}}
+                {{-- <label for="tujuan_surat">Tujuan Surat</label> --}}
+                <div class="invalid-feedback"> Mohon pilih tujuan surat. </div>
             </div>
-            
+
             <div class="form-floating form-floating-outline mb-4">
                 <textarea class="form-control h-px-75" id="perihal" name="perihal" rows="3" placeholder="Perihal" required></textarea>
                 <label for="perihal">Perihal</label>
+                <div class="invalid-feedback"> Mohon masukan tujuan surat. </div>
             </div>
 
             <div class="mb-4 form-floating form-floating-outline">
                 <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-diterima" name="tanggal_diterima" required readonly/>
                 <label for="tanggal_diterima">Pilih Tanggal Diterima</label>
-                <div class="valid-feedback"> OK! </div>
               <div class="invalid-feedback"> Mohon pilih tanggal diterima. </div>
             </div>
 
             <div class="row">
-                <div class="col-10">
+                <div class="col-8">
                     <div class="form-floating form-floating-outline mb-4">
-                        <input type="text" class="form-control" id="judul_lampiran" placeholder="Judul Lampiran" name="judul_lampiran" required />
+                        <input type="text" class="form-control" id="judul_lampiran" placeholder="Judul Lampiran" name="judul_lampiran" />
                         <label for="judul_lampiran">Judul Lampiran</label>
-                        <div class="valid-feedback"> OK! </div>
                         <div class="invalid-feedback"> Mohon masukan judul lampiran. </div>
                     </div>
                 </div>
+
                 <div class="col-2">
                     <div class="form-floating form-floating-outline mb-4">
-                        <input type="text" class="form-control" id="jumlah_lampiran" placeholder="Jumlah Lampiran" name="jumlah_lampiran" required />
+                        <input type="text" class="form-control" id="jumlah_lampiran" placeholder="Jumlah Lampiran" name="jumlah_lampiran" />
                         <label for="jumlah_lampiran">Jumlah Lampiran</label>
-                        <div class="valid-feedback"> OK! </div>
                         <div class="invalid-feedback"> Mohon masukan jumlah lampiran. </div>
+                    </div>
+                </div>
+
+                <div class="col-2">
+                    <div class="form-floating form-floating-outline mb-4">
+                        <select name="lampiran_type" class="form-select select2" id="lampiran_type">
+                            <option value="">Pilih Tipe Lampiran</option>
+                            <option value="bundle">Bundle</option>
+                            <option value="lembar">Lembar</option>
+                        </select>
+                        <div class="invalid-feedback"> Mohon masukan tipe lampiran. </div>
                     </div>
                 </div>
             </div>
 
-            <div class="card mb-4">
-              <label for="formFile" class="form-label">Upload Dokumen Surat</label>
-              <input class="form-control" type="file" id="file-surat" name="file_surat" required>
-            </div>
-
             <div class="form-floating form-floating-outline mb-4">
-              <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" required></textarea>
+              <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan"></textarea>
               <label for="catatan">Catatan</label>
             </div>
-            
+
+            <div class="form-group mb-4">
+              <label for="formFile" class="form-label">Upload Dokumen Surat</label>
+              <input class="form-control" type="file" id="file-surat" name="file_surat" required accept=".pdf">
+            </div>
+
+            {{-- <div class="dropzone needsclick" id="dropzone-basic">
+                <div class="dz-message needsclick">
+                    Drop files here or click to upload
+                    <span class="note needsclick">(This is just a demo dropzone. Selected files are <span class="fw-medium">not</span> actually uploaded.)</span>
+                </div>
+                <div class="fallback">
+                    <input name="file_surat" type="file" accept=".pdf" required/>
+                </div>
+            </div> --}}
+
             <div class="row">
               <div class="col-12">
                 <button type="submit" id="btn-save" class="btn btn-primary">Buat Agenda</button>
@@ -276,6 +252,58 @@
       </div>
     </div>
     <!-- /Bootstrap Validation -->
+</div>
+<div class="row mb-4">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                Data Surat Masuk
+            </div>
+            <div class="card-body">
+                @include('content.surat_masuk.data-list')
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modal-disposisi" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCenterTitle">Form Disposisi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="javascript:void(0)" id="form-disposisi" class="needs-validation" novalidate>
+                <div class="modal-body">
+                    @csrf
+                    <input type="hidden" name="tx_number" class="form-control">
+                    <div class="form-floating form-floating-outline mb-4">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Surat" name="nomor_agenda" value="" readonly />
+                            <label for="nomor_agenda">Nomor Agenda</label>
+                        </div>
+                    </div>
+
+                    <div class="form-floating form-floating-outline mb-4">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <select id="tujuan_disposisi" name="tujuan_disposisi[]" class="select2 form-select" multiple required>
+                                <option value="">Pilih Tujuan Disposisi</option>
+                                @foreach ($organization as $org)
+                                    <option value="{{$org->id}}">{{$org->nama}}</option>
+                                @endforeach
+                            </select>
+                            <label for="tujuan_disposisi">Tujuan Disposisi</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Disposisikan Surat</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 @endsection

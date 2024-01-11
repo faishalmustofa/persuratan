@@ -2,7 +2,9 @@
 
 namespace App\Helpers;
 
+use Carbon\Carbon;
 use Config;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Helpers
@@ -202,4 +204,74 @@ class Helpers
       }
     }
   }
+
+  public static function generateTxNumber()
+  {
+        $currentYear = Carbon::now()->translatedFormat('Y');
+
+        $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+        $number = '0000';
+
+        if($totalData == 0){
+            $number = '0001';
+        } else if(strlen($totalData) < 4){
+            // $totalData = (int)$totalData == 1 ? (int)$totalData + 1 : (int)$totalData;
+            $number = sprintf("%04d", (int)$totalData+1);
+        } else {
+            $number = $totalData;
+        }
+
+        $code = self::generateRandomString(3);
+        $transNumber = "TX-SM-$currentYear-$number";
+
+        return $transNumber;
+  }
+
+  public static function generateNoAgenda($org = 'DIVPROPAM')
+  {
+        $currentYear = Carbon::now()->translatedFormat('Y');
+        $currentMonth = (int)Carbon::now()->translatedFormat('m');
+        $currentMonth = self::numberToRomanRepresentation($currentMonth);
+
+        $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+        $number = '0000';
+
+        if($totalData == 0){
+            $number = '0001';
+        } else if(strlen($totalData) < 4){
+            // $totalData = (int)$totalData == 1 ? (int)$totalData + 1 : (int)$totalData;
+            $number = sprintf("%04d", (int)$totalData+1);
+        } else {
+            $number = $totalData;
+        }
+
+        $noAgenda = "$number/$currentMonth/$currentYear/$org";
+
+        return $noAgenda;
+  }
+
+  public static function numberToRomanRepresentation($number) {
+    $map = array('X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1);
+    $returnValue = '';
+    while ($number > 0) {
+        foreach ($map as $roman => $int) {
+            if($number >= $int) {
+                $number -= $int;
+                $returnValue .= $roman;
+                break;
+            }
+        }
+    }
+    return $returnValue;
+}
+
+  public static function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
 }

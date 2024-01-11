@@ -18,7 +18,7 @@ class DerajatSuratSeeder extends Seeder
         ]);
 
         DerajatSurat::create([
-            'nama' => 'Derajat'
+            'nama' => 'Segera'
         ]);
 
         DerajatSurat::create([
