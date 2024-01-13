@@ -15,7 +15,8 @@ class RoleSeeder extends Seeder
     {
         // Role::create(['name' => 'Super Admin']);
         $admin = Role::create(['name' => 'Super Admin']);
-        $taud = Role::create(['name' => 'TAUD']);
+        $pimpinan = Role::create(['name' => 'Pimpinan']);
+        $operator = Role::create(['name' => 'Operator']);
 
         $admin->givePermissionTo([
             'create-user',
@@ -23,13 +24,15 @@ class RoleSeeder extends Seeder
             'delete-user',
             'create-surat',
             'edit-surat',
-            'delete-surat'
+            'delete-surat',
+            'update-disposisi'
         ]);
 
-        $taud->givePermissionTo([
+        $operator->givePermissionTo([
             'create-surat',
             'edit-surat',
-            'delete-surat'
+            'delete-surat',
+            'update-disposisi'
         ]);
     }
 }

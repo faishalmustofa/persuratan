@@ -23,7 +23,8 @@ class PermissionSeeder extends Seeder
             'delete-user',
             'create-surat',
             'edit-surat',
-            'delete-surat'
+            'delete-surat',
+            'update-disposisi',
         ];
 
         // Looping and Inserting Array's Permissions into Permission Table
