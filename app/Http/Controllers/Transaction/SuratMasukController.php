@@ -13,6 +13,7 @@ use App\Models\Transaction\SuratMasuk;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpWord\TemplateProcessor;
 use Yajra\DataTables\DataTables;
 
 class SuratMasukController extends Controller
@@ -39,9 +40,41 @@ class SuratMasukController extends Controller
                         ->With('statusSurat')
                         ->with('klasifikasiSurat')
                         ->with('derajatSurat')
+                        ->with('tujuanSurat')
                         ->get();
 
-        return DataTables::of($dataSurat)->make(true);
+        return DataTables::of($dataSurat)
+                ->addIndexColumn()
+                ->editColumn('status', function($data){
+                    $bg = '';
+                    if ($data->status_surat == '1') {
+                        $bg = 'bg-label-warning';
+                    } else if($data->status_surat == '2') {
+                        $bg = 'bg-label-success';
+                    } else if($data->status_surat == '3') {
+                        $bg = 'bg-label-primary';
+                    } else if($data->status_surat == '4') {
+                        $bg = 'bg-label-info';
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
+                })
+                ->editColumn('action', function($data){
+                    return self::renderAction($data);
+                })
+                ->rawColumns(['status', 'action'])
+                ->make(true);
+    }
+
+    public function renderAction($data)
+    {
+        $html = '';
+        if($data->status_surat == 1)
+        {
+            $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)"> Print Blanko </button>';
+        }
+
+        return $html;
     }
 
     /**
@@ -109,7 +142,7 @@ class SuratMasukController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Buat Agenda Surat',
                 'txNumber' => $txNumber,
-                'noAgenda' => $noAgenda
+                'noAgenda' => $noAgenda,
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -120,6 +153,58 @@ class SuratMasukController extends Controller
             ]);
         }
 
+    }
+
+    public function printBlanko($txNo)
+    {
+        $dataSurat = SuratMasuk::where('tx_number', $txNo)->first();
+        $org = Organization::find($dataSurat->tujuan_surat);
+        $filePath = public_path().'/document/blanko_disposisi/'.$org->blanko_path;
+
+
+        if (file_exists($filePath)){
+            $template_document = new TemplateProcessor($filePath);
+
+            // Set Isi Blanko Disposisi
+            $jml_lampiran = $dataSurat->lampiran == null ? '' : $dataSurat->lampiran_type . ' ' . $dataSurat->jml_lampiran;
+            $template_document->setValues(array(
+                'klasifikasi' => $dataSurat->klasifikasiSurat->nama,
+                'derajat' => $dataSurat->derajatSurat->nama,
+                'no_agenda' => $dataSurat->no_agenda,
+                'asal_surat' => $dataSurat->entity_asal_surat_detail,
+                'no_surat' => $dataSurat->no_surat,
+                'tgl_surat' => $dataSurat->tgl_surat,
+                'perihal' => $dataSurat->perihal,
+                'catatan' => $dataSurat->catatan,
+                'lampiran' => $dataSurat->lampiran != null ? $dataSurat->lampiran : 'Tidak Ada Lampiran',
+                'jml_lampiran' => $jml_lampiran,
+            ));
+
+            $filename = 'Blanko Disposisi - '. $dataSurat->tx_number .'.docx';
+            $path = public_path().'/document/'.$filename;
+            $template_document->saveAs($path);
+
+            // Update Status Surat
+            SuratMasuk::where('tx_number', $txNo)->update([
+                'status_surat' => 2
+            ]);
+
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Cetak Blanko Disposisi',
+                'file' => $filename,
+            ]);
+        } else {
+            return response()->json([
+                'status' => JsonResponse::HTTP_NOT_FOUND,
+                'message' => 'File Blanko Tidak Ditemukan',
+            ]);
+        }
+    }
+
+    public function downloadBlanko($file){
+        $filePath = public_path().'/document/'.$file;
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 
     /**
@@ -152,11 +237,6 @@ class SuratMasukController extends Controller
     public function destroy(string $id)
     {
         //
-    }
-
-    public function bukuAgenda()
-    {
-        return view('content.surat_masuk.buku-agenda');
     }
 
     public function disposisi()

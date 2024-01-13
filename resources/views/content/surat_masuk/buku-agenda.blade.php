@@ -2,56 +2,15 @@
 
 @section('title', 'Surat Masuk - Buku Agenda')
 
-@section('vendor-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
-
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/tagify/tagify.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-select/bootstrap-select.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/typeahead-js/typeahead.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/jquery-timepicker/jquery-timepicker.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/dropzone/dropzone.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/toastr/toastr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/animate-css/animate.css')}}" />
-@endsection
-
-@section('page-style')
-<link rel="stylesheet" href="{{asset('assets/vendor/css/pages/app-logistics-dashboard.css')}}" />
-
-@endsection
-
-@section('vendor-script')
-<script src="{{asset('assets/vendor/libs/select2/select2.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/bootstrap-select/bootstrap-select.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/moment/moment.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/flatpickr/flatpickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/jquery-timepicker/jquery-timepicker.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/pickr/pickr.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/dropzone/dropzone.js')}}"></script>
-<script src="{{asset('assets/vendor/libs/toastr/toastr.js')}}"></script>
-@endsection
-
 @section('page-script')
-{{-- <script src="{{asset('assets/js/form-validation.js')}}"></script> --}}
-{{-- <script src="{{asset('assets/js/forms-file-upload.js')}}"></script> --}}
-<script src="{{asset('assets/js/surat-masuk/surat-masuk.js')}}"></script>
-{{-- <script src="{{asset('assets/js/ui-toasts.js')}}"></script> --}}
+    <script src="{{asset('assets/js/transaction/buku-agenda.js')}}"></script>
 @endsection
 
 @section('content')
 <!-- Toast with Animation -->
 <div class="bs-toast toast toast-ex animate__animated my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
     <div class="toast-header">
-        <i class="mdi mdi-home me-2"></i>
+        <i class="mdi mdi-alert-cicrle-outline me-2"></i>
         <div class="me-auto fw-medium">ERROR</div>
         {{-- <small class="text-muted">11 mins ago</small> --}}
         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
@@ -142,89 +101,86 @@
 
 <div class="card">
   <h5 class="card-header">Pencarian Surat Masuk</h5>
-  <div class="card-body">
-    <form action="javascript:void(0)" id="form-surat-masuk" class="needs-validation" novalidate>
-      @csrf
-      
-      <div class="row mb-4">
-        <div class="col-3">
-          Tanggal Surat Masuk
-        </div>
-        <div class="col-9">
-          <div class="input-group input-daterange" id="bs-datepicker-daterange">
-            <input id="dateRangePicker" type="text" placeholder="MM/DD/YYYY" class="form-control" />
-            <span class="input-group-text">to</span>
-            <input type="text" placeholder="MM/DD/YYYY" class="form-control" />
-          </div>
-        </div>
-      </div>
-      
-      <div class="row mb-4">
-        <div class="col-3">
-          Nomor Surat
-        </div>
-        <div class="col-9">
-          <div class="form-floating form-floating-outline">
-            <input type="text" class="form-control" id="nomor_agenda" name="nomor_agenda" placeholder="Nomor Agenda" />
-            <label for="nomor_agenda">Nomor Agenda</label>
-          </div>
-        </div>
-      </div>
+    <div class="card-body">
+        <form action="javascript:void(0)" id="form-pencarian" class="needs-validation" novalidate>
+        @csrf
 
-      <div class="row mb-4">
-        <div class="col-3">
-          Nomor Surat
-        </div>
-        <div class="col-9">
-          <div class="form-floating form-floating-outline">
-            <input type="text" class="form-control" id="nomor_surat" name="nomor_surat" placeholder="Nomor Surat" />
-            <label for="nomor_surat">Nomor Surat</label>
-          </div>
-        </div>
-      </div>
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-4 col-12 mb-4">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" name="tgl_surat" placeholder="YYYY-MM-DD to YYYY-MM-DD" id="tgl-surat" />
+                        <label for="tgl-surat">Tanggal Surat Masuk</label>
+                    </div>
+                </div>
+                <div class="col-md-4 col-12 mb-4">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" id="nomor_agenda" name="nomor_agenda" placeholder="Nomor Agenda" />
+                        <label for="nomor_agenda">Nomor Agenda</label>
+                    </div>
+                </div>
+                <div class="col-md-4 col-12 mb-4">
+                    <div class="form-floating form-floating-outline">
+                        <input type="text" class="form-control" id="nomor_surat" name="nomor_surat" placeholder="Nomor Surat" />
+                        <label for="nomor_surat">Nomor Surat</label>
+                    </div>
+                </div>
 
-      <div class="row mb-4">
-        <div class="col-3">
-          Asal Surat
-        </div>
-        <div class="col-9">
-          <div class="form-floating form-floating-outline">
-            <input type="text" class="form-control" id="asal_surat" name="asal_surat" placeholder="Asal Surat" />
-            <label for="asal_surat">Asal Surat</label>
-          </div>
-        </div>
-      </div>
+                <div class="col-md-6 col-12 mb-4">
+                    <div class="form-floating form-floating-outline">
+                        <select id="asal_surat" name="asal_surat" class="select2 form-select">
+                            <option></option>
+                            @foreach ($asalSurat as $header)
+                                <optgroup label="{{$header->name}}">
+                                    @foreach ($entityAsal as $detail)
+                                        @if ($detail->asal_surat_id == $header->id)
+                                            <option value="{{$detail->id}}">{{$detail->entity_name}}</option>
+                                        @endif
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                        <label for="asal_surat">Asal Surat</label>
+                    </div>
+                </div>
 
-      <div class="row mb-4">
-        <div class="col-3">
-          Perihal
-        </div>
-        <div class="col-9">
-          <div class="form-floating form-floating-outline">
-            <input type="text" class="form-control" id="perihal" name="perihal" placeholder="Perihal Surat" />
-            <label for="perihal">Perihal Surat</label>
-          </div>
-        </div>
-      </div>
+                <div class="col-md-6 col-12 mb-4">
+                    <div class="form-floating form-floating-outline">
+                    <input type="text" class="form-control" id="perihal" name="perihal" placeholder="Perihal Surat" />
+                    <label for="perihal">Perihal Surat</label>
+                    </div>
+                </div>
 
-      <div class="row mb-4">
-        <div class="col-3">
-          Tujuan Surat
+
+                {{-- <div class="col-md-4 col-12 mb-4">
+                    <div class="form-floating form-floating-outline">
+                        <select id="tujuan_surat" name="tujuan_surat" class="select2 form-select" required>
+                            <option></option>
+                            @foreach ($organization as $org)
+                                <option value="{{$org->id}}">{{$org->nama}}</option>
+                            @endforeach
+                        </select>
+                        <label for="tujuan_surat">Tujuan Surat</label>
+                    </div>
+                </div> --}}
+
+                <div class="col-12 d-flex justify-content-end">
+                    <button type="submit" id="btn-save" class="btn btn-primary"><span class="mdi mdi-book-search-outline"></span> Cari</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row mt-4" id="container-data" style="display: none">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                Data Agenda Surat Masuk
+            </div>
+            <div class="card-body">
+                @include('content.surat_masuk.data-list')
+            </div>
         </div>
-        <div class="col-9">
-          <div class="form-floating form-floating-outline">
-            <input type="text" class="form-control" id="tujuan_surat" name="tujuan_surat" placeholder="Tujuan Surat" />
-            <label for="tujuan_surat">Tujuan Surat</label>
-          </div>
-        </div>
-      </div>
-      
-      <div class="row">
-        <div class="col-12">
-          <button type="submit" id="btn-save" class="btn btn-primary"><span class="mdi mdi-book-search-outline"></span> Cari</button>
-        </div>
-      </div>
-    </form>
-  </div>
+    </div>
 </div>
 @endsection

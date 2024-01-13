@@ -4,6 +4,7 @@ namespace App\Models\Transaction;
 
 use App\Models\Master\AsalSurat;
 use App\Models\Master\EntityAsalSurat;
+use App\Models\Master\Organization;
 use App\Models\Master\StatusSurat;
 use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
@@ -16,6 +17,7 @@ class SuratMasuk extends Model
     protected $table = 'surat_masuk';
     protected $guarded = [];
     protected $primaryKey = 'tx_number';
+    public $incrementing = false;
 
     function asalSurat(){
         return $this->hasOne(AsalSurat::class, 'id', 'asal_surat');
@@ -35,5 +37,9 @@ class SuratMasuk extends Model
 
     function derajatSurat(){
         return $this->hasOne(DerajatSurat::class, 'id', 'derajat');
+    }
+
+    function tujuanSurat(){
+        return $this->hasOne(Organization::class, 'id', 'tujuan_surat');
     }
 }
