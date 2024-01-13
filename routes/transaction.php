@@ -5,7 +5,7 @@ use App\Http\Controllers\Transaction\DisposisiController;
 use App\Http\Controllers\Transaction\SuratMasukController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('transaction')->group(function(){
+Route::middleware(['auth'])->prefix('transaction')->group(function(){
     /** MENU SURAT MASUK */
     Route::prefix('surat-masuk')->group(function(){
         Route::get('/', [SuratMasukController::class, 'index']);
@@ -29,4 +29,5 @@ Route::prefix('transaction')->group(function(){
 
     /** MENU DISPOSISI MASUK */
 });
+
 ?>

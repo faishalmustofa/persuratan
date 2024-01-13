@@ -112,9 +112,9 @@
       "slug": "app-access",
       "submenu": [
         {
-          "url": "app/access-roles",
+          "url": "/roles",
           "name": "Roles",
-          "slug": "app-access-roles"
+          "slug": "roles"
         },
         {
           "url": "app/access-permission",
