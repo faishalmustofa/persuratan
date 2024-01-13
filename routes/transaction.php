@@ -13,6 +13,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/data', [SuratMasukController::class, 'data']);
         Route::get('/print-blanko/{txNo}', [SuratMasukController::class, 'printBlanko']);
         Route::get('/download-blanko/{file}', [SuratMasukController::class, 'downloadBlanko']);
+        Route::get('/show-pdf/{txNumber}', [SuratMasukController::class, 'showPdf'])->name('showPDF');
     });
 
     /** MENU BUKU AGENDA */
@@ -25,6 +26,9 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
     Route::prefix('disposisi')->group(function(){
         Route::get('/', [DisposisiController::class, 'index']);
         Route::post('/store', [DisposisiController::class, 'store']);
+        Route::post('/get-data', [DisposisiController::class, 'getData']);
+        Route::get('/get-tujuan/{txNumber}', [DisposisiController::class, 'getTujuanDisposisi']);
+        Route::get('/detail/{txNo}', [DisposisiController::class, 'show']);
     });
 
     /** MENU DISPOSISI MASUK */

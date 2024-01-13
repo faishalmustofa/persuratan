@@ -8,6 +8,7 @@ use App\Models\Master\Organization;
 use App\Models\Master\StatusSurat;
 use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -41,5 +42,9 @@ class SuratMasuk extends Model
 
     function tujuanSurat(){
         return $this->hasOne(Organization::class, 'id', 'tujuan_surat');
+    }
+
+    function createdUser(){
+        return $this->hasOne(User::class, 'id', 'created_by');
     }
 }

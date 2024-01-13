@@ -34,5 +34,16 @@ class UserSeeder extends Seeder
         ]);
 
         $taud->assignRole('Operator');
+
+        $kadiv = User::create([
+            'name' => 'KADIV',
+            'email' => 'kadiv@divpropam.polri.go.id',
+            'username' => 'kadiv',
+            'password' => Hash::make('Propam12345'),
+            'organization' => 1,
+            'jabatan' => 'KADIV DIVPROPAM POLRI'
+        ]);
+
+        $kadiv->assignRole('Pimpinan');
     }
 }

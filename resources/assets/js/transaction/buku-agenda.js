@@ -74,8 +74,8 @@ function searchData(){
                 name: 'no_agenda',
             },
             {
-                data: 'no_surat',
-                name: 'no_surat',
+                data: 'noSurat',
+                name: 'noSurat',
             },
             {
                 data: 'tgl_surat',
@@ -129,11 +129,10 @@ function searchData(){
     });
 
     $('#container-data').slideDown()
-    // ajaxPostJson('/transaction/buku-agenda/get-data', form, 'renderListData', 'error_insert')
 }
 
 function actionPrintBlanko(txNumber){
-    ajaxGetJson(`/transaction/surat-masuk/print-blanko/${txNumber}`, 'printBlanko', 'input_error')
+    ajaxGetJson(`/transaction/surat-masuk/print-blanko/${txNumber}`, 'printBlanko', 'error_insert')
 }
 
 function printBlanko(data){
@@ -149,10 +148,6 @@ function printBlanko(data){
     tempDownload.click();
 
     table.ajax.reload()
-}
-
-function renderListData(data){
-    console.log(data)
 }
 
 function error_insert(err){
