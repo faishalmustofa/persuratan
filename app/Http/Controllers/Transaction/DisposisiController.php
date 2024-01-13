@@ -33,15 +33,14 @@ class DisposisiController extends Controller
      */
     public function store(Request $request)
     {
-        $template_document = new TemplateProcessor(public_path().'/document/blanko_disposisi.docx');
         $tujuan = $request->tujuan_disposisi;
         $dataSurat = SuratMasuk::where('tx_number', $request->tx_number)
                         ->with('klasifikasiSurat')
                         ->with('derajatSurat')
                         ->first();
-
         $jml_lampiran = $dataSurat->lampiran == null ? '' : $dataSurat->lampiran_type . ' ' . $dataSurat->jml_lampiran;
 
+        $template_document = new TemplateProcessor(public_path().'/document/blanko_disposisi.docx');
         $template_document->cloneBlock('tujuan_section', count($tujuan),true,true);
         // $template_document->cloneRow('tujuan', count($tujuan));
         for ($i=0; $i < count($tujuan); $i++) {

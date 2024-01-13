@@ -109,8 +109,8 @@
           <form action="javascript:void(0)" id="form-surat-masuk" class="needs-validation" novalidate>
             @csrf
             <div class="form-floating form-floating-outline mb-4">
-              <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Surat" name="nomor_agenda" value="" disabled />
-              <label for="nomor_agenda">Nomor Agenda</label>
+              <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Agenda" name="nomor_agenda" value="" disabled />
+              <label for="nomor_agenda">Nomor Agenda (Auto Generated)</label>
             </div>
 
             <div class="form-floating form-floating-outline mb-4">
@@ -232,16 +232,6 @@
               <input class="form-control" type="file" id="file-surat" name="file_surat" required accept=".pdf">
             </div>
 
-            {{-- <div class="dropzone needsclick" id="dropzone-basic">
-                <div class="dz-message needsclick">
-                    Drop files here or click to upload
-                    <span class="note needsclick">(This is just a demo dropzone. Selected files are <span class="fw-medium">not</span> actually uploaded.)</span>
-                </div>
-                <div class="fallback">
-                    <input name="file_surat" type="file" accept=".pdf" required/>
-                </div>
-            </div> --}}
-
             <div class="row">
               <div class="col-12">
                 <button type="submit" id="btn-save" class="btn btn-primary">Buat Agenda</button>
@@ -253,11 +243,12 @@
     </div>
     <!-- /Bootstrap Validation -->
 </div>
+
 <div class="row mb-4">
     <div class="col-md">
         <div class="card">
             <div class="card-header">
-                Data Surat Masuk
+                Data Agenda Surat Masuk
             </div>
             <div class="card-body">
                 @include('content.surat_masuk.data-list')
