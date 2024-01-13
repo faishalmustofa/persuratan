@@ -195,14 +195,6 @@ function showModalDetail(res){
         elTujuan += `<h5 class="me-2"><span class="badge rounded-pill bg-label-primary">${detail.tujuan_disposisi[i]}</span></h5>`
     }
 
-    for (let i = 0; i < detail.tujuan_disposisi.length; i++) {
-        elTujuan += `<h5 class="me-2"><span class="badge rounded-pill bg-label-primary">${detail.tujuan_disposisi[i]}</span></h5>`
-    }
-
-    for (let i = 0; i < detail.tujuan_disposisi.length; i++) {
-        elTujuan += `<h5 class="me-2"><span class="badge rounded-pill bg-label-primary">${detail.tujuan_disposisi[i]}</span></h5>`
-    }
-
     $('#detail-data').find('#tujuan_disposisi').html(elTujuan)
     $('#detail-data').find('#isi_disposisi').html(detail.isi_disposisi)
 
