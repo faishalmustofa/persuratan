@@ -47,8 +47,7 @@ $(function () {
   }
 
     var forms = document.querySelectorAll('.needs-validation')
-    console.log(forms)
-    
+
     Array.prototype.slice.call(forms).forEach(function (form) {
         form.addEventListener('submit', function (event) {
             if (!form.checkValidity()) {
@@ -66,14 +65,6 @@ $(function () {
             $(this).addClass('was-validated');
         }
         // postForm()
-    });
-
-    $('#form-disposisi').on('submit', function (e) {
-        if (this.checkValidity()) {
-            e.preventDefault();
-            postDisposisi()
-            $(this).addClass('was-validated');
-        }
     });
 
     // custom template to render icons
@@ -170,8 +161,8 @@ function getDataSuratMasuk(){
                 name: 'no_agenda',
             },
             {
-                data: 'no_surat',
-                name: 'no_surat',
+                data: 'noSurat',
+                name: 'noSurat',
             },
             {
                 data: 'tgl_surat',
@@ -230,18 +221,6 @@ function postForm() {
     ajaxPostFile('/transaction/surat-masuk/store', form, 'input_success', 'input_error')
 }
 
-// function postDisposisi() {
-//     let form = $('#form-disposisi').serialize()
-//     ajaxPostJson('/transaction/disposisi/store', form, 'disposisi_succes', 'input_error')
-// }
-
-// function disposisi_succes(data) {
-//     window.location.href = `/print/${data.file}`
-//     setTimeout(() => {
-//         window.location.reload()
-//     }, 2000);
-// }
-
 function input_success(data) {
     Swal.close()
 
@@ -290,7 +269,7 @@ function input_success(data) {
     $('#form-surat-masuk').removeClass('was-validated')
     $('#form-surat-masuk').find('input').val('')
     $('#form-surat-masuk').find('textarea').val('')
-    $('#form-surat-masuk').find('select').empty().trigger('change')
+    $('#form-surat-masuk').find('select').val('').trigger('change')
 }
 
 function actionPrintBlanko(txNumber){

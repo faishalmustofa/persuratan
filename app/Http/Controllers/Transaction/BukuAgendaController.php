@@ -68,10 +68,14 @@ class BukuAgendaController extends Controller
 
                     return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
                 })
+                ->editColumn('noSurat', function($data){
+                    $txNo = base64_encode($data->tx_number);
+                    return "<a href='".route('showPDF',$txNo)."' class='badge rounded-pill bg-label-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Lihat Berkas Surat'>" .$data->tx_number. "</a>";
+                })
                 ->editColumn('action', function($data){
                     return (new SuratMasukController)->renderAction($data);
                 })
-                ->rawColumns(['status', 'action'])
+                ->rawColumns(['status', 'action', 'noSurat'])
                 ->make(true);
     }
 

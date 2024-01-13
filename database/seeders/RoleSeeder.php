@@ -32,7 +32,9 @@ class RoleSeeder extends Seeder
             'create-surat',
             'edit-surat',
             'delete-surat',
-            'update-disposisi'
+            'update-disposisi',
+            'print-blanko',
+            'kirim-disposisi'
         ]);
     }
 }

@@ -10,8 +10,10 @@ use App\Models\Master\Organization;
 use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
 use App\Models\Transaction\SuratMasuk;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Yajra\DataTables\DataTables;
@@ -59,19 +61,23 @@ class SuratMasukController extends Controller
 
                     return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
                 })
+                ->editColumn('noSurat', function($data){
+                    $txNo = base64_encode($data->tx_number);
+                    return "<a href='".route('showPDF',$txNo)."' target='_blank' class='badge rounded-pill bg-label-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Lihat Berkas Surat'>" .$data->no_surat. "</a>";
+                })
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
                 })
-                ->rawColumns(['status', 'action'])
+                ->rawColumns(['status', 'action', 'noSurat'])
                 ->make(true);
     }
 
     public function renderAction($data)
     {
         $html = '';
-        if($data->status_surat == 1)
+        if($data->status_surat == 1 && Auth::user()->hasPermissionTo('print-blanko'))
         {
-            $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)"> Print Blanko </button>';
+            $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
         }
 
         return $html;
@@ -102,7 +108,7 @@ class SuratMasukController extends Controller
                 $documentFile = $request->file('file_surat');
                 $filename = $documentFile->getClientOriginalName();
                 $path = $txNumber.'.pdf';
-                $documentFile->move(public_path('document/surat-masuk'), $path);
+                $documentFile->move(public_path().'/document/surat-masuk/', $path);
                 $file = $path;
             }
 
@@ -131,7 +137,7 @@ class SuratMasukController extends Controller
                 'catatan' => $request->catatan,
                 'klasifikasi' => $request->klasifikasi,
                 'derajat' => $request->derajat,
-                'created_by' => 3,
+                'created_by' => Auth::user()->id,
                 'file_path' => $file_path
             ];
 
@@ -239,8 +245,16 @@ class SuratMasukController extends Controller
         //
     }
 
-    public function disposisi()
+    public function showPdf($txNumber)
     {
-        return view('content.surat_masuk.disposisi');
+        $txNo = base64_decode($txNumber);
+        $filePath = public_path().'/document/surat-masuk/'.$txNo.'.pdf';
+        $filename= $txNo.".pdf";
+
+        header('Content-type:application/pdf');
+        header('Content-disposition: inline; filename="'.$filename.'"');
+        header('content-Transfer-Encoding:binary');
+        header('Accept-Ranges:bytes');
+        @ readfile($filePath);
     }
 }
