@@ -28,6 +28,10 @@ class DatabaseSeeder extends Seeder
             KlasifikasiSuratSeeder::class,
             StatusDisposisiSeeder::class,
             StatusSuratSeeder::class,
+            OrganizationSeeder::class,
+            PermissionSeeder::class,
+            RoleSeeder::class,
+            userSeeder::class,
         ]);
     }
 }
