@@ -28,11 +28,22 @@ class UserSeeder extends Seeder
             'name' => 'TAUD',
             'email' => 'taud@divpropam.polri.go.id',
             'username' => 'taud',
-            'password' => 'Propam12345',
+            'password' => Hash::make('Propam12345'),
             'organization' => 2,
             'jabatan' => 'TAUD DIVPROPAM POLRI'
         ]);
 
-        $taud->assignRole('TAUD');
+        $taud->assignRole('Operator');
+
+        $kadiv = User::create([
+            'name' => 'KADIV',
+            'email' => 'kadiv@divpropam.polri.go.id',
+            'username' => 'kadiv',
+            'password' => Hash::make('Propam12345'),
+            'organization' => 1,
+            'jabatan' => 'KADIV DIVPROPAM POLRI'
+        ]);
+
+        $kadiv->assignRole('Pimpinan');
     }
 }

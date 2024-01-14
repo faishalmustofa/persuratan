@@ -1,13 +1,13 @@
 @extends('layouts/layoutMaster')
-@section('title', 'Surat Masuk - Disposisi')
+@section('title', 'Surat Masuk - Disposisi Masuk')
 
 @section('page-script')
-    <script src="{{ asset('assets/js/transaction/disposisi.js') }}"></script>
+    <script src="{{ asset('assets/js/transaction/disposisi-masuk.js') }}"></script>
 @endsection
 
 @section('content')
     <h4 class="py-3 mb-4">
-        <span class="text-muted fw-light">Surat Masuk /</span> Disposisi
+        <span class="text-muted fw-light">Surat Masuk /</span> Disposisi Masuk
     </h4>
 
     <!-- Card Border Shadow -->
@@ -86,12 +86,25 @@
     <!--/ Card Border Shadow -->
 
     <div class="card">
-        <h5 class="card-header">Pencarian Berdasarkan Nomor Agenda</h5>
+        <h5 class="card-header">Pencarian Disposisi Masuk</h5>
         <div class="card-body">
             <form action="javascript:void(0)" id="form-pencarian" class="needs-validation" novalidate>
                 @csrf
 
                 <div class="row mb-4 align-items-center">
+                    <div class="col-md-4 col-12 mb-4">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" class="form-control" name="tgl_surat" placeholder="YYYY-MM-DD to YYYY-MM-DD" id="tgl-surat" />
+                            <label for="tgl-surat">Tanggal Surat</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-12 mb-4">
+                        <div class="form-floating form-floating-outline">
+                            <input type="text" class="form-control" id="nomor_surat" name="nomor_surat"
+                                placeholder="Nomor Surat" />
+                            <label for="nomor_surat">Nomor Surat</label>
+                        </div>
+                    </div>
                     <div class="col-md-4 col-12 mb-4">
                         <div class="form-floating form-floating-outline">
                             <input type="text" class="form-control" id="nomor_agenda" name="nomor_agenda"

@@ -3,31 +3,23 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
-use App\Models\Master\AsalSurat;
-use App\Models\Master\EntityAsalSurat;
-use App\Models\Master\Organization;
 use App\Models\Transaction\SuratMasuk;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
 
-class BukuAgendaController extends Controller
+class DisposisiMasukController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $data['asalSurat'] = AsalSurat::all();
-        $data['entityAsal'] = EntityAsalSurat::get();
-        $data['organization'] = Organization::orderBy('id')->get();
-
-        return view('content.surat_masuk.buku-agenda', $data);
+        return view('content.surat_masuk.disposisi-masuk');
     }
 
     public function getData(Request $request)
     {
-        $search = '';
         $suratMasuk = SuratMasuk::orderBy('tgl_diterima', 'asc')
                         ->with('asalSurat')
                         ->with('entityAsalSurat')
@@ -36,9 +28,12 @@ class BukuAgendaController extends Controller
                         ->with('derajatSurat')
                         ->with('tujuanSurat')
                         ->with('createdUser')
-                        ->whereHas('createdUser', function($user){
-                            $user->where('organization', Auth::user()->organization);
-                        });
+                        ->with('disposisi')
+                        ->whereHas('disposisi', function($dispo){
+                            $dispo->where('tujuan_disposisi', Auth::user()->organization);
+                        })
+                        ->where('status_surat', '4');
+
 
         if($request->tgl_surat != null){
             $rangeDate = explode('to', $request->tgl_surat);
@@ -49,10 +44,6 @@ class BukuAgendaController extends Controller
             $suratMasuk = $suratMasuk->where('no_agenda', 'like', '%' .$request->nomor_agenda. '%');
         } else if ($request->nomor_surat != null){
             $suratMasuk = $suratMasuk->where('no_surat', 'like', '%' .$request->nomor_surat. '%');
-        } else if ($request->asal_surat != null) {
-            $suratMasuk = $suratMasuk->where('entity_asal_surat', $request->asal_surat);
-        } else if ($request->perihal != null) {
-            $suratMasuk = $suratMasuk->Where('perihal', 'like', '%' . $request->perihal . '%');
         }
 
         $suratMasuk = $suratMasuk->get();
@@ -71,17 +62,42 @@ class BukuAgendaController extends Controller
                         $bg = 'bg-label-info';
                     }
 
-                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
+                    $totalSurat = SuratMasuk::where('no_surat', $data->no_surat)->count();
+                    if($totalSurat != 1){
+                        $description = 'Surat ini sudah dibuat agenda ulang';
+                        $statusName = 'Dibuatkan agenda baru';
+                        $bg = 'bg-label-success';
+
+                        return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$description."'>" .$statusName. "</span>";
+                    } else {
+                        return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
+                    }
                 })
                 ->editColumn('noSurat', function($data){
                     $txNo = base64_encode($data->tx_number);
-                    return "<a href='".route('showPDF',$txNo)."' class='badge rounded-pill bg-label-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Lihat Berkas Surat'>" .$data->no_surat. "</a>";
+                    return "<a href='".route('showPDF',$txNo)."' target='_blank' class='badge rounded-pill bg-label-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Lihat Berkas Surat'>" .$data->no_surat. "</a>";
                 })
                 ->editColumn('action', function($data){
-                    return (new SuratMasukController)->renderAction($data);
+                    return self::renderAction($data);
                 })
                 ->rawColumns(['status', 'action', 'noSurat'])
                 ->make(true);
+    }
+
+    public function renderAction($data)
+    {
+        $html = '';
+        $totalSurat = SuratMasuk::where('no_surat', $data->no_surat)->count();
+
+        if($totalSurat == 1){
+            if($data->status_surat == 4 && Auth::user()->hasPermissionTo('create-surat'))
+            {
+                $txNo = base64_encode($data->tx_number);
+                $html = '<a href="'.route('create-bukuagenda', $txNo).'" class="btn btn-primary btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Buat Agenda Surat Masuk" > <span class="mdi mdi-note-plus"></span> </button>';
+            }
+        }
+
+        return $html;
     }
 
     /**

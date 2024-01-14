@@ -30,7 +30,7 @@ class StatusSuratSeeder extends Seeder
 
         StatusSurat::create([
             'name' => 'Dikirim',
-            'description' => 'Surat Surat dikirimkan ke tujuan disposisi'
+            'description' => 'Surat dikirimkan ke tujuan disposisi'
         ]);
     }
 }

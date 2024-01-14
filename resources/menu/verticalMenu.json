@@ -20,17 +20,22 @@
         {
           "url": "transaction/surat-masuk",
           "name": "Surat Masuk",
-          "slug": "main-surat-masuk"
+          "slug": "menu-suratmasuk"
         },
         {
           "url": "transaction/buku-agenda",
           "name": "Buku Agenda",
-          "slug": "buku-agenda-surat-masuk"
+          "slug": "menu-bukuagenda"
         },
         {
           "url": "transaction/disposisi",
           "name": "Disposisi",
-          "slug": "disposisi"
+          "slug": "menu-disposisi"
+        },
+        {
+          "url": "transaction/disposisi-masuk",
+          "name": "Disposisi Masuk",
+          "slug": "menu-disposisimasuk"
         }
       ]
     },

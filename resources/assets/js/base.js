@@ -1,7 +1,7 @@
 toastAnimationExample = document.querySelector('.toast-ex')
-toastAnimationExample.querySelector('i.mdi').classList.add('text-error');
-toastAnimationExample.classList.add('animate__tada');
-toastAnimation = new bootstrap.Toast(toastAnimationExample);
+// toastAnimationExample.querySelector('i.mdi').classList.add('text-error');
+// toastAnimationExample.classList.add('animate__tada');
+// toastAnimation = new bootstrap.Toast(toastAnimationExample);
 
 var optionerror = {
     text: "Terjadi Kesalahan Pada Sistem!",
