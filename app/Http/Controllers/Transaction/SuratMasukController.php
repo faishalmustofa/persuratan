@@ -11,6 +11,7 @@ use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
 use App\Models\Transaction\SuratMasuk;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,13 +24,18 @@ class SuratMasukController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($txNo = '')
     {
         $data['derajat'] = DerajatSurat::orderBy('id')->get();
         $data['klasifikasi'] = KlasifikasiSurat::orderBy('id')->get();
         $data['asalSurat'] = AsalSurat::all();
         $data['entityAsal'] = EntityAsalSurat::get();
         $data['organization'] = Organization::orderBy('id')->get();
+
+        if($txNo != ''){
+            $txNo = base64_decode($txNo);
+            $data['suratMasuk'] = SuratMasuk::with('tujuanDisposisi')->where('tx_number', $txNo)->first();
+        }
 
         return view('content.surat_masuk.index', $data);
     }
@@ -43,6 +49,10 @@ class SuratMasukController extends Controller
                         ->with('klasifikasiSurat')
                         ->with('derajatSurat')
                         ->with('tujuanSurat')
+                        ->with('createdUser')
+                        ->whereHas('createdUser', function($user){
+                            $user->where('organization', Auth::user()->organization);
+                        })
                         ->get();
 
         return DataTables::of($dataSurat)
@@ -100,8 +110,10 @@ class SuratMasukController extends Controller
         try {
             $entityAsalSurat = EntityAsalSurat::find($request->asal_surat);
             $asalSurat = AsalSurat::find($entityAsalSurat->asal_surat_id);
+            $org = Organization::where('id', $request->tujuan_surat)->first();
+
             $txNumber = Helpers::generateTxNumber();
-            $noAgenda = Helpers::generateNoAgenda();
+            $noAgenda = Helpers::generateNoAgenda($org->suffix_agenda);
 
             $file = '';
             if ($request->hasFile('file_surat')) {
@@ -179,10 +191,11 @@ class SuratMasukController extends Controller
                 'no_agenda' => $dataSurat->no_agenda,
                 'asal_surat' => $dataSurat->entity_asal_surat_detail,
                 'no_surat' => $dataSurat->no_surat,
-                'tgl_surat' => $dataSurat->tgl_surat,
+                'tgl_surat' => Carbon::parse($dataSurat->tgl_surat)->translatedFormat('d F Y'),
+                'tgl_diterima' => Carbon::parse($dataSurat->tgl_diterima)->translatedFormat('d F Y'),
                 'perihal' => $dataSurat->perihal,
                 'catatan' => $dataSurat->catatan,
-                'lampiran' => $dataSurat->lampiran != null ? $dataSurat->lampiran : 'Tidak Ada Lampiran',
+                'lampiran' => $dataSurat->lampiran != null ? $dataSurat->lampiran : 'TANPA LAMPIRAN',
                 'jml_lampiran' => $jml_lampiran,
             ));
 

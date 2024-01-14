@@ -2,13 +2,14 @@
 
 use App\Http\Controllers\Transaction\BukuAgendaController;
 use App\Http\Controllers\Transaction\DisposisiController;
+use App\Http\Controllers\Transaction\DisposisiMasukController;
 use App\Http\Controllers\Transaction\SuratMasukController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth'])->prefix('transaction')->group(function(){
     /** MENU SURAT MASUK */
     Route::prefix('surat-masuk')->group(function(){
-        Route::get('/', [SuratMasukController::class, 'index']);
+        Route::get('/{txNo?}', [SuratMasukController::class, 'index'])->name('create-bukuagenda');
         Route::post('/store', [SuratMasukController::class, 'store']);
         Route::post('/data', [SuratMasukController::class, 'data']);
         Route::get('/print-blanko/{txNo}', [SuratMasukController::class, 'printBlanko']);
@@ -29,9 +30,14 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/get-data', [DisposisiController::class, 'getData']);
         Route::get('/get-tujuan/{txNumber}', [DisposisiController::class, 'getTujuanDisposisi']);
         Route::get('/detail/{txNo}', [DisposisiController::class, 'show']);
+        Route::post('/pengiriman-surat', [DisposisiController::class, 'pengirimanSurat']);
     });
 
     /** MENU DISPOSISI MASUK */
+    Route::prefix('disposisi-masuk')->group(function(){
+        Route::get('/', [DisposisiMasukController::class, 'index']);
+        Route::post('/get-data', [DisposisiMasukController::class, 'getData']);
+    });
 });
 
 ?>

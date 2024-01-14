@@ -1,12 +1,11 @@
 var table
+const tglSurat = document.querySelector('#tgl-surat')
 
 $( function(){
     var forms = document.querySelectorAll('.needs-validation')
-    var flatpickrMulti = document.querySelector("#tgl_kirim");
 
-    flatpickrMulti.flatpickr({
-        enableTime: true,
-        dateFormat: "Y-m-d H:i"
+    tglSurat.flatpickr({
+        mode: "range"
     });
 
     Array.prototype.slice.call(forms).forEach(function (form) {
@@ -19,22 +18,6 @@ $( function(){
         }, false)
     })
 
-    $('#form-disposisi').on('submit', function (e) {
-        if (this.checkValidity()) {
-            e.preventDefault();
-            postDisposisi()
-            $(this).addClass('was-validated');
-        }
-    });
-
-    $('#form-pengiriman').on('submit', function (e) {
-        if (this.checkValidity()) {
-            e.preventDefault();
-            postPengiriman()
-            $(this).addClass('was-validated');
-        }
-    });
-
     $('#form-pencarian').on('submit', function (e) {
         searchData()
     });
@@ -44,7 +27,9 @@ function searchData(){
     $('#container-data').slideUp()
     $('#table-list').DataTable().destroy();
 
+    const tgl_surat = $('#tgl-surat').val()
     const nomor_agenda = $('#nomor_agenda').val()
+    const nomor_surat = $('#nomor_surat').val()
 
     table = $('#table-list').DataTable({
         processing: true,
@@ -52,11 +37,13 @@ function searchData(){
         responsive: true,
         "pageLength": 10,
         ajax: {
-            url: "/transaction/disposisi/get-data",
+            url: "/transaction/disposisi-masuk/get-data",
             method: "post",
             data: function(d){
                 d._token = $('meta[name="csrf-token"]').attr('content')
+                d.tgl_surat = tgl_surat;
                 d.nomor_agenda = nomor_agenda
+                d.nomor_surat = nomor_surat
             }
         },
         columns: [

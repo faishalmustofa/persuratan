@@ -25,7 +25,13 @@ class RoleSeeder extends Seeder
             'create-surat',
             'edit-surat',
             'delete-surat',
-            'update-disposisi'
+            'update-disposisi',
+            'print-blanko',
+            'kirim-disposisi',
+            'menu-suratmasuk',
+            'menu-bukuagenda',
+            'menu-disposisi',
+            'menu-disposisimasuk'
         ]);
 
         $operator->givePermissionTo([
@@ -34,7 +40,17 @@ class RoleSeeder extends Seeder
             'delete-surat',
             'update-disposisi',
             'print-blanko',
-            'kirim-disposisi'
+            'kirim-disposisi',
+            'menu-suratmasuk',
+            'menu-bukuagenda',
+            'menu-disposisi',
+            'menu-disposisimasuk'
+        ]);
+
+        $pimpinan->givePermissionTo([
+            'update-disposisi',
+            'menu-bukuagenda',
+            'menu-disposisi',
         ]);
     }
 }
