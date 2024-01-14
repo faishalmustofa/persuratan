@@ -24,11 +24,26 @@
 @endsection
 
 @section('page-script')
-<script src="{{asset('assets/js/app-user-list.js')}}"></script>
+{{-- <script src="{{asset('assets/js/app-user-list.js')}}"></script> --}}
+<script src="{{asset('assets/js/setting/user.js')}}"></script>
 @endsection
 
 @section('content')
-<div class="row g-4 mb-4">
+<!-- Toast with Animation -->
+<div class="bs-toast toast toast-ex animate__animated my-2" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="2000">
+  <div class="toast-header">
+      <i class="mdi mdi-alert-circle-outline me-2"></i>
+      <div class="me-auto fw-medium">ERROR</div>
+      {{-- <small class="text-muted">11 mins ago</small> --}}
+      <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+  <div class="toast-body">
+      TERJADI KESALAHAN SISTEM!
+  </div>
+</div>
+<!--/ Toast with Animation -->
+
+{{-- <div class="row g-4 mb-4">
   <div class="col-sm-6 col-xl-3">
     <div class="card">
       <div class="card-body">
@@ -36,7 +51,7 @@
           <div class="me-1">
             <p class="text-heading mb-2">Session</p>
             <div class="d-flex align-items-center">
-              <h4 class="mb-2 me-1 display-6">21,459</h4>
+              <h4 class="mb-2 me-1 display-6">{{count($users)}}</h4>
               <p class="text-success mb-2">(+29%)</p>
             </div>
             <p class="mb-0">Total Users</p>
@@ -114,7 +129,7 @@
     </div>
   </div>
 
-</div>
+</div> --}}
 <!-- Users List Table -->
 <div class="card">
   <div class="card-header border-bottom">
@@ -131,16 +146,17 @@
         <tr>
           <th></th>
           <th></th>
-          <th>User</th>
-          <th>Role</th>
-          <th>Plan</th>
-          <th>Billing</th>
-          <th>Status</th>
+          <th>Nama</th>
+          <th>Email</th>
+          <th>Username</th>
+          <th>Organization</th>
+          <th>Jabatan</th>
           <th>Actions</th>
         </tr>
       </thead>
     </table>
   </div>
+
   <!-- Offcanvas to add new user -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasAddUser" aria-labelledby="offcanvasAddUserLabel">
     <div class="offcanvas-header">
@@ -151,19 +167,15 @@
       <form class="add-new-user pt-0" id="addNewUserForm" onsubmit="return false">
         <div class="form-floating form-floating-outline mb-4">
           <input type="text" class="form-control" id="add-user-fullname" placeholder="John Doe" name="userFullname" aria-label="John Doe" />
-          <label for="add-user-fullname">Full Name</label>
+          <label for="add-user-fullname">Nama</label>
         </div>
         <div class="form-floating form-floating-outline mb-4">
           <input type="text" id="add-user-email" class="form-control" placeholder="john.doe@example.com" aria-label="john.doe@example.com" name="userEmail" />
-          <label for="add-user-email">Email</label>
+          <label for="add-user-email">Username</label>
         </div>
         <div class="form-floating form-floating-outline mb-4">
           <input type="text" id="add-user-contact" class="form-control phone-mask" placeholder="+1 (609) 988-44-11" aria-label="john.doe@example.com" name="userContact" />
-          <label for="add-user-contact">Contact</label>
-        </div>
-        <div class="form-floating form-floating-outline mb-4">
-          <input type="text" id="add-user-company" class="form-control" placeholder="Web Developer" aria-label="jdoe1" name="companyName" />
-          <label for="add-user-company">Company</label>
+          <label for="add-user-contact">Email</label>
         </div>
         <div class="form-floating form-floating-outline mb-4">
           <select id="country" class="select2 form-select">
@@ -193,7 +205,7 @@
             <option value="United Kingdom">United Kingdom</option>
             <option value="United States">United States</option>
           </select>
-          <label for="country">Country</label>
+          <label for="country">Organization</label>
         </div>
         <div class="form-floating form-floating-outline mb-4">
           <select id="user-role" class="form-select">
@@ -206,6 +218,10 @@
           <label for="user-role">User Role</label>
         </div>
         <div class="form-floating form-floating-outline mb-4">
+          <input type="text" id="add-user-company" class="form-control" placeholder="Web Developer" aria-label="jdoe1" name="companyName" />
+          <label for="add-user-company">Jabatan</label>
+        </div>
+        {{-- <div class="form-floating form-floating-outline mb-4">
           <select id="user-plan" class="form-select">
             <option value="basic">Basic</option>
             <option value="enterprise">Enterprise</option>
@@ -213,7 +229,7 @@
             <option value="team">Team</option>
           </select>
           <label for="user-plan">Select Plan</label>
-        </div>
+        </div> --}}
         <button type="submit" class="btn btn-primary me-sm-3 me-1 data-submit">Submit</button>
         <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
       </form>

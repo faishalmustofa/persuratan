@@ -4,8 +4,8 @@ use App\Http\Controllers\auth\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\dashboard\DashboardController;
-use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserRole\RoleController;
+use App\Http\Controllers\UserRole\UserController;
 
 // Auth
 Route::get('/login', [AuthController::class, 'loginPage'])->name('login');
@@ -23,14 +23,12 @@ Route::middleware(['auth'])->group(function() {
         return response()->download($path)->deleteFileAfterSend(true);
     });
 
-    // Route::resources([
-    //     'roles' => RoleController::class,
-    //     'users' => UserController::class,
-    // ]);
+    Route::prefix('user')->group(function(){
+        Route::get('/list', [UserController::class, 'index']);
+        Route::post('/data', [UserController::class, 'data']);
+    }); 
 
     Route::prefix('roles')->group(function(){
         Route::get('/', [RoleController::class, 'index']);
     }); 
-
-
 });
