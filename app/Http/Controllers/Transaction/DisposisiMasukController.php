@@ -63,15 +63,15 @@ class DisposisiMasukController extends Controller
                     }
 
                     $totalSurat = SuratMasuk::where('no_surat', $data->no_surat)->count();
-                    if($totalSurat != 1){
-                        $description = 'Surat ini sudah dibuat agenda ulang';
-                        $statusName = 'Dibuatkan agenda baru';
-                        $bg = 'bg-label-success';
+                    // if($totalSurat != 1){
+                    //     $description = 'Surat ini sudah dibuat agenda ulang';
+                    //     $statusName = 'Dibuatkan agenda baru';
+                    //     $bg = 'bg-label-success';
 
-                        return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$description."'>" .$statusName. "</span>";
-                    } else {
+                    //     return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$description."'>" .$statusName. "</span>";
+                    // } else {
                         return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
-                    }
+                    // }
                 })
                 ->editColumn('noSurat', function($data){
                     $txNo = base64_encode($data->tx_number);
@@ -89,13 +89,13 @@ class DisposisiMasukController extends Controller
         $html = '';
         $totalSurat = SuratMasuk::where('no_surat', $data->no_surat)->count();
 
-        if($totalSurat == 1){
+        // if($totalSurat == 1){
             if($data->status_surat == 4 && Auth::user()->hasPermissionTo('create-surat'))
             {
                 $txNo = base64_encode($data->tx_number);
                 $html = '<a href="'.route('create-bukuagenda', $txNo).'" class="btn btn-primary btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Buat Agenda Surat Masuk" > <span class="mdi mdi-note-plus"></span> </button>';
             }
-        }
+        // }
 
         return $html;
     }
