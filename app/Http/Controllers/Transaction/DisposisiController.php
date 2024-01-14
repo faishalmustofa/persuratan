@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Transaction;
 use App\Http\Controllers\Controller;
 use App\Models\Master\Organization;
 use App\Models\Transaction\DisposisiSuratMasuk;
+use App\Models\Transaction\Pengiriman;
 use App\Models\Transaction\SuratMasuk;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Yajra\DataTables\DataTables;
 
@@ -78,9 +80,13 @@ class DisposisiController extends Controller
             $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
         } else if($data->status_surat == 2 && Auth::user()->hasPermissionTo('update-disposisi')){
             $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
-        } else if($data->status_surat == 3 && Auth::user()->hasPermissionTo('kirim-disposisi')){
-            $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
+        } else if($data->status_surat == 3){
+            if (Auth::user()->hasPermissionTo('kirim-disposisi')){
+                $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
+            }
             $html .= '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
+        } else if ($data->status_surat == 4) {
+            $html = '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
         }
 
         return $html;
@@ -89,8 +95,7 @@ class DisposisiController extends Controller
     public function getTujuanDisposisi($txNumber)
     {
         $suratMasuk = SuratMasuk::where('tx_number', $txNumber)->first();
-        $user = User::where('id', $suratMasuk->created_by)->first();
-        $parentOrg = Organization::where('id', $user->organization)->first();
+        $parentOrg = Organization::where('id', $suratMasuk->tujuan_surat)->first();
         $childOrg = Organization::where('parent_id', $parentOrg->id)->get();
 
         return response()->json([
@@ -119,7 +124,7 @@ class DisposisiController extends Controller
                         ->with('derajatSurat')
                         ->first();
 
-        if(count($tujuan) > 0){
+        if(count($tujuan) == 0){
             SuratMasuk::where('tx_number', $request->tx_number)->update([
                 'status_surat' => 5
             ]);
@@ -265,5 +270,41 @@ class DisposisiController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function pengirimanSurat(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            $insertedData = [
+                'no_agenda' => $request->nomor_agenda,
+                'jenis_pengiriman' => $request->jenis_pengiriman,
+                'expedisi' => $request->expedisi,
+                'no_resi' => $request->no_resi,
+                'nama_pengirim' => $request->nama_pengirim,
+                'tgl_kirim' => $request->tgl_kirim,
+            ];
+
+            $data = Pengiriman::create($insertedData);
+
+            SuratMasuk::where('tx_number', $request->tx_number)->update([
+                'status_surat' => 4
+            ]);
+
+            DB::commit();
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Input Data Pengiriman',
+                'data' => $data
+            ]);
+        } catch (Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' =>  $th->getCode() != '' ? $th->getCode() : 500,
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
+            ]);
+        }
     }
 }

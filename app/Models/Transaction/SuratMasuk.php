@@ -11,14 +11,16 @@ use App\Models\Reference\KlasifikasiSurat;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class SuratMasuk extends Model
 {
     use HasFactory;
     protected $table = 'surat_masuk';
     protected $guarded = [];
-    protected $primaryKey = 'tx_number';
+    public $primaryKey = 'tx_number';
     public $incrementing = false;
+    public $keyType = 'string';
 
     function asalSurat(){
         return $this->hasOne(AsalSurat::class, 'id', 'asal_surat');
@@ -46,5 +48,13 @@ class SuratMasuk extends Model
 
     function createdUser(){
         return $this->hasOne(User::class, 'id', 'created_by');
+    }
+
+    function disposisi(){
+        return $this->hasMany(DisposisiSuratMasuk::class, 'tx_number');
+    }
+
+    function tujuanDisposisi(){
+        return $this->disposisi()->where('tujuan_disposisi', Auth::user()->organization);
     }
 }

@@ -173,8 +173,8 @@ function getDataSuratMasuk(){
                 name: 'tgl_diterima',
             },
             {
-                data: 'asal_surat',
-                name: 'asal_surat',
+                data: 'asal_surat.name',
+                name: 'asal_surat.name',
             },
             {
                 data: 'tujuan_surat.nama',
