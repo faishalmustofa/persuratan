@@ -4,18 +4,23 @@ namespace App\Models\Transaction;
 
 use App\Models\Master\AsalSurat;
 use App\Models\Master\EntityAsalSurat;
+use App\Models\Master\Organization;
 use App\Models\Master\StatusSurat;
 use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class SuratMasuk extends Model
 {
     use HasFactory;
     protected $table = 'surat_masuk';
     protected $guarded = [];
-    protected $primaryKey = 'tx_number';
+    public $primaryKey = 'tx_number';
+    public $incrementing = false;
+    public $keyType = 'string';
 
     function asalSurat(){
         return $this->hasOne(AsalSurat::class, 'id', 'asal_surat');
@@ -35,5 +40,21 @@ class SuratMasuk extends Model
 
     function derajatSurat(){
         return $this->hasOne(DerajatSurat::class, 'id', 'derajat');
+    }
+
+    function tujuanSurat(){
+        return $this->hasOne(Organization::class, 'id', 'tujuan_surat');
+    }
+
+    function createdUser(){
+        return $this->hasOne(User::class, 'id', 'created_by');
+    }
+
+    function disposisi(){
+        return $this->hasMany(DisposisiSuratMasuk::class, 'tx_number');
+    }
+
+    function tujuanDisposisi(){
+        return $this->disposisi()->where('tujuan_disposisi', Auth::user()->organization);
     }
 }

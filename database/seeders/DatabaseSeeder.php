@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::factory(10)->create();
+        // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
@@ -28,6 +28,11 @@ class DatabaseSeeder extends Seeder
             KlasifikasiSuratSeeder::class,
             StatusDisposisiSeeder::class,
             StatusSuratSeeder::class,
+            OrganizationSeeder::class,
+            PermissionSeeder::class,
+            RoleSeeder::class,
+            userSeeder::class,
+            AddStatusSuratSeeder::class
         ]);
     }
 }

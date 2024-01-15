@@ -1,7 +1,7 @@
 toastAnimationExample = document.querySelector('.toast-ex')
-toastAnimationExample.querySelector('i.mdi').classList.add('text-error');
-toastAnimationExample.classList.add('animate__tada');
-toastAnimation = new bootstrap.Toast(toastAnimationExample);
+// toastAnimationExample.querySelector('i.mdi').classList.add('text-error');
+// toastAnimationExample.classList.add('animate__tada');
+// toastAnimation = new bootstrap.Toast(toastAnimationExample);
 
 var optionerror = {
     text: "Terjadi Kesalahan Pada Sistem!",
@@ -63,15 +63,7 @@ async function ajaxPostJson(url, form, onsuccess, onerror) {
         },
         error: function (jqXhr, textStatus, errorMessage) { // error callback
             Swal.close()
-            // let text = jqXhr.responseJSON?.message == undefined ? "Terjadi Kesalahan Pada Sistem!" : jqXhr.responseJSON.message
-            // var option = {
-            //     text: text,
-            //     pos: 'top-center',
-            //     backgroundColor: '#e7515a'
-            // }
-            // Snackbar.show(option);
-            toastAnimation.show();
-            // window[onerror](jqXhr);
+            window[onerror](jqXhr);
         }
     })
 
@@ -94,22 +86,13 @@ async function ajaxPostFile(url, form, onsuccess, onerror) {
             })
             Swal.showLoading()
         }, success: function (data, status, xhr) {   // success callback function
-            // $('.load_process').css('display', 'none')
-            Swal.close()
+            // Swal.close()
             window[onsuccess](data);
         },
         error: function (jqXhr, textStatus, errorMessage) { // error callback
             Swal.close()
             $('.load_process').css('display', 'none')
-            // let text = jqXhr.responseJSON?.message == undefined ? "Terjadi Kesalahan Pada Sistem!" : jqXhr.responseJSON.message
-            // var option = {
-            //     text: text,
-            //     pos: 'top-center',
-            //     backgroundColor: '#e7515a'
-            // }
-            // Snackbar.show(option);
-            toastAnimation.show();
-            // window[onerror](jqXhr);
+            window[onerror](jqXhr);
         }
     })
 

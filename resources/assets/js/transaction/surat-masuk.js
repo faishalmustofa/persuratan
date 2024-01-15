@@ -47,8 +47,7 @@ $(function () {
   }
 
     var forms = document.querySelectorAll('.needs-validation')
-    console.log(forms)
-    
+
     Array.prototype.slice.call(forms).forEach(function (form) {
         form.addEventListener('submit', function (event) {
             if (!form.checkValidity()) {
@@ -66,14 +65,6 @@ $(function () {
             $(this).addClass('was-validated');
         }
         // postForm()
-    });
-
-    $('#form-disposisi').on('submit', function (e) {
-        if (this.checkValidity()) {
-            e.preventDefault();
-            postDisposisi()
-            $(this).addClass('was-validated');
-        }
     });
 
     // custom template to render icons
@@ -157,14 +148,21 @@ function getDataSuratMasuk(){
             }
         },
         columns: [
-            // { data: '', name: '' },
+            { data:null },
+            {
+                data: 'DT_RowIndex',
+                name: 'DT_RowIndex',
+                orderable: false,
+                searchable: false,
+                responsivePriority: -1,
+            },
             {
                 data: 'no_agenda',
                 name: 'no_agenda',
             },
             {
-                data: 'no_surat',
-                name: 'no_surat',
+                data: 'noSurat',
+                name: 'noSurat',
             },
             {
                 data: 'tgl_surat',
@@ -175,87 +173,52 @@ function getDataSuratMasuk(){
                 name: 'tgl_diterima',
             },
             {
-                data: 'asal_surat',
-                name: 'asal_surat',
+                data: 'asal_surat.name',
+                name: 'asal_surat.name',
             },
             {
-                data: 'tujuan_surat',
-                name: 'tujuan_surat',
+                data: 'tujuan_surat.nama',
+                name: 'tujuan_surat.nama',
             },
             {
                 data: 'perihal',
                 name: 'perihal',
+                responsivePriority: 0
             },
             {
-                data: 'status_surat',
-                name: 'status_surat',
+                data: 'status',
+                name: 'status',
+                responsivePriority: 0
+            },
+            {
+                data: 'action',
+                name: 'action',
+                responsivePriority: 0
             }
         ],
+        order: [[4, 'asc']],
+        fnDrawCallback: () => {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        },
         columnDefs: [
             {
-                // For Responsive
                 className: 'control',
                 orderable: false,
                 responsivePriority: 2,
                 searchable: false,
                 targets: 0,
                 render: function (data, type, full, meta) {
-                    return '';
+                  return '';
                 }
-            },
-        ],
-        order: [[4, 'desc']],
-        responsive: {
-            details: {
-              display: $.fn.dataTable.Responsive.display.modal({
-                header: function (row) {
-                  var data = row.data();
-                  return 'Detail Data';
-                }
-              }),
-              type: 'column',
-              renderer: function (api, rowIdx, columns) {
-                var data = $.map(columns, function (col, i) {
-                  return col.title !== '' // ? Do not show row in modal popup if title is blank (for check box)
-                    ? '<tr data-dt-row="' +
-                        col.rowIndex +
-                        '" data-dt-column="' +
-                        col.columnIndex +
-                        '">' +
-                        '<td>' +
-                        col.title +
-                        ':' +
-                        '</td> ' +
-                        '<td>' +
-                        col.data +
-                        '</td>' +
-                        '</tr>'
-                    : '';
-                }).join('');
-
-                return data ? $('<table class="table"/><tbody />').append(data) : false;
-              }
             }
-        }
+        ],
     });
 }
 
 function postForm() {
     let form =  new FormData($("#form-surat-masuk")[0])
     ajaxPostFile('/transaction/surat-masuk/store', form, 'input_success', 'input_error')
-}
-
-function postDisposisi() {
-    let form = $('#form-disposisi').serialize()
-
-    ajaxPostJson('/transaction/disposisi/store', form, 'disposisi_succes', 'input_error')
-}
-
-function disposisi_succes(data) {
-    window.location.href = `/print/${data.file}`
-    setTimeout(() => {
-        window.location.reload()
-    }, 2000);
 }
 
 function input_success(data) {
@@ -287,38 +250,69 @@ function input_success(data) {
       "hideMethod": "fadeOut"
     }
 
-    table.ajax.reload()
-
     Swal.fire({
-        title: "Apakah anda ingin langsung melakukan disposisi?",
-        showDenyButton: true,
+        icon: 'question',
+        showDenyButton: false,
+        title: "Apakah anda ingin langsung melakukan mencetak blanko disposisi?",
         showCancelButton: true,
-        confirmButtonText: "Ya, Lakukan Disposisi",
-        denyButtonText: `Tidak, Nanti Saja`,
-        showCancelButton: false,
+        confirmButtonText: "Ya, print blanko disposisi!"
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
-        if (result.isConfirmed) {
-            $('#modal-disposisi').modal('toggle')
-            $('#form-disposisi').find('input[name="tx_number"]').val(data.txNumber)
-            $('#form-disposisi').find('input[name="nomor_agenda"]').val(data.noAgenda)
-            $("#tujuan_disposisi").select2({
-                dropdownParent : $('#modal-disposisi .modal-content')
-            });
+        if(result.isConfirmed){
+            ajaxGetJson(`/transaction/surat-masuk/print-blanko/${data.txNumber}`, 'printBlanko', 'input_error')
         } else {
-            $('#modal-disposisi').modal('toggle')
-            $('#form-disposisi').find('input[name="tx_number"]').val(data.txNumber)
-            $('#form-disposisi').find('input[name="nomor_agenda"]').val(data.noAgenda)
-            $("#tujuan_disposisi").select2({
-                dropdownParent : $('#modal-disposisi .modal-content')
-            });
+            return false
         }
-      });
+    });
+
+    table.ajax.reload()
+    $('#form-surat-masuk').removeClass('was-validated')
+    $('#form-surat-masuk').find('input').val('')
+    $('#form-surat-masuk').find('textarea').val('')
+    $('#form-surat-masuk').find('select').val('').trigger('change')
+}
+
+function actionPrintBlanko(txNumber){
+    ajaxGetJson(`/transaction/surat-masuk/print-blanko/${txNumber}`, 'printBlanko', 'input_error')
+}
+
+function printBlanko(data){
+    var tempDownload = document.createElement("a");
+    tempDownload.style.display = 'none';
+
+    document.body.appendChild( tempDownload );
+
+    var download = data.file;
+    tempDownload.setAttribute( 'href', `/transaction/surat-masuk/download-blanko/${download}` );
+    tempDownload.setAttribute( 'download', download );
+
+    tempDownload.click();
+
+    table.ajax.reload()
 }
 
 function input_error(err) {
     Swal.close()
     console.log(err)
+    Command: toastr["error"]("Harap coba lagi beberapa saat lagi", "Terjadi Kesalahan Terhadap Sistem")
+
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
 }
 
 function error_notif(text){

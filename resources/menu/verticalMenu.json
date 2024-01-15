@@ -4,10 +4,6 @@
       "name": "Dashboards",
       "icon": "menu-icon tf-icons mdi mdi-home-outline",
       "slug": "dashboard",
-      "badge": [
-        "primary",
-        "5"
-      ],
       "submenu": [
         {
           "url": "/",
@@ -24,17 +20,22 @@
         {
           "url": "transaction/surat-masuk",
           "name": "Surat Masuk",
-          "slug": "main-surat-masuk"
+          "slug": "menu-suratmasuk"
         },
         {
           "url": "transaction/buku-agenda",
           "name": "Buku Agenda",
-          "slug": "buku-agenda-surat-masuk"
+          "slug": "menu-bukuagenda"
         },
         {
           "url": "transaction/disposisi",
           "name": "Disposisi",
-          "slug": "disposisi"
+          "slug": "menu-disposisi"
+        },
+        {
+          "url": "transaction/disposisi-masuk",
+          "name": "Disposisi Masuk",
+          "slug": "menu-disposisimasuk"
         }
       ]
     },
@@ -79,7 +80,7 @@
       "slug": "app-user",
       "submenu": [
         {
-          "url": "app/user/list",
+          "url": "/user/list",
           "name": "List",
           "slug": "app-user-list"
         },
@@ -88,17 +89,17 @@
           "slug": "app-user-view",
           "submenu": [
             {
-              "url": "app/user/view/account",
+              "url": "/user/view/account",
               "name": "Account",
               "slug": "app-user-view-account"
             },
             {
-              "url": "app/user/view/security",
+              "url": "/user/view/security",
               "name": "Security",
               "slug": "app-user-view-security"
             },
             {
-              "url": "app/user/view/notifications",
+              "url": "/user/view/notifications",
               "name": "Notifications",
               "slug": "app-user-view-notifications"
             }
@@ -112,14 +113,14 @@
       "slug": "app-access",
       "submenu": [
         {
-          "url": "app/access-roles",
+          "url": "/roles",
           "name": "Roles",
-          "slug": "app-access-roles"
+          "slug": "roles"
         },
         {
-          "url": "app/access-permission",
+          "url": "/permission",
           "name": "Permission",
-          "slug": "app-access-permission"
+          "slug": "permission"
         }
       ]
     },

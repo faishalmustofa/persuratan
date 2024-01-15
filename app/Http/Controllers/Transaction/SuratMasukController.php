@@ -10,9 +10,13 @@ use App\Models\Master\Organization;
 use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
 use App\Models\Transaction\SuratMasuk;
+use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpWord\TemplateProcessor;
 use Yajra\DataTables\DataTables;
 
 class SuratMasukController extends Controller
@@ -20,13 +24,18 @@ class SuratMasukController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($txNo = '')
     {
         $data['derajat'] = DerajatSurat::orderBy('id')->get();
         $data['klasifikasi'] = KlasifikasiSurat::orderBy('id')->get();
         $data['asalSurat'] = AsalSurat::all();
         $data['entityAsal'] = EntityAsalSurat::get();
         $data['organization'] = Organization::orderBy('id')->get();
+
+        if($txNo != ''){
+            $txNo = base64_decode($txNo);
+            $data['suratMasuk'] = SuratMasuk::with('tujuanDisposisi')->where('tx_number', $txNo)->first();
+        }
 
         return view('content.surat_masuk.index', $data);
     }
@@ -39,9 +48,49 @@ class SuratMasukController extends Controller
                         ->With('statusSurat')
                         ->with('klasifikasiSurat')
                         ->with('derajatSurat')
+                        ->with('tujuanSurat')
+                        ->with('createdUser')
+                        ->whereHas('createdUser', function($user){
+                            $user->where('organization', Auth::user()->organization);
+                        })
                         ->get();
 
-        return DataTables::of($dataSurat)->make(true);
+        return DataTables::of($dataSurat)
+                ->addIndexColumn()
+                ->editColumn('status', function($data){
+                    $bg = '';
+                    if ($data->status_surat == '1') {
+                        $bg = 'bg-label-warning';
+                    } else if($data->status_surat == '2') {
+                        $bg = 'bg-label-success';
+                    } else if($data->status_surat == '3') {
+                        $bg = 'bg-label-primary';
+                    } else if($data->status_surat == '4') {
+                        $bg = 'bg-label-info';
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
+                })
+                ->editColumn('noSurat', function($data){
+                    $txNo = base64_encode($data->tx_number);
+                    return "<a href='".route('showPDF',$txNo)."' target='_blank' class='badge rounded-pill bg-label-info' data-bs-toggle='tooltip' data-bs-placement='top' title='Lihat Berkas Surat'>" .$data->no_surat. "</a>";
+                })
+                ->editColumn('action', function($data){
+                    return self::renderAction($data);
+                })
+                ->rawColumns(['status', 'action', 'noSurat'])
+                ->make(true);
+    }
+
+    public function renderAction($data)
+    {
+        $html = '';
+        if($data->status_surat == 1 && Auth::user()->hasPermissionTo('print-blanko'))
+        {
+            $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
+        }
+
+        return $html;
     }
 
     /**
@@ -61,15 +110,17 @@ class SuratMasukController extends Controller
         try {
             $entityAsalSurat = EntityAsalSurat::find($request->asal_surat);
             $asalSurat = AsalSurat::find($entityAsalSurat->asal_surat_id);
+            $org = Organization::where('id', $request->tujuan_surat)->first();
+
             $txNumber = Helpers::generateTxNumber();
-            $noAgenda = Helpers::generateNoAgenda();
+            $noAgenda = Helpers::generateNoAgenda($org->suffix_agenda);
 
             $file = '';
             if ($request->hasFile('file_surat')) {
                 $documentFile = $request->file('file_surat');
                 $filename = $documentFile->getClientOriginalName();
                 $path = $txNumber.'.pdf';
-                $documentFile->move(public_path('document/surat-masuk'), $path);
+                $documentFile->move(public_path().'/document/surat-masuk/', $path);
                 $file = $path;
             }
 
@@ -98,7 +149,7 @@ class SuratMasukController extends Controller
                 'catatan' => $request->catatan,
                 'klasifikasi' => $request->klasifikasi,
                 'derajat' => $request->derajat,
-                'created_by' => 3,
+                'created_by' => Auth::user()->id,
                 'file_path' => $file_path
             ];
 
@@ -109,7 +160,7 @@ class SuratMasukController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Buat Agenda Surat',
                 'txNumber' => $txNumber,
-                'noAgenda' => $noAgenda
+                'noAgenda' => $noAgenda,
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -120,6 +171,59 @@ class SuratMasukController extends Controller
             ]);
         }
 
+    }
+
+    public function printBlanko($txNo)
+    {
+        $dataSurat = SuratMasuk::where('tx_number', $txNo)->first();
+        $org = Organization::find($dataSurat->tujuan_surat);
+        $filePath = public_path().'/document/blanko_disposisi/'.$org->blanko_path;
+
+
+        if (file_exists($filePath)){
+            $template_document = new TemplateProcessor($filePath);
+
+            // Set Isi Blanko Disposisi
+            $jml_lampiran = $dataSurat->lampiran == null ? '' : $dataSurat->lampiran_type . ' ' . $dataSurat->jml_lampiran;
+            $template_document->setValues(array(
+                'klasifikasi' => $dataSurat->klasifikasiSurat->nama,
+                'derajat' => $dataSurat->derajatSurat->nama,
+                'no_agenda' => $dataSurat->no_agenda,
+                'asal_surat' => $dataSurat->entity_asal_surat_detail,
+                'no_surat' => $dataSurat->no_surat,
+                'tgl_surat' => Carbon::parse($dataSurat->tgl_surat)->translatedFormat('d F Y'),
+                'tgl_diterima' => Carbon::parse($dataSurat->tgl_diterima)->translatedFormat('d F Y'),
+                'perihal' => $dataSurat->perihal,
+                'catatan' => $dataSurat->catatan,
+                'lampiran' => $dataSurat->lampiran != null ? $dataSurat->lampiran : 'TANPA LAMPIRAN',
+                'jml_lampiran' => $jml_lampiran,
+            ));
+
+            $filename = 'Blanko Disposisi - '. $dataSurat->tx_number .'.docx';
+            $path = public_path().'/document/'.$filename;
+            $template_document->saveAs($path);
+
+            // Update Status Surat
+            SuratMasuk::where('tx_number', $txNo)->update([
+                'status_surat' => 2
+            ]);
+
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Cetak Blanko Disposisi',
+                'file' => $filename,
+            ]);
+        } else {
+            return response()->json([
+                'status' => JsonResponse::HTTP_NOT_FOUND,
+                'message' => 'File Blanko Tidak Ditemukan',
+            ]);
+        }
+    }
+
+    public function downloadBlanko($file){
+        $filePath = public_path().'/document/'.$file;
+        return response()->download($filePath)->deleteFileAfterSend(true);
     }
 
     /**
@@ -154,13 +258,16 @@ class SuratMasukController extends Controller
         //
     }
 
-    public function bukuAgenda()
+    public function showPdf($txNumber)
     {
-        return view('content.surat_masuk.buku-agenda');
-    }
+        $txNo = base64_decode($txNumber);
+        $filePath = public_path().'/document/surat-masuk/'.$txNo.'.pdf';
+        $filename= $txNo.".pdf";
 
-    public function disposisi()
-    {
-        return view('content.surat_masuk.disposisi');
+        header('Content-type:application/pdf');
+        header('Content-disposition: inline; filename="'.$filename.'"');
+        header('content-Transfer-Encoding:binary');
+        header('Accept-Ranges:bytes');
+        @ readfile($filePath);
     }
 }
