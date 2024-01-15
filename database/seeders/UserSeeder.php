@@ -29,7 +29,7 @@ class UserSeeder extends Seeder
             'email' => 'taud@divpropam.polri.go.id',
             'username' => 'taud',
             'password' => Hash::make('Propam12345'),
-            'organization' => 2,
+            'organization' => 1,
             'jabatan' => 'TAUD DIVPROPAM POLRI'
         ]);
 

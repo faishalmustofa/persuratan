@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('organization', function (Blueprint $table) {
-            $table->string('suffix_agenda')->default('');
+            $table->string('suffix_agenda')->default('')->nullable();
         });
     }
 

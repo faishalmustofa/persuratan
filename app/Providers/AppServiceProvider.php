@@ -13,6 +13,7 @@ class AppServiceProvider extends ServiceProvider
   public function register(): void
   {
     //
+    // $this->app->register(\Yajra\Oci8\Oci8ServiceProvider::class);
   }
 
   /**
