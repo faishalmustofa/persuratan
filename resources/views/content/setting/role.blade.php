@@ -18,7 +18,8 @@
 @endsection
 
 @section('page-script')
-<script src="{{asset('assets/js/app-access-roles.js')}}"></script>
+<script src="{{asset('assets/js/setting/role.js')}}"></script>
+{{-- <script src="{{asset('assets/js/app-access-roles.js')}}"></script> --}}
 <script src="{{asset('assets/js/modal-add-role.js')}}"></script>
 @endsection
 

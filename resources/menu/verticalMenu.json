@@ -118,9 +118,9 @@
           "slug": "roles"
         },
         {
-          "url": "app/access-permission",
+          "url": "/permission",
           "name": "Permission",
-          "slug": "app-access-permission"
+          "slug": "permission"
         }
       ]
     },

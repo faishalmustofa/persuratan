@@ -4,6 +4,7 @@ use App\Http\Controllers\auth\AuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\language\LanguageController;
 use App\Http\Controllers\dashboard\DashboardController;
+use App\Http\Controllers\UserRole\PermissionController;
 use App\Http\Controllers\UserRole\RoleController;
 use App\Http\Controllers\UserRole\UserController;
 
@@ -30,5 +31,10 @@ Route::middleware(['auth'])->group(function() {
 
     Route::prefix('roles')->group(function(){
         Route::get('/', [RoleController::class, 'index']);
+    }); 
+    
+    Route::prefix('permission')->group(function(){
+        Route::get('/', [PermissionController::class, 'index']);
+        Route::post('/data', [PermissionController::class, 'data']);
     }); 
 });
