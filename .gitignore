@@ -8,7 +8,6 @@
 /vendor
 
 /public/document
-/public/web.config
 
 .env
 .env.backup
