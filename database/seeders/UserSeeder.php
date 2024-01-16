@@ -45,5 +45,16 @@ class UserSeeder extends Seeder
         ]);
 
         $kadiv->assignRole('Pimpinan');
+        
+        $spri = User::create([
+            'name' => 'SPRI KADIVPROPAM',
+            'email' => 'spri_kadiv@divpropam.polri.go.id',
+            'username' => 'sprikadiv',
+            'password' => Hash::make('Propam12345'),
+            'organization' => 1,
+            'jabatan' => 'SPRI KADIDIVPROPAM POLRI'
+        ]);
+
+        $spri->assignRole('Pimpinan');
     }
 }
