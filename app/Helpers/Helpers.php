@@ -35,15 +35,15 @@ class Helpers
       // 'menuOffcanvas' => false,
       'customizerControls' => [
         'rtl',
-      'style',
-      'headerType',
-      'contentLayout',
-      'layoutCollapsed',
-      'showDropdownOnHover',
-      'layoutNavbarOptions',
-      'themes',
+        'style',
+        'headerType',
+        'contentLayout',
+        'layoutCollapsed',
+        'showDropdownOnHover',
+        'layoutNavbarOptions',
+        'themes',
       ],
-      //   'defaultLanguage'=>'en',
+        'defaultLanguage'=>'id',
     ];
 
     // if any key missing of array from custom.php file it will be merge and set a default value from dataDefault array and store in data variable
@@ -227,13 +227,22 @@ class Helpers
         return $transNumber;
   }
 
-  public static function generateNoAgenda($org = 'DIVPROPAM')
+  public static function generateNoAgenda($org = 'DIVPROPAM',$jenis_surat=null)
   {
         $currentYear = Carbon::now()->translatedFormat('Y');
         $currentMonth = (int)Carbon::now()->translatedFormat('m');
         $currentMonth = self::numberToRomanRepresentation($currentMonth);
 
-        $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+        if (!is_null($jenis_surat)) {
+          if ($jenis_surat == 'masuk') {
+            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+          } else {
+            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->count();
+          }
+        } else {
+          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+        }
+        
         $number = '0000';
 
         if($totalData == 0){

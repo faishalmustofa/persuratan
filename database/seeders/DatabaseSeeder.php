@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             userSeeder::class,
             AddStatusSuratSeeder::class,
             AddUserSeederBagRenmin::class,
+            JenisSuratSeeder::class,
         ]);
     }
 }

@@ -45,7 +45,7 @@
       "slug": "surat-keluar",
       "submenu": [
         {
-          "url": "",
+          "url": "transaction/surat-keluar",
           "name": "Surat Keluar",
           "slug": "main-surat-keluar"
         },

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Transaction\BukuAgendaController;
 use App\Http\Controllers\Transaction\DisposisiController;
 use App\Http\Controllers\Transaction\DisposisiMasukController;
+use App\Http\Controllers\Transaction\SuratKeluarController;
 use App\Http\Controllers\Transaction\SuratMasukController;
 use Illuminate\Support\Facades\Route;
 
@@ -17,7 +18,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::get('/show-pdf/{txNumber}', [SuratMasukController::class, 'showPdf'])->name('showPDF');
     });
 
-    /** MENU BUKU AGENDA */
+    /** MENU BUKU AGENDA SURAT MASUK*/
     Route::prefix('buku-agenda')->group(function(){
         Route::get('/', [BukuAgendaController::class, 'index']);
         Route::post('/get-data', [BukuAgendaController::class, 'getData']);
@@ -37,6 +38,19 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
     Route::prefix('disposisi-masuk')->group(function(){
         Route::get('/', [DisposisiMasukController::class, 'index']);
         Route::post('/get-data', [DisposisiMasukController::class, 'getData']);
+    });
+
+    /** MENU SURAT KELUAR */
+    Route::prefix('surat-keluar')->group(function(){
+        Route::get('/{txNo?}', [SuratKeluarController::class, 'index'])->name('create-bukuagenda-suratkeluar');
+        Route::post('/store', [SuratKeluarController::class, 'store']);
+        Route::post('/data', [SuratKeluarController::class, 'data']);
+    });
+
+    /** MENU BUKU AGENDA SURAT KELUAR*/
+    Route::prefix('buku-agenda-surat-keluar')->group(function(){
+        Route::get('/', [BukuAgendaController::class, 'index']);
+        Route::post('/get-data', [BukuAgendaController::class, 'getData']);
     });
 });
 
