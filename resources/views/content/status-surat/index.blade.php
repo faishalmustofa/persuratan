@@ -15,7 +15,16 @@
     <div class="col-md">
         <div class="card">
             <div class="card-header">
-                Data Organization
+                <div class="row justify-content-between">
+                    <div class="col-12 col-md-6 order-md-2 order-last">
+                        Data Status Surat
+                    </div>
+                    <div class="col-12 col-md-6 order-md-2 order-first">
+                        <div class="float-start float-lg-end">
+                            <a href="{{route('status-surat.create')}}" class="btn btn-outline-primary">Tambah Data</a>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 <div class="card-datatable table-responsive pt-0">

@@ -32,6 +32,12 @@ Route::middleware(['auth'])->group(function() {
         /** Status Surat */
         Route::prefix('status-surat')->group(function () {
             Route::get('/', [StatusSuratController::class, 'index'])->name('masterdata.status-surat');
+            Route::post('/data', [StatusSuratController::class, 'data']);
+            Route::get('/edit/{id}', [StatusSuratController::class, 'edit'])->name('status-surat.edit');
+            Route::post('/update/{id}', [StatusSuratController::class, 'update']);
+            Route::get('/add', [StatusSuratController::class, 'create'])->name('status-surat.create');
+            Route::post('/add/store', [StatusSuratController::class, 'store']);
+            Route::get('/delete/{id}', [StatusSuratController::class, 'destroy']);
         });
     });
 });
