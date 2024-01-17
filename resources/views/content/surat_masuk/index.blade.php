@@ -279,7 +279,16 @@
     <div class="col-md">
         <div class="card">
             <div class="card-header">
-                Data Agenda Surat Masuk
+                <div class="row justify-content-between">
+                    <div class="col-12 col-md-6 order-md-2 order-last">
+                        Data Agenda Surat Masuk
+                    </div>
+                    <div class="col-12 col-md-6 order-md-2 order-first">
+                        {{-- <div class="float-start float-lg-end">
+                            <button class="btn btn-outline-primary" onclick="kirimBerkasBundle()">Kirim Berkas Ke TAUD (Bundle)</button>
+                        </div> --}}
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 @include('content.surat_masuk.data-list')
@@ -287,5 +296,46 @@
         </div>
     </div>
 </div>
+
+
+    <!-- Modal Disposisi -->
+    <div class="modal fade" id="modal-disposisi" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCenterTitle">Form Disposisi</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="javascript:void(0)" id="form-disposisi" class="needs-validation" novalidate>
+                    <div class="modal-body">
+                        @csrf
+                        <input type="hidden" name="tx_number" class="form-control">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Surat" name="nomor_agenda" value="" readonly />
+                                <label for="nomor_agenda">Nomor Agenda</label>
+                            </div>
+                        </div>
+
+                        <div class="form-floating form-floating-outline mb-4">
+                            <select id="tujuan_disposisi" name="tujuan_disposisi[]" class="select2 form-select" multiple>
+                            </select>
+                            <label for="tujuan_disposisi">Tujuan Disposisi</label>
+                        </div>
+
+                        <div class="form-floating form-floating-outline mb-4">
+                            <textarea class="form-control h-px-75" id="isi_disposisi" name="isi_disposisi" rows="3" placeholder="Isi Disposisi"></textarea>
+                            <label for="isi_disposisi">Isi Disposisi</label>
+                            <div class="invalid-feedback"> Mohon masukan Isi Disposisi. </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Disposisikan Surat</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 @endsection
