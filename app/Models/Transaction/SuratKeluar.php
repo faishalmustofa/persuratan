@@ -2,6 +2,7 @@
 
 namespace App\Models\Transaction;
 
+use App\Models\Master\EntityTujuanSurat;
 use App\Models\Master\Organization;
 use App\Models\Master\StatusSurat;
 use App\Models\User;
@@ -23,14 +24,14 @@ class SuratKeluar extends Model
     }
 
     function tujuanSurat(){
-        return $this->hasOne(Organization::class, 'id', 'tujuan_surat');
+        return $this->hasOne(EntityTujuanSurat::class, 'id', 'entity_tujuan_surat');
+    }
+    
+    function asalSurat(){
+        return $this->hasOne(EntityTujuanSurat::class, 'id', 'entity_tujuan_surat');
     }
 
     function createdUser(){
         return $this->hasOne(User::class, 'id', 'created_by');
-    }
-
-    function tujuanDisposisi(){
-        return $this->disposisi()->where('tujuan_disposisi', Auth::user()->organization);
     }
 }

@@ -35,6 +35,8 @@ class DatabaseSeeder extends Seeder
             AddStatusSuratSeeder::class,
             AddUserSeederBagRenmin::class,
             JenisSuratSeeder::class,
+            TujuansuratSeeder::class,
+            EntityTujuanSuratSeeder::class,
         ]);
     }
 }

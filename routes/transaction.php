@@ -45,6 +45,13 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::get('/{txNo?}', [SuratKeluarController::class, 'index'])->name('create-bukuagenda-suratkeluar');
         Route::post('/store', [SuratKeluarController::class, 'store']);
         Route::post('/data', [SuratKeluarController::class, 'data']);
+        Route::get('/minta-no-surat/{txNo}', [SuratKeluarController::class, 'mintaNoSurat']);
+    });
+    
+    /** MENU SURAT KELUAR */
+    Route::prefix('permintaan-no-surat')->group(function(){
+        Route::get('/', [SuratKeluarController::class, 'permintaanNoSurat']);
+        Route::post('/data', [SuratKeluarController::class, 'dataMintaNoSurat']);
     });
 
     /** MENU BUKU AGENDA SURAT KELUAR*/

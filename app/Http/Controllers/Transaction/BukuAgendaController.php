@@ -22,7 +22,7 @@ class BukuAgendaController extends Controller
         $data['entityAsal'] = EntityAsalSurat::get();
         $data['organization'] = Organization::orderBy('id')->get();
 
-        return view('content.surat_masuk.buku-agenda', $data);
+        return view('content.surat-keluar.buku-agenda', $data);
     }
 
     public function getData(Request $request)

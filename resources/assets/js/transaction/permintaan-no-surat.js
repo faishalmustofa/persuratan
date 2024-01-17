@@ -2,11 +2,7 @@
 'use strict';
 
 const tanggalSurat = $('#tanggal-surat'),
-    tanggalDiterima = $('#tanggal-diterima'),
-    jenis_surat = $('#jenis_surat'),
-    tujuan_surat = $('#tujuan_surat'),
-    unit_kerja_pemohon = $('#unit_kerja_pemohon'),
-    penandatangan = $('#penandatangan_surat');
+    tanggalDiterima = $('#tanggal-diterima');
 var table
 
 $(function () {
@@ -77,7 +73,6 @@ $(function () {
             postForm()
             $(this).addClass('was-validated');
         }
-        // postForm()
     });
 
     // custom template to render icons
@@ -89,61 +84,16 @@ $(function () {
         return $icon
     }
 
-    const previewTemplate = `<div class="dz-preview dz-file-preview">
-        <div class="dz-details">
-        <div class="dz-thumbnail">
-            <img data-dz-thumbnail>
-            <span class="dz-nopreview">No preview</span>
-            <div class="dz-success-mark"></div>
-            <div class="dz-error-mark"></div>
-            <div class="dz-error-message"><span data-dz-errormessage></span></div>
-            <div class="progress">
-            <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuemin="0" aria-valuemax="100" data-dz-uploadprogress></div>
-            </div>
-        </div>
-        <div class="dz-filename" data-dz-name></div>
-        <div class="dz-size" data-dz-size></div>
-        </div>
-        </div>`;
-
-
     // Init select2
 
-    $("#jenis_surat").wrap('<div class="position-relative"></div>').select2({
-        dropdownParent: jenis_surat.parent(),
-        templateResult: renderIcons,
-        templateSelection: renderIcons,
-        escapeMarkup: function(es) {
-            return es;
-        }
-    });
-
-    $("#tujuan_surat").wrap('<div class="position-relative"></div>').select2({
-        dropdownParent: tujuan_surat.parent(),
-        templateResult: renderIcons,
-        templateSelection: renderIcons,
-        escapeMarkup: function(es) {
-            return es;
-        }
-    });
-    
-    $("#unit_kerja_pemohon").wrap('<div class="position-relative"></div>').select2({
-        dropdownParent: unit_kerja_pemohon.parent(),
-        templateResult: renderIcons,
-        templateSelection: renderIcons,
-        escapeMarkup: function(es) {
-            return es;
-        }
-    });
-    
-    $("#penandatangan_surat").wrap('<div class="position-relative"></div>').select2({
-        dropdownParent: penandatangan.parent(),
-        templateResult: renderIcons,
-        templateSelection: renderIcons,
-        escapeMarkup: function(es) {
-            return es;
-        }
-    });
+    // $("#jenis_surat").wrap('<div class="position-relative"></div>').select2({
+    //     dropdownParent: jenis_surat.parent(),
+    //     templateResult: renderIcons,
+    //     templateSelection: renderIcons,
+    //     escapeMarkup: function(es) {
+    //         return es;
+    //     }
+    // });
 
     getDataSuratMasuk()
 });
@@ -155,7 +105,7 @@ function getDataSuratMasuk(){
         responsive: true,
         "pageLength": 10,
         ajax: {
-            url: "/transaction/surat-keluar/data",
+            url: "/transaction/permintaan-no-surat/data",
             method: "post",
             data: function (data) {
                 data._token = $('meta[name="csrf-token"]').attr('content')
@@ -297,28 +247,10 @@ function minta_surat_success(data) {
     table.ajax.reload()
 }
 
-// function actionPrintBlanko(txNumber){
-//     ajaxGetJson(`/transaction/surat-masuk/print-blanko/${txNumber}`, 'printBlanko', 'input_error')
-// }
 
 function actionMintaNomorSurat(txNumber){
     ajaxGetJson(`/transaction/surat-keluar/minta-no-surat/${txNumber}`, 'minta_surat_success', 'input_error')
 }
-
-// function printBlanko(data){
-//     var tempDownload = document.createElement("a");
-//     tempDownload.style.display = 'none';
-
-//     document.body.appendChild( tempDownload );
-
-//     var download = data.file;
-//     tempDownload.setAttribute( 'href', `/transaction/surat-masuk/download-blanko/${download}` );
-//     tempDownload.setAttribute( 'download', download );
-
-//     tempDownload.click();
-
-//     table.ajax.reload()
-// }
 
 function input_error(err) {
     Swal.close()

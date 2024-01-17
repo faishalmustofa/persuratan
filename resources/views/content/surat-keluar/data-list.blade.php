@@ -4,13 +4,12 @@
         <tr>
             <th></th>
             <th>#</th>
-            <th>No. Agenda</th>
-            <th>No. Surat</th>
+            <th>No. Draft Surat</th>
             <th>Tanggal Surat</th>
             <th>Tujuan Surat</th>
             <th>Perihal</th>
             <th>Status</th>
-            {{-- <th>Action</th> --}}
+            <th>Action</th>
         </tr>
       </thead>
     </table>

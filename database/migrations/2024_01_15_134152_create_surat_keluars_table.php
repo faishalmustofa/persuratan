@@ -16,9 +16,8 @@ return new class extends Migration
             $table->integer('jenis_surat');
             $table->string('no_agenda')->unique()->nullable();
             $table->date('tgl_surat');
-            $table->string('no_surat');
+            $table->string('no_surat')->nullable();
             $table->string('perihal');
-            $table->integer('tujuan_surat');
             $table->string('lampiran')->nullable();
             $table->string('lampiran_type')->nullable();
             $table->string('jml_lampiran')->nullable();
@@ -33,7 +32,6 @@ return new class extends Migration
             $table->foreign('jenis_surat')->references('id')->on('r_jenis_surat');
             $table->foreign('status_surat')->references('id')->on('m_status_surat');
             $table->foreign('created_by')->references('id')->on('users');
-            $table->foreign('tujuan_surat')->references('id')->on('organization');
             $table->foreign('unit_kerja')->references('id')->on('organization');
             $table->timestamps();
         });

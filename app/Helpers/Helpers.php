@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Master\Organization;
 use Carbon\Carbon;
 use Config;
 use Illuminate\Support\Facades\DB;
@@ -205,7 +206,7 @@ class Helpers
     }
   }
 
-  public static function generateTxNumber()
+  public static function generateTxNumber($jenis_surat = null)
   {
         $currentYear = Carbon::now()->translatedFormat('Y');
 
@@ -222,7 +223,17 @@ class Helpers
         }
 
         $code = self::generateRandomString(3);
-        $transNumber = "TX-SM-$currentYear-$number";
+        if (!is_null($jenis_surat)) {
+          if ($jenis_surat == 'masuk') {
+            $transNumber = "TX-SM-$currentYear-$number";
+          } else {
+            $transNumber = "TX-SK-$currentYear-$number";
+          }
+        } else {
+          $transNumber = "TX-SM-$currentYear-$number";
+        }
+        
+        
 
         return $transNumber;
   }
@@ -274,7 +285,8 @@ class Helpers
     return $returnValue;
 }
 
-  public static function generateRandomString($length = 10) {
+  public static function generateRandomString($length = 10) 
+  {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomString = '';
@@ -282,5 +294,32 @@ class Helpers
             $randomString .= $characters[random_int(0, $charactersLength - 1)];
         }
         return $randomString;
+  }
+
+  public static function getAllParentOrg($org)
+  {
+    $orgs = [];
+    $child = clone ($org);
+    $parent = Organization::where('id',$child->parent_id)->first();
+
+    if (!is_null($parent)) {
+      while (!is_null($child->parent_id)) {
+        array_push($orgs,$parent);
+  
+        $child = $parent;
+        $parent = Organization::where('id',$child->parent_id)->first();
+      }
     }
+
+    return $orgs;
+  }
+  
+  public static function getAllChildOrg($org,$current_org)
+  {
+    $orgs = [];
+
+    $orgs = $org->where('parent_id',$current_org->id);
+
+    return $orgs;
+  }
 }

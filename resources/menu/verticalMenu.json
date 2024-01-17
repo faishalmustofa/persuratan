@@ -2,15 +2,9 @@
   "menu": [
     {
       "name": "Dashboards",
+      "url": "/",
       "icon": "menu-icon tf-icons mdi mdi-home-outline",
-      "slug": "dashboard",
-      "submenu": [
-        {
-          "url": "/",
-          "name": "Dashboard",
-          "slug": "main-dashboard"
-        }
-      ]
+      "slug": "dashboard"
     },
     {
       "name": "Surat Masuk",
@@ -50,14 +44,14 @@
           "slug": "main-surat-keluar"
         },
         {
-          "url": "",
-          "name": "Buku Agenda",
-          "slug": "buku-agenda-surat-keluar"
+          "url": "transaction/permintaan-no-surat",
+          "name": "Permintaan Nomor Surat",
+          "slug": "permintaan-nomor-surat"
         },
         {
-          "url": "",
-          "name": "Permintaan Nomor",
-          "slug": "permintaan-nomor"
+          "url": "transaction/buku-agenda-surat-keluar",
+          "name": "Buku Agenda",
+          "slug": "buku-agenda-surat-keluar"
         },
         {
           "url": "",
@@ -129,15 +123,21 @@
       "menuHeader": "Master Data"
     },
     {
+      "name": "Organisasi",
+      "icon": "menu-icon tf-icons mdi mdi-briefcase-account",
+      "slug": "organization",
+      "url": "master-data/organization/"
+    },
+    {
       "name": "Asal Surat",
       "icon": "menu-icon tf-icons mdi mdi-account-box-multiple",
       "slug": "asal-surat",
       "url": "master-data/asal-surat/"
     },
     {
-      "name": "Organization",
-      "icon": "menu-icon tf-icons mdi mdi-briefcase-account",
-      "slug": "organization",
+      "name": "Jenis Surat",
+      "icon": "menu-icon tf-icons mdi mdi mdi-email-variant",
+      "slug": "jenis-surat",
       "url": "master-data/organization/"
     },
     {
