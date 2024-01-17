@@ -7,6 +7,7 @@ use App\Models\Master\AsalSurat;
 use App\Models\Master\EntityAsalSurat;
 use App\Models\Master\Organization;
 use App\Models\Transaction\SuratMasuk;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
@@ -35,10 +36,26 @@ class BukuAgendaController extends Controller
                         ->with('klasifikasiSurat')
                         ->with('derajatSurat')
                         ->with('tujuanSurat')
-                        ->with('createdUser')
-                        ->whereHas('createdUser', function($user){
-                            $user->where('organization', Auth::user()->organization);
-                        });
+                        ->with('createdUser');
+
+
+
+        $loggedInOrg = User::with('org')->find(Auth::user()->id);
+
+        if(strtolower($loggedInOrg->org->nama) == 'taud' || strtolower($loggedInOrg->org->nama) == 'spri'){
+            $suratMasuk = $suratMasuk->whereHas('tujuanSurat', function($user) use ($loggedInOrg){
+                $user->where('tujuan_surat', $loggedInOrg->org->parent_id);
+            });
+
+            if(strtolower($loggedInOrg->org->nama) == 'spri'){
+                $suratMasuk = $suratMasuk->whereIn('status_surat', [6,7,8]);
+            }
+
+        } else {
+            $suratMasuk = $suratMasuk->whereHas('createdUser', function($user){
+                $user->where('organization', Auth::user()->organization);
+            });
+        }
 
         if($request->tgl_surat != null){
             $rangeDate = explode('to', $request->tgl_surat);
@@ -61,13 +78,11 @@ class BukuAgendaController extends Controller
                 ->addIndexColumn()
                 ->editColumn('status', function($data){
                     $bg = '';
-                    if ($data->status_surat == '1') {
-                        $bg = 'bg-label-warning';
-                    } else if($data->status_surat == '2') {
-                        $bg = 'bg-label-success';
-                    } else if($data->status_surat == '3') {
+
+                    $statusSurat = (int)$data->status_surat;
+                    if ($statusSurat%2 == 0) {
                         $bg = 'bg-label-primary';
-                    } else if($data->status_surat == '4') {
+                    } else {
                         $bg = 'bg-label-info';
                     }
 

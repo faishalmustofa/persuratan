@@ -175,7 +175,16 @@
     <div class="col-md">
         <div class="card">
             <div class="card-header">
-                Data Agenda Surat Masuk
+                <div class="row justify-content-between">
+                    <div class="col-12 col-md-6 order-md-2 order-last">
+                        Data Agenda Surat Masuk
+                    </div>
+                    <div class="col-12 col-md-6 order-md-2 order-first">
+                        {{-- <div class="float-start float-lg-end">
+                            <button class="btn btn-outline-primary" onclick="kirimBerkasBundle()">Kirim Berkas Ke TAUD (Bundle)</button>
+                        </div> --}}
+                    </div>
+                </div>
             </div>
             <div class="card-body">
                 @include('content.surat_masuk.data-list')

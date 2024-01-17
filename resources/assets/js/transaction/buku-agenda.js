@@ -31,6 +31,14 @@ $( function(){
             searchData()
         }
     });
+
+    $('#form-disposisi').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postDisposisi()
+            $(this).addClass('was-validated');
+        }
+    });
 })
 
 function searchData(){
@@ -148,6 +156,85 @@ function printBlanko(data){
     tempDownload.click();
 
     table.ajax.reload()
+}
+
+function pindahBerkas(txNo, status) {
+    let text = ''
+    if(status.includes("TAUD")){
+        text = 'Kirimkan Berkas ke SPRI KADIV?'
+    } else {
+        text = 'Kirimkan Berkas ke TAUD?'
+    }
+
+    Swal.fire({
+        icon: 'question',
+        showDenyButton: false,
+        title: text,
+        showCancelButton: true,
+        confirmButtonText: "Ya!"
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if(result.isConfirmed){
+            ajaxGetJson(`/transaction/surat-masuk/pindah-berkas/${txNo}`, 'success_pindah', 'input_error')
+        } else {
+            return false
+        }
+    });
+}
+
+function terimaBerkas(txNo, status){
+    let text = ''
+    if(status.includes("TAUD")){
+        text = 'Terima Berkas dari SPRI KADIV?'
+    } else {
+        text = 'Terima Berkas dari TAUD?'
+    }
+
+    Swal.fire({
+        icon: 'question',
+        showDenyButton: false,
+        title: text,
+        showCancelButton: true,
+        confirmButtonText: "Ya!"
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if(result.isConfirmed){
+            ajaxGetJson(`/transaction/surat-masuk/terima-berkas/${txNo}`, 'success_pindah', 'input_error')
+        } else {
+            return false
+        }
+    });
+}
+
+function success_pindah(data){
+    Swal.close()
+    table.ajax.reload()
+
+    if (data.status != 200) {
+        var text = data.message
+        error_notif(text)
+        return false
+    }
+
+    Command: toastr["success"](data.message, "Berhasil Simpan Data")
+
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
 }
 
 function error_insert(err){
