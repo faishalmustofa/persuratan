@@ -12,17 +12,23 @@ Route::middleware(['auth'])->group(function() {
         Route::prefix('asal-surat')->group(function () {
             Route::get('/', [AsalSuratController::class, 'index'])->name('masterdata.asal-surat');
         });
-    
+
         /** Organization */
         Route::prefix('organization')->group(function () {
             Route::get('/', [OrganizationController::class, 'index'])->name('masterdata.organization');
+            Route::post('/data', [OrganizationController::class, 'data']);
+            Route::get('/edit/{id}', [OrganizationController::class, 'edit'])->name('organization.edit');
+            Route::post('/update/{id}', [OrganizationController::class, 'update']);
+            Route::get('/add', [OrganizationController::class, 'create'])->name('organization.create');
+            Route::post('/add/store', [OrganizationController::class, 'store']);
+            Route::get('/delete/{id}', [OrganizationController::class, 'destroy']);
         });
-    
+
         /** Status Disposisi */
         Route::prefix('status-disposisi')->group(function () {
             Route::get('/', [StatusDisposisiController::class, 'index'])->name('masterdata.status-disposisi');
         });
-    
+
         /** Status Surat */
         Route::prefix('status-surat')->group(function () {
             Route::get('/', [StatusSuratController::class, 'index'])->name('masterdata.status-surat');
