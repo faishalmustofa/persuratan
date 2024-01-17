@@ -85,7 +85,7 @@
     </div>
     <!--/ Card Border Shadow -->
 
-    <div class="card">
+    <div class="card" style="display: none">
         <h5 class="card-header">Pencarian Berdasarkan Nomor Agenda</h5>
         <div class="card-body">
             <form action="javascript:void(0)" id="form-pencarian" class="needs-validation" novalidate>
@@ -109,7 +109,7 @@
         </div>
     </div>
 
-    <div class="row mt-4" id="container-data" style="display: none">
+    <div class="row mt-4" id="container-data">
         <div class="col-md">
             <div class="card">
                 <div class="card-header">
