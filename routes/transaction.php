@@ -15,6 +15,8 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/data', [SuratMasukController::class, 'data']);
         Route::get('/print-blanko/{txNo}', [SuratMasukController::class, 'printBlanko']);
         Route::get('/download-blanko/{file}', [SuratMasukController::class, 'downloadBlanko']);
+        Route::get('/pindah-berkas/{txNo}', [SuratMasukController::class, 'pindahBerkas']);
+        Route::get('/terima-berkas/{txNo}', [SuratMasukController::class, 'terimaBerkas']);
         Route::get('/show-pdf/{txNumber}', [SuratMasukController::class, 'showPdf'])->name('showPDF');
     });
 

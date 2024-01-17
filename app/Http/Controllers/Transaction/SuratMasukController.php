@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Master\AsalSurat;
 use App\Models\Master\EntityAsalSurat;
 use App\Models\Master\Organization;
+use App\Models\Master\StatusSurat;
 use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
 use App\Models\Transaction\SuratMasuk;
@@ -49,23 +50,36 @@ class SuratMasukController extends Controller
                         ->with('klasifikasiSurat')
                         ->with('derajatSurat')
                         ->with('tujuanSurat')
-                        ->with('createdUser')
-                        ->whereHas('createdUser', function($user){
-                            $user->where('organization', Auth::user()->organization);
-                        })
-                        ->get();
+                        ->with('createdUser');
+
+
+        $loggedInOrg = User::with('org')->find(Auth::user()->id);
+
+        if(strtolower($loggedInOrg->org->nama) == 'taud' || strtolower($loggedInOrg->org->nama) == 'spri'){
+            $dataSurat = $dataSurat->whereHas('tujuanSurat', function($user) use ($loggedInOrg){
+                $user->where('tujuan_surat', $loggedInOrg->org->parent_id);
+            });
+
+            if(strtolower($loggedInOrg->org->nama) == 'spri'){
+                $dataSurat = $dataSurat->whereIn('status_surat', [6,7,8]);
+            }
+
+            $dataSurat = $dataSurat->get();
+        } else {
+            $dataSurat = $dataSurat->whereHas('createdUser', function($user){
+                $user->where('organization', Auth::user()->organization);
+            })
+            ->get();
+        }
 
         return DataTables::of($dataSurat)
                 ->addIndexColumn()
                 ->editColumn('status', function($data){
                     $bg = '';
-                    if ($data->status_surat == '1') {
-                        $bg = 'bg-label-warning';
-                    } else if($data->status_surat == '2') {
-                        $bg = 'bg-label-success';
-                    } else if($data->status_surat == '3') {
+                    $statusSurat = (int)$data->status_surat;
+                    if ($statusSurat%2 == 0) {
                         $bg = 'bg-label-primary';
-                    } else if($data->status_surat == '4') {
+                    } else {
                         $bg = 'bg-label-info';
                     }
 
@@ -84,10 +98,24 @@ class SuratMasukController extends Controller
 
     public function renderAction($data)
     {
+        $loggedInOrg = User::with('org')->find(Auth::user()->id);
+        $status = StatusSurat::where('id', $data->status_surat)->first();
+
         $html = '';
-        if($data->status_surat == 1 && Auth::user()->hasPermissionTo('print-blanko'))
-        {
+        if(($data->status_surat == 1 || $data->status_surat == 10) && Auth::user()->hasPermissionTo('print-blanko')){
             $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
+        } else if(strtolower($loggedInOrg->org->nama) == 'taud'){
+            if($data->status_surat == 11){
+                $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="pindahBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Pindah Berkas ke SPRI" > <span class="mdi mdi-file-move"></span> </button>';
+            } else if($data->status_surat == 9){
+                $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
+            }
+        } else if(strtolower($loggedInOrg->org->nama) == 'spri'){
+            if($data->status_surat == 6){
+                $html = '<button class="btn btn-warning btn-sm rounded-pill" onclick="terimaBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Terima Berkas" > <span class="mdi mdi-file-document-check"></span> </button>';
+            } else if($data->status_surat == 8){
+                $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="pindahBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Pindah Berkas ke TAUD" > <span class="mdi mdi-file-move"></span> </button>';
+            }
         }
 
         return $html;
@@ -130,6 +158,15 @@ class SuratMasukController extends Controller
                 $file_path = null;
             }
 
+            $statusNext = 0;
+            $loggedInOrg = User::with('org')->find(Auth::user()->id);
+
+            if(strtolower($org->nama) == 'kadiv propam' && strtolower($loggedInOrg->org->nama) == 'taud'){
+                $statusNext = 10;
+            } else {
+                $statusNext = 1;
+            }
+
             $insertedData = [
                 'tx_number' => $txNumber,
                 'no_agenda' => $noAgenda,
@@ -141,7 +178,7 @@ class SuratMasukController extends Controller
                 'tgl_diterima' => $request->tanggal_diterima,
                 'lampiran' => $request->judul_lampiran,
                 'tembusan' => $request->tembusan,
-                'status_surat' => 1,
+                'status_surat' => $statusNext,
                 'entity_asal_surat' => $entityAsalSurat->id,
                 'entity_asal_surat_detail' => $request->entity_asal_surat_detail,
                 'lampiran_type' => $request->lampiran_type,
@@ -179,7 +216,6 @@ class SuratMasukController extends Controller
         $org = Organization::find($dataSurat->tujuan_surat);
         $filePath = public_path().'/document/blanko_disposisi/'.$org->blanko_path;
 
-
         if (file_exists($filePath)){
             $template_document = new TemplateProcessor($filePath);
 
@@ -203,9 +239,19 @@ class SuratMasukController extends Controller
             $path = public_path().'/document/'.$filename;
             $template_document->saveAs($path);
 
+            $statusNext = 0;
+            // $loggedInOrg = User::with('org')->find(Auth::user()->id);
+            // strtolower($org->nama) == 'kadiv propam' && strtolower($loggedInOrg->org->name) == 'taud'
+
+            if($dataSurat->status_surat == 10){
+                $statusNext = 11;
+            } else {
+                $statusNext = 2;
+            }
+
             // Update Status Surat
             SuratMasuk::where('tx_number', $txNo)->update([
-                'status_surat' => 2
+                'status_surat' => $statusNext
             ]);
 
             return response()->json([
@@ -224,6 +270,48 @@ class SuratMasukController extends Controller
     public function downloadBlanko($file){
         $filePath = public_path().'/document/'.$file;
         return response()->download($filePath)->deleteFileAfterSend(true);
+    }
+
+    public function pindahBerkas($txNo)
+    {
+        $suratMasuk = SuratMasuk::where('tx_number', $txNo);
+        $loggedInOrg = User::with('org')->find(Auth::user()->id);
+
+        if($suratMasuk->first()->status_surat == 11 && strtolower($loggedInOrg->org->nama) == 'taud'){
+            $suratMasuk->update([
+                'status_surat' => 6
+            ]);
+        } else if($suratMasuk->first()->status_surat == 8 && strtolower($loggedInOrg->org->nama) == 'spri') {
+            $suratMasuk->update([
+                'status_surat' => 9
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'message' => 'Berhasil Melakukan Perpindahan Berkas',
+        ]);
+    }
+
+    public function terimaBerkas($txNo)
+    {
+        $suratMasuk = SuratMasuk::where('tx_number', $txNo);
+        $loggedInOrg = User::with('org')->find(Auth::user()->id);
+
+        if($suratMasuk->first()->status_surat == 11 && strtolower($loggedInOrg->org->nama) == 'taud'){
+            $suratMasuk->update([
+                'status_surat' => 6
+            ]);
+        } else if($suratMasuk->first()->status_surat == 6 && strtolower($loggedInOrg->org->nama) == 'spri') {
+            $suratMasuk->update([
+                'status_surat' => 8
+            ]);
+        }
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'message' => 'Berhasil Melakukan Penerimaan Berkas',
+        ]);
     }
 
     /**

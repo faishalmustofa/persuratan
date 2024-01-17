@@ -50,13 +50,11 @@ class DisposisiController extends Controller
                 ->addIndexColumn()
                 ->editColumn('status', function($data){
                     $bg = '';
-                    if ($data->status_surat == '1') {
-                        $bg = 'bg-label-warning';
-                    } else if($data->status_surat == '2') {
-                        $bg = 'bg-label-success';
-                    } else if($data->status_surat == '3') {
+
+                    $statusSurat = (int)$data->status_surat;
+                    if ($statusSurat%2 == 0) {
                         $bg = 'bg-label-primary';
-                    } else if($data->status_surat == '4') {
+                    } else {
                         $bg = 'bg-label-info';
                     }
 
@@ -78,7 +76,7 @@ class DisposisiController extends Controller
         $html = '';
         if($data->status_surat == 1 && Auth::user()->hasPermissionTo('print-blanko')){
             $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
-        } else if($data->status_surat == 2 && Auth::user()->hasPermissionTo('update-disposisi')){
+        } else if(($data->status_surat == 2 || $data->status_surat == 9) && Auth::user()->hasPermissionTo('update-disposisi')){
             $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
         } else if($data->status_surat == 3){
             if (Auth::user()->hasPermissionTo('kirim-disposisi')){
@@ -124,7 +122,7 @@ class DisposisiController extends Controller
                         ->with('derajatSurat')
                         ->first();
 
-        if(count($tujuan) == 0){
+        if($tujuan == null){
             SuratMasuk::where('tx_number', $request->tx_number)->update([
                 'status_surat' => 5
             ]);
@@ -134,23 +132,35 @@ class DisposisiController extends Controller
                 'message' => 'Surat Berhasil Diarsipkan',
             ]);
         } else {
-            for ($i=0; $i < count($tujuan); $i++) {
-                DisposisiSuratMasuk::create([
-                    'tx_number' => $request->tx_number,
-                    'no_agenda' => $dataSurat->no_agenda,
-                    'tujuan_disposisi' => $tujuan[$i],
-                    'isi_disposisi' => $request->isi_disposisi,
+            if(in_array('2', $tujuan)){
+                SuratMasuk::where('tx_number', $request->tx_number)->update([
+                    'status_surat' => 5
+                ]);
+
+                return response()->json([
+                    'status' => JsonResponse::HTTP_OK,
+                    'message' => 'Surat Berhasil Diarsipkan',
+                ]);
+            } else {
+                for ($i=0; $i < count($tujuan); $i++) {
+                    DisposisiSuratMasuk::create([
+                        'tx_number' => $request->tx_number,
+                        'no_agenda' => $dataSurat->no_agenda,
+                        'tujuan_disposisi' => $tujuan[$i],
+                        'isi_disposisi' => $request->isi_disposisi,
+                    ]);
+                }
+
+                SuratMasuk::where('tx_number', $request->tx_number)->update([
+                    'status_surat' => 3
+                ]);
+
+                return response()->json([
+                    'status' => JsonResponse::HTTP_OK,
+                    'message' => 'Berhasil Update Isi Disposisi',
                 ]);
             }
 
-            SuratMasuk::where('tx_number', $request->tx_number)->update([
-                'status_surat' => 3
-            ]);
-
-            return response()->json([
-                'status' => JsonResponse::HTTP_OK,
-                'message' => 'Berhasil Update Isi Disposisi',
-            ]);
         }
 
 
