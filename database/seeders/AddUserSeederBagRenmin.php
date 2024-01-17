@@ -44,7 +44,17 @@ class AddUserSeederBagRenmin extends Seeder
             'organization' => 7,
             'jabatan' => 'SUBBAG BINFUNG DIVPROPAM pOLRI'
         ]);
-
         $subbag->assignRole('Operator');
+        
+        $subbag_renmin = User::create([
+            'name' => 'Subbag Renmin',
+            'email' => 'subbagrenmin@divpropam.polri.go.id',
+            'username' => 'subbagrenmin',
+            'password' => Hash::make('Propam12345'),
+            'organization' => 5,
+            'jabatan' => 'SUBBAG RENMIN DIVPROPAM pOLRI'
+        ]);
+
+        $subbag_renmin->assignRole('Operator');
     }
 }

@@ -43,8 +43,8 @@ $(function () {
       ajax: assetsPath + 'json/user-list.json', // JSON file to add data
       columns: [
         // columns according to JSON
-        { data: '' },
-        { data: 'id' },
+        // { data: '' },
+        // { data: 'id' },
         { data: 'full_name' },
         { data: 'role' },
         { data: 'current_plan' },

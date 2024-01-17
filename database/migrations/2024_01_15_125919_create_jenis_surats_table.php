@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('organization', function (Blueprint $table) {
-            $table->string('suffix_agenda')->default('')->nullable();
+        Schema::create('r_jenis_surat', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama');
+            $table->string('format');
+            $table->string('deskripsi');
+            $table->timestamps();
         });
     }
 
@@ -21,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('organization', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('r_jenis_surat');
     }
 };

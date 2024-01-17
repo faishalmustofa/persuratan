@@ -1,14 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\UserRole;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Master\Organization;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\Facades\DataTables;
 
 class UserController extends Controller
 {
@@ -29,9 +32,8 @@ class UserController extends Controller
      */
     public function index(): View
     {
-        return view('users.index', [
-            'users' => User::latest('id')->paginate(3)
-        ]);
+        $data = ['users' => User::latest('id')->paginate(3)];
+        return view('content.setting.user-list', $data);
     }
 
     /**
@@ -124,5 +126,31 @@ class UserController extends Controller
         $user->delete();
         return redirect()->route('users.index')
                 ->withSuccess('User is deleted successfully.');
+    }
+
+    public function data()
+    {
+        $query = User::orderBy('name')->get();
+
+        return DataTables::of($query)
+                ->addIndexColumn()
+                ->editColumn('organization', function($query){
+                    $org = Organization::where('id',$query->organization)->first();
+                    // $html = ;
+
+                    return $org->nama;
+                })
+                ->editColumn('action', function($query){
+                    $html = "<a href='javascript:void(0)' class='btn btn-xs btn-warning' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Edit Permission'>
+                                <i class='fas fa-pencil'></i>
+                            </a>
+                            <a href='javascript:void(0)' onclick='deleteData(`$query->id`)' class='btn btn-xs btn-danger' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Delete Permission'>
+                                <i class='fas fa-trash'></i>
+                            </a>";
+
+                    return $html;
+                })
+                ->rawColumns(['organization','action'])
+                ->make(true);
     }
 }

@@ -18,7 +18,8 @@
 @endsection
 
 @section('page-script')
-<script src="{{asset('assets/js/app-access-permission.js')}}"></script>
+<script src="{{asset('assets/js/setting/permission.js')}}"></script>
+{{-- <script src="{{asset('assets/js/app-access-permission.js')}}"></script> --}}
 <script src="{{asset('assets/js/modal-add-permission.js')}}"></script>
 <script src="{{asset('assets/js/modal-edit-permission.js')}}"></script>
 @endsection
@@ -26,7 +27,7 @@
 @section('content')
 <h4 class="py-3 mb-2">Permissions List</h4>
 
-<p class="mb-4">Each category (Basic, Professional, and Business) includes the four predefined roles shown below.</p>
+{{-- <p class="mb-4">Each category (Basic, Professional, and Business) includes the four predefined roles shown below.</p> --}}
 
 
 <!-- Permission Table -->
