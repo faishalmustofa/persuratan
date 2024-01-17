@@ -38,6 +38,8 @@ $( function(){
     $('#form-pencarian').on('submit', function (e) {
         searchData()
     });
+
+    searchData()
 })
 
 function searchData(){
