@@ -94,7 +94,7 @@
                 <div class="row mb-4 align-items-center">
                     <div class="col-md-4 col-12 mb-4">
                         <div class="form-floating form-floating-outline">
-                            <input type="text" class="form-control" id="nomor_agenda" name="nomor_agenda"
+                            <input type="text" class="form-control" name="nomor_agenda"
                                 placeholder="Nomor Agenda" />
                             <label for="nomor_agenda">Nomor Agenda</label>
                         </div>
@@ -116,6 +116,7 @@
                     Data Agenda Surat Masuk
                 </div>
                 <div class="card-body">
+                    <input type="hidden" id="nomor_agenda" name="noAgenda" value="{{$noAgenda}}">
                     @include('content.surat_masuk.data-list')
                 </div>
             </div>

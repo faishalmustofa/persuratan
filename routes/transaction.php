@@ -28,7 +28,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
 
     /** MENU DISPOSISI KELUAR */
     Route::prefix('disposisi')->group(function(){
-        Route::get('/', [DisposisiController::class, 'index']);
+        Route::get('/{noAgenda?}', [DisposisiController::class, 'index']);
         Route::post('/store', [DisposisiController::class, 'store']);
         Route::post('/get-data', [DisposisiController::class, 'getData']);
         Route::get('/get-tujuan/{txNumber}', [DisposisiController::class, 'getTujuanDisposisi']);

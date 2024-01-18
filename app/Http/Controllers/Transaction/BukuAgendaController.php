@@ -8,6 +8,7 @@ use App\Models\Master\EntityAsalSurat;
 use App\Models\Master\Organization;
 use App\Models\Transaction\SuratMasuk;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\DataTables;
@@ -48,7 +49,7 @@ class BukuAgendaController extends Controller
             });
 
             if(strtolower($loggedInOrg->org->nama) == 'spri'){
-                $suratMasuk = $suratMasuk->whereIn('status_surat', [6,7,8]);
+                $suratMasuk = $suratMasuk->whereIn('status_surat', [3,6,7,8]);
             }
 
         } else {
@@ -95,7 +96,15 @@ class BukuAgendaController extends Controller
                 ->editColumn('action', function($data){
                     return (new SuratMasukController)->renderAction($data);
                 })
-                ->rawColumns(['status', 'action', 'noSurat'])
+                ->editColumn('tgl_surat', function($data) {
+                    $tgl = Carbon::parse($data->tgl_surat)->translatedFormat('d F Y');
+                    return $tgl;
+                })
+                ->editColumn('tgl_diterima', function($data) {
+                    $tgl = Carbon::parse($data->tgl_diterima)->translatedFormat('d F Y');
+                    return $tgl;
+                })
+                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima'])
                 ->make(true);
     }
 
