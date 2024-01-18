@@ -37,6 +37,8 @@ class DatabaseSeeder extends Seeder
             JenisSuratSeeder::class,
             TujuansuratSeeder::class,
             EntityTujuanSuratSeeder::class,
+            AddOtherStatusSuratSeeder::class,
+            AddSpriOrganizationSeeder::class,
         ]);
     }
 }

@@ -7,8 +7,6 @@
 /storage/*.key
 /vendor
 
-/public/document
-
 .env
 .env.backup
 .env.production
