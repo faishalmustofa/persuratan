@@ -166,41 +166,47 @@ function getDataSuratMasuk(){
             {
                 data: 'no_agenda',
                 name: 'no_agenda',
+                responsivePriority: 0
             },
             {
                 data: 'noSurat',
                 name: 'noSurat',
+                responsivePriority: 0
             },
             {
                 data: 'tgl_surat',
                 name: 'tgl_surat',
+                responsivePriority: 1
             },
             {
                 data: 'tgl_diterima',
                 name: 'tgl_diterima',
+                responsivePriority: 1
             },
             {
                 data: 'asal_surat.name',
                 name: 'asal_surat.name',
+                responsivePriority: 2
             },
             {
                 data: 'tujuan_surat.nama',
                 name: 'tujuan_surat.nama',
+                responsivePriority: 2
             },
             {
                 data: 'perihal',
                 name: 'perihal',
-                responsivePriority: 0
+                responsivePriority: 2
             },
             {
                 data: 'status',
                 name: 'status',
-                responsivePriority: 0
+                responsivePriority: 2
             },
             {
                 data: 'action',
                 name: 'action',
-                responsivePriority: 0
+                responsivePriority: -1
             }
         ],
         order: [[4, 'asc']],

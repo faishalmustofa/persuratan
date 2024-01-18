@@ -10,6 +10,7 @@ use App\Models\Master\Organization;
 use App\Models\Master\StatusSurat;
 use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
+use App\Models\Transaction\DisposisiSuratMasuk;
 use App\Models\Transaction\SuratMasuk;
 use App\Models\User;
 use Carbon\Carbon;
@@ -61,7 +62,7 @@ class SuratMasukController extends Controller
             });
 
             if(strtolower($loggedInOrg->org->nama) == 'spri'){
-                $dataSurat = $dataSurat->whereIn('status_surat', [6,7,8]);
+                $dataSurat = $dataSurat->whereIn('status_surat', [3,6,7,8]);
             }
 
             $dataSurat = $dataSurat->get();
@@ -92,7 +93,15 @@ class SuratMasukController extends Controller
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
                 })
-                ->rawColumns(['status', 'action', 'noSurat'])
+                ->editColumn('tgl_surat', function($data) {
+                    $tgl = Carbon::parse($data->tgl_surat)->translatedFormat('d F Y');
+                    return $tgl;
+                })
+                ->editColumn('tgl_diterima', function($data) {
+                    $tgl = Carbon::parse($data->tgl_diterima)->translatedFormat('d F Y');
+                    return $tgl;
+                })
+                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima'])
                 ->make(true);
     }
 
@@ -107,13 +116,20 @@ class SuratMasukController extends Controller
         } else if(strtolower($loggedInOrg->org->nama) == 'taud'){
             if($data->status_surat == 11){
                 $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="pindahBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Pindah Berkas ke SPRI" > <span class="mdi mdi-file-move"></span> </button>';
-            } else if($data->status_surat == 9){
-                $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
+            } else if($data->status_surat == 9 && Auth::user()->hasPermissionTo('kirim-disposisi')){
+                $disposisi = DisposisiSuratMasuk::where('tx_number', $data->tx_number)->get();
+
+                if(count($disposisi) != 0){
+                    $noAgenda = base64_encode($data->no_agenda);
+                    $html = '<a href="'.url('transaction/disposisi/'.$noAgenda).'" class="btn btn-info btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </a>';
+                }
             }
         } else if(strtolower($loggedInOrg->org->nama) == 'spri'){
             if($data->status_surat == 6){
                 $html = '<button class="btn btn-warning btn-sm rounded-pill" onclick="terimaBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Terima Berkas" > <span class="mdi mdi-file-document-check"></span> </button>';
             } else if($data->status_surat == 8){
+                $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
+            } else if($data->status_surat == 3) {
                 $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="pindahBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Pindah Berkas ke TAUD" > <span class="mdi mdi-file-move"></span> </button>';
             }
         }
@@ -281,7 +297,7 @@ class SuratMasukController extends Controller
             $suratMasuk->update([
                 'status_surat' => 6
             ]);
-        } else if($suratMasuk->first()->status_surat == 8 && strtolower($loggedInOrg->org->nama) == 'spri') {
+        } else if($suratMasuk->first()->status_surat == 3 && strtolower($loggedInOrg->org->nama) == 'spri') {
             $suratMasuk->update([
                 'status_surat' => 9
             ]);

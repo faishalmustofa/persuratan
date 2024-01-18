@@ -195,6 +195,12 @@ function kirimDisposisi(txNo, noSurat, noAgenda) {
 }
 
 async function postPengiriman(){
+    var currentUrl = window.location.href
+    var newURL = currentUrl.split('/');
+    newURL = currentUrl.replace('/'+newURL[newURL.length-1], '')
+    history.pushState({}, null, newURL)
+    $('#nomor_agenda').val('')
+
     let form = $('#form-pengiriman').serialize()
     await ajaxPostJson('/transaction/disposisi/pengiriman-surat', form, 'input_success', 'input_error')
     $('#modal-kirim').modal('toggle')
@@ -235,7 +241,7 @@ function showModalDetail(res){
 
 function input_success(data) {
     Swal.close()
-    table.ajax.reload()
+    table.destroy()
 
     if (data.status != 200) {
         var text = data.message
@@ -262,6 +268,8 @@ function input_success(data) {
       "showMethod": "fadeIn",
       "hideMethod": "fadeOut"
     }
+
+    searchData()
 }
 
 function input_error(err) {

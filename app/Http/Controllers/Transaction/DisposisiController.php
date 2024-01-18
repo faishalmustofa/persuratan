@@ -8,6 +8,7 @@ use App\Models\Transaction\DisposisiSuratMasuk;
 use App\Models\Transaction\Pengiriman;
 use App\Models\Transaction\SuratMasuk;
 use App\Models\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,9 +22,9 @@ class DisposisiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($noAgenda = '')
     {
-        return view('content.surat_masuk.disposisi');
+        return view('content.surat_masuk.disposisi', compact('noAgenda'));
     }
 
     public function getData(Request $request)
@@ -42,7 +43,8 @@ class DisposisiController extends Controller
                         });
 
         if ($request->nomor_agenda != null) {
-            $suratMasuk = $suratMasuk->where('no_agenda', 'like', '%' .$request->nomor_agenda. '%');
+            $noAgenda = base64_decode($request->nomor_agenda);
+            $suratMasuk = $suratMasuk->where('no_agenda', 'like', '%' .$noAgenda. '%');
         }
         $suratMasuk = $suratMasuk->get();
 
@@ -67,7 +69,15 @@ class DisposisiController extends Controller
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
                 })
-                ->rawColumns(['status', 'action', 'noSurat'])
+                ->editColumn('tgl_surat', function($data) {
+                    $tgl = Carbon::parse($data->tgl_surat)->translatedFormat('d F Y');
+                    return $tgl;
+                })
+                ->editColumn('tgl_diterima', function($data) {
+                    $tgl = Carbon::parse($data->tgl_diterima)->translatedFormat('d F Y');
+                    return $tgl;
+                })
+                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima'])
                 ->make(true);
     }
 
@@ -76,9 +86,7 @@ class DisposisiController extends Controller
         $html = '';
         if($data->status_surat == 1 && Auth::user()->hasPermissionTo('print-blanko')){
             $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
-        } else if(($data->status_surat == 2 || $data->status_surat == 9) && Auth::user()->hasPermissionTo('update-disposisi')){
-            $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
-        } else if($data->status_surat == 3){
+        } else if($data->status_surat == 9){
             if (Auth::user()->hasPermissionTo('kirim-disposisi')){
                 $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
             }

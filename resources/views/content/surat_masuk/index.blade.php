@@ -128,97 +128,118 @@
             <div class="card-body">
             <form action="javascript:void(0)" id="form-surat-masuk" class="needs-validation" novalidate>
                 @csrf
-                <div class="form-floating form-floating-outline mb-4">
-                <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Agenda" name="nomor_agenda" value="" disabled />
-                <label for="nomor_agenda">Nomor Agenda (Auto Generated)</label>
-                </div>
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-12 col-md-6">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Agenda" name="nomor_agenda" value="" disabled />
+                            <label for="nomor_agenda">Nomor Agenda (Auto Generated)</label>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->no_surat : '') : ''}}" />
+                            <label for="nomor_surat">Nomor Surat</label>
+                            <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
+                        </div>
+                    </div>
 
-                <div class="form-floating form-floating-outline mb-4">
-                    <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->no_surat : '') : ''}}" />
-                    <label for="nomor_surat">Nomor Surat</label>
-                    <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
-                </div>
-
-                <div class="form-floating form-floating-outline mb-4">
-                <select id="klasifikasi" name="klasifikasi" class="form-select select2" data-allow-clear="true" required>
-                    <option>Pilih Klasifikasi Surat</option>
-                    @foreach ($klasifikasi as $item)
-                        <option value="{{$item->id}}" {{isset($suratMasuk) ? ($suratMasuk->klasifikasi == $item->id ? 'selected' : '') : ''}} >{{$item->nama}}</option>
-                    @endforeach
-                </select>
-                <div class="invalid-feedback"> Mohon pilih klasifikasi surat. </div>
-                </div>
-
-                <div class="form-floating form-floating-outline mb-4">
-                <select id="derajat" name="derajat" class="form-select select2" data-allow-clear="true" required>
-                    <option>Pilih Derajat Surat</option>
-                    @foreach ($derajat as $item)
-                        <option value="{{$item->id}}" {{isset($suratMasuk) ? ($suratMasuk->derajat == $item->id ? 'selected' : '') : ''}} >{{$item->nama}}</option>
-                    @endforeach
-                </select>
-                <div class="invalid-feedback"> Mohon pilih derajat surat. </div>
-                </div>
-
-                <div class="mb-4 form-floating form-floating-outline">
-                    <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->tgl_surat : '') : ''}}"/>
-                    <label for="tanggal_surat">Pilih Tanggal Surat</label>
-                    <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
-                </div>
-
-                <div class="form-floating form-floating-outline mb-4">
-                    <select id="asal_surat" name="asal_surat" class="select2 form-select" required>
-                        <option value="">Pilih Asal Surat</option>
-                        @foreach ($asalSurat as $header)
-                            @if(isset($suratMasuk))
-                                @if($header->id == '1')
-                                    <optgroup label="{{$header->name}}">
-                                        @foreach ($entityAsal as $detail)
-                                            @if ($detail->asal_surat_id == $header->id)
-                                                <option value="{{$detail->id}}">{{$detail->entity_name}}</option>
-                                            @endif
-                                        @endforeach
-                                    </optgroup>
-                                @endif
-                            @else
-                                <optgroup label="{{$header->name}}">
-                                    @foreach ($entityAsal as $detail)
-                                        @if ($detail->asal_surat_id == $header->id)
-                                            <option value="{{$detail->id}}">{{$detail->entity_name}}</option>
+                    <div class="col-12 col-md-6">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <select id="asal_surat" name="asal_surat" class="select2 form-select" required>
+                                <option value="">Pilih Asal Surat</option>
+                                @foreach ($asalSurat as $header)
+                                    @if(isset($suratMasuk))
+                                        @if($header->id == '1')
+                                            <optgroup label="{{$header->name}}">
+                                                @foreach ($entityAsal as $detail)
+                                                    @if ($detail->asal_surat_id == $header->id)
+                                                        <option value="{{$detail->id}}">{{$detail->entity_name}}</option>
+                                                    @endif
+                                                @endforeach
+                                            </optgroup>
                                         @endif
-                                    @endforeach
-                                </optgroup>
-                            @endif
-                        @endforeach
-                    </select>
-                    <div class="invalid-feedback"> Mohon pilih asal surat. </div>
+                                    @else
+                                        <optgroup label="{{$header->name}}">
+                                            @foreach ($entityAsal as $detail)
+                                                @if ($detail->asal_surat_id == $header->id)
+                                                    <option value="{{$detail->id}}">{{$detail->entity_name}}</option>
+                                                @endif
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback"> Mohon pilih asal surat. </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <input type="text" class="form-control" id="entity_asal_surat_detail" placeholder="Detail Entity Asal Surat" name="entity_asal_surat_detail" required />
+                            <label for="entity_asal_surat_detail">Detail Entity Asal Surat</label>
+                            <div class="invalid-feedback"> Mohon masukan detail entity asal surat. </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="mb-4 form-floating form-floating-outline">
+                            <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->tgl_surat : '') : ''}}"/>
+                            <label for="tanggal_surat">Pilih Tanggal Surat</label>
+                            <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="mb-4 form-floating form-floating-outline">
+                            <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-diterima" name="tanggal_diterima" required/>
+                            <label for="tanggal_diterima">Pilih Tanggal Diterima</label>
+                            <div class="invalid-feedback"> Mohon pilih tanggal diterima. </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <select id="klasifikasi" name="klasifikasi" class="form-select select2" data-allow-clear="true" required>
+                                <option>Pilih Klasifikasi Surat</option>
+                                @foreach ($klasifikasi as $item)
+                                    <option value="{{$item->id}}" {{isset($suratMasuk) ? ($suratMasuk->klasifikasi == $item->id ? 'selected' : '') : ''}} >{{$item->nama}}</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback"> Mohon pilih klasifikasi surat. </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <select id="derajat" name="derajat" class="form-select select2" data-allow-clear="true" required>
+                                <option>Pilih Derajat Surat</option>
+                                @foreach ($derajat as $item)
+                                    <option value="{{$item->id}}" {{isset($suratMasuk) ? ($suratMasuk->derajat == $item->id ? 'selected' : '') : ''}} >{{$item->nama}}</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback"> Mohon pilih derajat surat. </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <select id="tujuan_surat" name="tujuan_surat" class="select2 form-select" required>
+                                <option value="">Pilih Tujuan Surat</option>
+                                @foreach ($organization as $org)
+                                    <option value="{{$org->id}}" {{isset($suratMasuk) ? ($suratMasuk->tujuanDisposisi[0]->tujuan_disposisi == $org->id ? 'selected' : '') : ''}} >{{$org->nama}}</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback"> Mohon pilih tujuan surat. </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-floating form-floating-outline mb-4">
-                    <input type="text" class="form-control" id="entity_asal_surat_detail" placeholder="Detail Entity Asal Surat" name="entity_asal_surat_detail" required />
-                    <label for="entity_asal_surat_detail">Detail Entity Asal Surat</label>
-                    <div class="invalid-feedback"> Mohon masukan detail entity asal surat. </div>
-                </div>
-
-                <div class="form-floating form-floating-outline mb-4">
-                    <select id="tujuan_surat" name="tujuan_surat" class="select2 form-select" required>
-                        <option value="">Pilih Tujuan Surat</option>
-                        @foreach ($organization as $org)
-                            <option value="{{$org->id}}" {{isset($suratMasuk) ? ($suratMasuk->tujuanDisposisi[0]->tujuan_disposisi == $org->id ? 'selected' : '') : ''}} >{{$org->nama}}</option>
-                        @endforeach
-                    </select>
-                    <div class="invalid-feedback"> Mohon pilih tujuan surat. </div>
-                </div>
-
-                <div class="form-floating form-floating-outline mb-4">
-                    <textarea class="form-control h-px-75" id="perihal" name="perihal" rows="3" placeholder="Perihal" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}}>{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->perihal : '') : ''}}</textarea>
-                    <label for="perihal">Perihal</label>
-                    <div class="invalid-feedback"> Mohon masukan perihal surat. </div>
-                </div>
-
-                <div class="mb-4 form-floating form-floating-outline">
-                    <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-diterima" name="tanggal_diterima" required/>
-                    <label for="tanggal_diterima">Pilih Tanggal Diterima</label>
-                <div class="invalid-feedback"> Mohon pilih tanggal diterima. </div>
+                <div class="row justify-content-center align-items-center">
+                    <div class="col-12 col-md-12">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <textarea class="form-control h-px-75" id="perihal" name="perihal" rows="3" placeholder="Perihal" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}}>{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->perihal : '') : ''}}</textarea>
+                            <label for="perihal">Perihal</label>
+                            <div class="invalid-feedback"> Mohon masukan perihal surat. </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row">
