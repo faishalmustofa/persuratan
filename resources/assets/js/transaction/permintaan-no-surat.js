@@ -129,8 +129,8 @@ function getDataSuratMasuk(){
                 name: 'tgl_surat',
             },
             {
-                data: 'tujuan_surat.nama',
-                name: 'tujuan_surat.nama',
+                data: 'tujuan_surat.entity_name',
+                name: 'tujuan_surat.entity_name',
             },
             {
                 data: 'perihal',
@@ -148,7 +148,7 @@ function getDataSuratMasuk(){
                 responsivePriority: 0
             }
         ],
-        order: [[4, 'asc']],
+        order: [[3, 'asc']],
         fnDrawCallback: () => {
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
             const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
@@ -247,6 +247,38 @@ function minta_surat_success(data) {
     table.ajax.reload()
 }
 
+function detailSurat(txNo) {
+    txNo = btoa(txNo)
+    ajaxGetJson(`/transaction/permintaan-no-surat/detail/${txNo}`, 'showModalDetail', 'error_get')
+}
+
+function showModalDetail(res){
+    Swal.close()
+
+    if (res.status != 200) {
+        var text = res.message
+        error_notif(text)
+        return false
+    }
+
+    var header = res.data.header
+    var detail = res.data.detail
+
+    Object.keys(header).map((key) => {
+        $('#header-data').find(`#${key}`).html(header[key])
+    })
+
+    let elTujuan = '';
+    for (let i = 0; i < detail.tujuan_disposisi.length; i++) {
+        elTujuan += `<h5 class="me-2"><span class="badge rounded-pill bg-label-primary">${detail.tujuan_disposisi[i]}</span></h5>`
+    }
+
+    $('#modal-detail').modal('toggle')
+
+    $('#detail-data').find('#tujuan_disposisi').html(elTujuan)
+    $('#detail-data').find('#isi_disposisi').html(detail.isi_disposisi)
+
+}
 
 function actionMintaNomorSurat(txNumber){
     ajaxGetJson(`/transaction/surat-keluar/minta-no-surat/${txNumber}`, 'minta_surat_success', 'input_error')

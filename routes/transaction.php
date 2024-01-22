@@ -3,6 +3,7 @@
 use App\Http\Controllers\Transaction\BukuAgendaController;
 use App\Http\Controllers\Transaction\DisposisiController;
 use App\Http\Controllers\Transaction\DisposisiMasukController;
+use App\Http\Controllers\Transaction\PermintaanNoSuratController;
 use App\Http\Controllers\Transaction\SuratKeluarController;
 use App\Http\Controllers\Transaction\SuratMasukController;
 use Illuminate\Support\Facades\Route;
@@ -52,8 +53,9 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
     
     /** MENU SURAT KELUAR */
     Route::prefix('permintaan-no-surat')->group(function(){
-        Route::get('/', [SuratKeluarController::class, 'permintaanNoSurat']);
-        Route::post('/data', [SuratKeluarController::class, 'dataMintaNoSurat']);
+        Route::get('/', [PermintaanNoSuratController::class, 'permintaanNoSurat']);
+        Route::post('/data', [PermintaanNoSuratController::class, 'dataMintaNoSurat']);
+        Route::post('/permintaan-no-surat/detail/{txNo}', [PermintaanNoSuratController::class, 'dataMintaNoSurat']);
     });
 
     /** MENU BUKU AGENDA SURAT KELUAR*/

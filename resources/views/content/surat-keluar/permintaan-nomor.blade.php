@@ -154,4 +154,85 @@
     </div>
 </div>
 
+<!-- Modal Detail -->
+<div class="modal fade" id="modal-detail" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="modalCenterTitle">Detail Disposisi</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="card text-white bg-primary rounded-pills mb-4">
+                  <div class="card-body">
+                      <h5 class="card-title text-white">Informasi Data Surat</h5>
+                      <div class="row justify-content-center align-items-center" id="header-data">
+                          <div class="col-md-4 col-12 mb-2">No. Surat</div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span class='badge rounded-pill bg-label-info' id="no_surat"></span>
+                          </div>
+
+                          <div class="col-md-4 col-12 mb-2">No. Agenda</div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <b id="no_agenda"></b>
+                          </div>
+
+                          <div class="col-md-4 col-12 mb-2">
+                              Tanggal Surat
+                          </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="tgl_surat"></span>
+                          </div>
+
+                          <div class="col-md-4 col-12 mb-2">
+                              Tanggal Diterima
+                          </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="tgl_diterima"></span>
+                          </div>
+
+                          <div class="col-md-4 col-12 mb-2"> Tujuan Surat </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="tujuan_surat"></span>
+                          </div>
+
+                          <div class="col-md-4 col-12 mb-2"> Perihal </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="perihal"></span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="card text-white bg-info rounded-pills">
+                  <div class="card-body" id="detail-data">
+                      <div class="card text-secondary bg-white mb-2">
+                          <div class="card-header">Tujuan Disposisi</div>
+                          <div class="card-body">
+                              <div class="d-flex flex-wrap" id="tujuan_disposisi"></div>
+                          </div>
+                      </div>
+
+                      <div class="card text-secondary bg-white">
+                          <div class="card-header">Isi Disposisi</div>
+                          <div class="card-body">
+                              <p id="isi_disposisi"></p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+      </div>
+  </div>
+</div>
+
 @endsection

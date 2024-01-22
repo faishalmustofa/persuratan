@@ -12,6 +12,7 @@ use App\Models\Master\TujuanSurat;
 use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\JenisSurat;
 use App\Models\Reference\KlasifikasiSurat;
+use App\Models\Transaction\LogSuratKeluar;
 use App\Models\Transaction\SuratKeluar;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -96,10 +97,14 @@ class SuratKeluarController extends Controller
     public function mintaNoSurat($txNo)
     {
         $dataSurat = SuratKeluar::where('tx_number', $txNo)->first();
+        $user = Auth::getUser();
+        $user_org = Organization::where('id',$user->organization)->first();
+        $posisi = $user_org->parent_id;
         
         // Update Status Surat
         SuratKeluar::where('tx_number', $txNo)->update([
-            'status_surat' => 2
+            'status_surat' => 2,
+            'posisi_surat' => $posisi,
         ]);
 
         return response()->json([
@@ -130,11 +135,8 @@ class SuratKeluarController extends Controller
                         ->With('statusSurat')
                         ->with('tujuanSurat')
                         ->with('createdUser')
-                        ->whereHas('penandatangan', function($user){
-                            $user->where('tujuan_surat_id', Auth::user()->organization);
-                        })
+                        ->where('posisi_surat',Auth::user()->organization)
                         ->get();
-        dd($dataSurat);
 
         return DataTables::of($dataSurat)
                 ->addIndexColumn()
@@ -207,6 +209,7 @@ class SuratKeluarController extends Controller
                 'tx_number' => $txNumber,
                 'no_agenda' => '-',
                 'no_surat' => '-',
+                'posisi_surat' => $asalSurat->id,
                 'jenis_surat' => $request->jenis_surat,
                 'tgl_surat' => $request->tanggal_surat,
                 'perihal' => $request->perihal,
@@ -225,8 +228,15 @@ class SuratKeluarController extends Controller
                 'entity_tujuan_surat' => $entityTujuanSurat->id,
                 'entity_tujuan_surat_detail' => $request->entity_tujuan_surat_detail,
             ];
-
             SuratKeluar::create($insertedData);
+
+            LogSuratKeluar::create([
+                'tx_number' => $insertedData['tx_number'],
+                'process_date' => Carbon::now(),
+                'status' => $insertedData['status_surat'],
+                'updated_by' => $user->id,
+                'catatan' => null,
+            ]);
 
             DB::commit();
             return response()->json([
@@ -282,6 +292,16 @@ class SuratKeluarController extends Controller
         if($data->status_surat == 1 && Auth::user()->hasPermissionTo('print-blanko'))
         {
             $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Minta Nomor Surat" > <span class="mdi mdi-file-download-outline"></span> </button>';
+        }
+        
+        if ($data->penandatangan_surat == Auth::user()->organization) {
+            $html = '<button class="btn btn-warning btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" > <span class="mdi mdi-file-download-outline"></span> </button>';
+            $html += '<button class="btn btn-warning btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" > <span class="mdi mdi-file-download-outline"></span> </button>';
+        } else {
+            $html = '
+                <button class="btn btn-info btn-sm rounded-pill px-2" onclick="showModalDetail(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" > <span class="mdi mdi-file-download-outline"></span> </button>
+                <button class="btn btn-warning btn-sm rounded-pill px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" > <span class="mdi mdi-briefcase-eye-outline"></span> </button>
+                ';
         }
 
         return $html;

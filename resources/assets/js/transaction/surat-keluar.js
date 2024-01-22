@@ -179,8 +179,8 @@ function getDataSuratMasuk(){
                 name: 'tgl_surat',
             },
             {
-                data: 'tujuan_surat.nama',
-                name: 'tujuan_surat.nama',
+                data: 'tujuan_surat.entity_name',
+                name: 'tujuan_surat.entity_name',
             },
             {
                 data: 'perihal',
