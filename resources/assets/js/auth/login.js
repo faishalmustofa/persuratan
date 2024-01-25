@@ -44,11 +44,12 @@ function success_login(data) {
         title: 'Berhasil!',
         text: 'Login berhasil!',
         type: 'success',
+        timer: 1500,
         customClass: {
           confirmButton: 'btn btn-primary waves-effect waves-light'
         },
         buttonsStyling: false,
-        confirmButton: false,
+        showConfirmButton: false,
       })
     location.href = '/';
 }
