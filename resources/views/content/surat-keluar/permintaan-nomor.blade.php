@@ -1,9 +1,6 @@
-<div>
-    <!-- When there is no desire, all things are at peace. - Laozi -->
-</div>
 @extends('layouts/layoutMaster')
 
-@section('title', 'Surat Keluar - Data Permintaan Surat Keluar')
+@section('title', 'Surat Keluar - Permintaan Surat Keluar')
 
 @section('vendor-style')
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />

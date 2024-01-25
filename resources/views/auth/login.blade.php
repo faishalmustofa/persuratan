@@ -12,6 +12,10 @@ $customizerHidden = 'customizer-hide';
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/@form-validation/umd/styles/index.min.css')}}" />
 @endsection
 
+@section('vendor-script')
+{{-- <script src="{{asset('assets/vendor/libs/sweetalert2/sweetalert2.js')}}"></script> --}}
+@endsection
+
 @section('page-style')
 <!-- Page -->
 <link rel="stylesheet" href="{{asset('assets/vendor/css/pages/page-auth.css')}}">
