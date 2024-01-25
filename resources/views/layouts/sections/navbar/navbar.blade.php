@@ -61,8 +61,9 @@ $navbarDetached = ($navbarDetached ?? '');
           </li>
           <!-- /Search -->
         @endif
+
         <!-- Language -->
-        <li class="nav-item dropdown-language dropdown me-1 me-xl-0">
+        <!-- <li class="nav-item dropdown-language dropdown me-1 me-xl-0">
           <a class="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
             <i class='mdi mdi-translate mdi-24px'></i>
           </a>
@@ -88,7 +89,7 @@ $navbarDetached = ($navbarDetached ?? '');
               </a>
             </li>
           </ul>
-        </li>
+        </li>-->
         <!--/ Language -->
 
         @if($configData['hasCustomizer'] == true)
@@ -119,7 +120,7 @@ $navbarDetached = ($navbarDetached ?? '');
         @endif
 
         <!-- Quick links  -->
-        <li class="nav-item dropdown-shortcuts navbar-dropdown dropdown me-1 me-xl-0">
+        <!--<li class="nav-item dropdown-shortcuts navbar-dropdown dropdown me-1 me-xl-0">
           <a class="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
             <i class='mdi mdi-view-grid-plus-outline mdi-24px'></i>
           </a>
@@ -197,11 +198,11 @@ $navbarDetached = ($navbarDetached ?? '');
               </div>
             </div>
           </div>
-        </li>
+        </li>-->
         <!-- Quick links -->
 
         <!-- Notification -->
-        <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-2 me-xl-1">
+        <!--<li class="nav-item dropdown-notifications navbar-dropdown dropdown me-2 me-xl-1">
           <a class="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
             <i class="mdi mdi-bell-outline mdi-24px"></i>
             <span class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
@@ -367,7 +368,7 @@ $navbarDetached = ($navbarDetached ?? '');
               </a>
             </li>
           </ul>
-        </li>
+        </li> -->
         <!--/ Notification -->
 
         <!-- User -->
@@ -391,7 +392,7 @@ $navbarDetached = ($navbarDetached ?? '');
                       @if (Auth::check())
                       {{ Auth::user()->name }}
                       @else
-                      John Doe
+                      SUPER ADMIN
                       @endif
                     </span>
                     <small class="text-muted">Admin</small>
@@ -399,32 +400,6 @@ $navbarDetached = ($navbarDetached ?? '');
                 </div>
               </a>
             </li>
-            <li>
-              <div class="dropdown-divider"></div>
-            </li>
-            <li>
-              <a class="dropdown-item" href="{{ Route::has('profile.show') ? route('profile.show') : url('pages/profile-user') }}">
-                <i class="mdi mdi-account-outline me-2"></i>
-                <span class="align-middle">My Profile</span>
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="{{url('pages/account-settings-billing')}}">
-                <i class="mdi mdi-credit-card-outline me-2"></i>
-                <span class="align-middle">Billing</span>
-              </a>
-            </li>
-            @if (Auth::User())
-            <li>
-              <div class="dropdown-divider"></div>
-            </li>
-            <li>
-              <h6 class="dropdown-header">Manage Team</h6>
-            </li>
-            <li>
-              <div class="dropdown-divider"></div>
-            </li>
-            @endif
             <li>
               <div class="dropdown-divider"></div>
             </li>
