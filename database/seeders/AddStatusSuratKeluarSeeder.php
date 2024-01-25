@@ -15,39 +15,54 @@ class AddStatusSuratKeluarSeeder extends Seeder
     {
         $surat_keluar = array(
             [
-                'name' => 'Diajukan',
-                'description' => 'Surat telah diajukan',
-                'tipe_surat' => 'masuk'
-            ],
-            [
                 'name' => 'Diterima',
                 'description' => 'Surat telah diterima',
-                'tipe_surat' => 'masuk'
+                'tipe_surat' => 'keluar'
+            ],
+            [
+                'name' => 'Diajukan',
+                'description' => 'Surat telah diajukan',
+                'tipe_surat' => 'keluar'
             ],
             [
                 'name' => 'Diteruskan',
                 'description' => 'Surat telah diteruskan',
-                'tipe_surat' => 'masuk'
+                'tipe_surat' => 'keluar'
             ],
             [
                 'name' => 'Diterima (TAUD)',
-                'description' => 'Surat telah diterima',
-                'tipe_surat' => 'masuk'
+                'description' => 'Surat telah diterima oleh TAUD',
+                'tipe_surat' => 'keluar'
             ],
             [
                 'name' => 'Dikembalikan',
                 'description' => 'Surat dikembalikan dengan catatan',
-                'tipe_surat' => 'masuk'
+                'tipe_surat' => 'keluar'
             ],
             [
                 'name' => 'Ditandatangan',
                 'description' => 'Surat telah ditandatangan',
-                'tipe_surat' => 'masuk'
+                'tipe_surat' => 'keluar'
             ],
             [
                 'name' => 'Diberi nomor surat',
                 'description' => 'Surat telah ditandatangan',
-                'tipe_surat' => 'masuk'
+                'tipe_surat' => 'keluar'
+            ],
+            [
+                'name' => 'Diagendakan',
+                'description' => 'Surat telah diagendakan',
+                'tipe_surat' => 'keluar'
+            ],
+            [
+                'name' => 'Dikirimkan ke tujuan',
+                'description' => 'Surat telah dikirimkan ke tujuan',
+                'tipe_surat' => 'keluar'
+            ],
+            [
+                'name' => 'Sampai Tujuan',
+                'description' => 'Surat telah dikirimkan ke tujuan',
+                'tipe_surat' => 'keluar'
             ],
         );
 

@@ -22,6 +22,8 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         $this->call([
+            PermissionSeeder::class,
+            RoleSeeder::class,
             AsalSuratSeeder::class,
             DerajatSuratSeeder::class,
             EntityAsalSuratSeeder::class,
@@ -29,9 +31,6 @@ class DatabaseSeeder extends Seeder
             StatusDisposisiSeeder::class,
             StatusSuratSeeder::class,
             OrganizationSeeder::class,
-            PermissionSeeder::class,
-            RoleSeeder::class,
-            userSeeder::class,
             AddStatusSuratSeeder::class,
             AddUserSeederBagRenmin::class,
             JenisSuratSeeder::class,
@@ -39,6 +38,8 @@ class DatabaseSeeder extends Seeder
             EntityTujuanSuratSeeder::class,
             AddOtherStatusSuratSeeder::class,
             AddSpriOrganizationSeeder::class,
+            AddStatusSuratKeluarSeeder::class,
+            UserSeeder::class,
         ]);
     }
 }

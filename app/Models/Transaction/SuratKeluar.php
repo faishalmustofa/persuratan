@@ -34,4 +34,8 @@ class SuratKeluar extends Model
     function createdUser(){
         return $this->hasOne(User::class, 'id', 'created_by');
     }
+    
+    function posisiSurat(){
+        return $this->hasOne(Organization::class, 'id', 'posisi_surat');
+    }
 }

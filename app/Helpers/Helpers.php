@@ -209,9 +209,20 @@ class Helpers
   public static function generateTxNumber($jenis_surat = null)
   {
         $currentYear = Carbon::now()->translatedFormat('Y');
-
-        $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
-        $number = '0000';
+        
+        if (!is_null($jenis_surat)) {
+          if ($jenis_surat == 'masuk') {
+            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+            $number = '0000';
+          } else {
+            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->count();
+            $number = '0000';
+          }
+        } else {
+          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+          $number = '0000';
+        }
+        
 
         if($totalData == 0){
             $number = '0001';

@@ -1,5 +1,5 @@
-$(document).ready(function () {
-    console.log('ready')
+'use strict';
+$(function(){
     var forms = document.querySelectorAll('.needs-validation')
     console.log(forms)
     Array.prototype.slice.call(forms)
@@ -26,7 +26,6 @@ $(document).ready(function () {
 })
 
 async function login_process() {
-
     var form = $('#formAuthentication').serialize()
     ajaxPostJson('login-process', form, 'success_login', 'error_login')
 }
@@ -43,9 +42,14 @@ function success_login(data) {
     console.log(data)
     Swal.fire({
         title: 'Berhasil!',
-        text: 'Berhasil login!',
-        icon: 'success',
-    });
+        text: 'Login berhasil!',
+        type: 'success',
+        customClass: {
+          confirmButton: 'btn btn-primary waves-effect waves-light'
+        },
+        buttonsStyling: false,
+        confirmButton: false,
+      })
     location.href = '/';
 }
 
