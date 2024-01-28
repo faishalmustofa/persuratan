@@ -74,6 +74,14 @@ $(function () {
         }
     });
 
+    $('#form-edit-tgl').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            PostEditTglDiterima()
+            $(this).addClass('was-validated');
+        }
+    });
+
     // custom template to render icons
     function renderIcons(option) {
         if (!option.id) {
@@ -138,6 +146,15 @@ $(function () {
         }
     });
 
+    $('#nomor_surat').on('keypress',function( e ) {
+        if(e.which === 32)
+            return false;
+    })
+
+    $('.form-control').each((k, el) => {
+        $(el).css('text-transform', 'uppercase')
+    })
+
     getDataSuratMasuk()
 });
 
@@ -166,7 +183,8 @@ function getDataSuratMasuk(){
             {
                 data: 'no_agenda',
                 name: 'no_agenda',
-                responsivePriority: 0
+                responsivePriority: 0,
+                className: 'editable'
             },
             {
                 data: 'noSurat',
@@ -181,22 +199,23 @@ function getDataSuratMasuk(){
             {
                 data: 'tgl_diterima',
                 name: 'tgl_diterima',
-                responsivePriority: 1
+                responsivePriority: 2,
+                className: 'editable'
             },
             {
-                data: 'asal_surat.name',
-                name: 'asal_surat.name',
-                responsivePriority: 2
+                data: 'surat_dari',
+                name: 'surat_dari',
+                responsivePriority: 0
             },
             {
                 data: 'tujuan_surat.nama',
                 name: 'tujuan_surat.nama',
-                responsivePriority: 2
+                responsivePriority: 1
             },
             {
                 data: 'perihal',
                 name: 'perihal',
-                responsivePriority: 2
+                responsivePriority: 0
             },
             {
                 data: 'status',
@@ -229,9 +248,28 @@ function getDataSuratMasuk(){
     });
 }
 
+function editTglDiterima(txNumber, tglDiterima){
+    $('#modal-edit-tgl').modal('toggle')
+    $('#form-edit-tgl').find('input[name="tx_number"]').val(txNumber)
+    $('#form-edit-tgl').find('#tanggal-diterima').val(tglDiterima).attr('min')
+}
+
+async function PostEditTglDiterima(){
+    var form = $('#form-edit-tgl').serialize()
+    await ajaxPostJson('/transaction/surat-masuk/edit-tgl', form, 'input_success', 'input_error')
+    $('#modal-edit-tgl').modal('toggle')
+}
+
 function postForm() {
     let form =  new FormData($("#form-surat-masuk")[0])
     ajaxPostFile('/transaction/surat-masuk/store', form, 'input_success', 'input_error')
+
+    var currentUrl = window.location.href
+    var newURL = currentUrl.split('/');
+    if(newURL.length > 5){
+        newURL = currentUrl.replace('/'+newURL[newURL.length-1], '')
+        history.pushState({}, null, newURL)
+    }
 }
 
 function actionPrintBlanko(txNumber){
@@ -239,17 +277,17 @@ function actionPrintBlanko(txNumber){
 }
 
 function printBlanko(data){
-    var tempDownload = document.createElement("a");
-    tempDownload.style.display = 'none';
+    // var tempDownload = document.createElement("a");
+    // tempDownload.style.display = 'none';
 
-    document.body.appendChild( tempDownload );
+    // document.body.appendChild( tempDownload );
 
-    var download = data.file;
-    tempDownload.setAttribute( 'href', `/transaction/surat-masuk/download-blanko/${download}` );
-    tempDownload.setAttribute( 'download', download );
+    // var download = data.file;
+    // tempDownload.setAttribute( 'href', `/transaction/surat-masuk/download-blanko/${download}` );
+    // tempDownload.setAttribute( 'download', download );
 
-    tempDownload.click();
-
+    // tempDownload.click();
+    window.open(data.filePath, '_blank')
     table.ajax.reload()
 }
 
@@ -356,6 +394,12 @@ function postDisposisi() {
     }
 }
 
+function replaceSpace(el){
+    var val = $(el).val()
+    const newVal = val.replace(' ', '')
+    $(el).val(newVal)
+}
+
 function input_success_(data){
     Swal.close()
 
@@ -417,24 +461,26 @@ function input_success(data) {
       "hideMethod": "fadeOut"
     }
 
-    Swal.fire({
-        icon: 'question',
-        showDenyButton: false,
-        title: "Apakah anda ingin langsung melakukan mencetak blanko disposisi?",
-        showCancelButton: true,
-        confirmButtonText: "Ya, print blanko disposisi!"
-      }).then((result) => {
-        /* Read more about isConfirmed, isDenied below */
-        if(result.isConfirmed){
-            ajaxGetJson(`/transaction/surat-masuk/print-blanko/${data.txNumber}`, 'printBlanko', 'input_error')
-        } else {
-            return false
-        }
-    });
+    if(data.printBlanko == '1'){
+        Swal.fire({
+            icon: 'question',
+            showDenyButton: false,
+            title: "Apakah anda ingin langsung melakukan mencetak blanko disposisi?",
+            showCancelButton: true,
+            confirmButtonText: "Ya, print blanko disposisi!"
+        }).then((result) => {
+            /* Read more about isConfirmed, isDenied below */
+            if(result.isConfirmed){
+                ajaxGetJson(`/transaction/surat-masuk/print-blanko/${data.txNumber}`, 'printBlanko', 'input_error')
+            } else {
+                return false
+            }
+        });
+    }
 
     table.ajax.reload()
     $('#form-surat-masuk').removeClass('was-validated')
-    $('#form-surat-masuk').find('input').val('')
+    $('#form-surat-masuk').find('.form-control').val('')
     $('#form-surat-masuk').find('textarea').val('')
     $('#form-surat-masuk').find('select').val('').trigger('change')
 }
@@ -472,8 +518,8 @@ function success_pindah(data){
 
 function input_error(err) {
     Swal.close()
-    console.log(err)
-    Command: toastr["error"]("Harap coba lagi beberapa saat lagi", "Terjadi Kesalahan Terhadap Sistem")
+    var text = err.responseJSON?.message == undefined ? "Terjadi Kesalahan Pada Sistem!" : err.responseJSON.message
+    Command: toastr["error"](text, "Gagal Memproses Data")
 
     toastr.options = {
         "closeButton": true,

@@ -18,6 +18,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::get('/pindah-berkas/{txNo}', [SuratMasukController::class, 'pindahBerkas']);
         Route::get('/terima-berkas/{txNo}', [SuratMasukController::class, 'terimaBerkas']);
         Route::get('/show-pdf/{txNumber}', [SuratMasukController::class, 'showPdf'])->name('showPDF');
+        Route::post('/edit-tgl', [SuratMasukController::class, 'editTgl']);
     });
 
     /** MENU BUKU AGENDA SURAT MASUK*/
@@ -49,7 +50,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/data', [SuratKeluarController::class, 'data']);
         Route::get('/minta-no-surat/{txNo}', [SuratKeluarController::class, 'mintaNoSurat']);
     });
-    
+
     /** MENU SURAT KELUAR */
     Route::prefix('permintaan-no-surat')->group(function(){
         Route::get('/', [SuratKeluarController::class, 'permintaanNoSurat']);

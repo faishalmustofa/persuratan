@@ -129,19 +129,34 @@
             <form action="javascript:void(0)" id="form-surat-masuk" class="needs-validation" novalidate>
                 @csrf
                 <div class="row justify-content-center align-items-center">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 {{isset($suratMasuk) ? 'col-md-4' : 'col-md-6'}}">
                         <div class="form-floating form-floating-outline mb-4">
                             <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Agenda" name="nomor_agenda" value="" disabled />
                             <label for="nomor_agenda">Nomor Agenda (Auto Generated)</label>
                         </div>
                     </div>
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 {{isset($suratMasuk) ? 'col-md-4' : 'col-md-6'}}">
                         <div class="form-floating form-floating-outline mb-4">
-                            <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->no_surat : '') : ''}}" />
-                            <label for="nomor_surat">Nomor Surat</label>
-                            <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
+                            @if (isset($suratMasuk))
+                                <input type="text" class="form-control" id="nomor_surat_asal" placeholder="Nomor Surat" name="nomor_surat_asal" onkeydown="replaceSpace(this)" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->no_surat : '') : ''}}" />
+                                <label for="nomor_surat_asal">Nomor Surat Asal</label>
+                                <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
+                            @else
+                                <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" required />
+                                <label for="nomor_surat">Nomor Surat</label>
+                                <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
+                            @endif
                         </div>
                     </div>
+                    @if (isset($suratMasuk))
+                        <div class="col-12 col-md-4">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" required value="{{$suratMasuk->tujuanDisposisi[0]->no_agenda}}" />
+                                <label for="nomor_surat">Nomor Surat</label>
+                                <div class="invalid-feedback"> Mohon masukan nomor surat</div>
+                            </div>
+                        </div>
+                    @endif
 
                     <div class="col-12 col-md-6">
                         <div class="form-floating form-floating-outline mb-4">
@@ -318,9 +333,8 @@
     </div>
 </div>
 
-
     <!-- Modal Disposisi -->
-    <div class="modal fade" id="modal-disposisi" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal fade" id="modal-disposisi" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -353,6 +367,35 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-primary">Disposisikan Surat</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Rubah Tanggal -->
+    <div class="modal fade" id="modal-edit-tgl" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCenterTitle">Rubah Tanggal Diterima</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="javascript:void(0)" id="form-edit-tgl" class="needs-validation" novalidate>
+                    <div class="modal-body">
+                        @csrf
+                        <input type="hidden" name="tx_number" class="form-control">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" min="" id="tanggal-diterima" name="tanggal_diterima" required/>
+                                <label for="tanggal_diterima">Pilih Tanggal Diterima</label>
+                                <div class="invalid-feedback"> Mohon pilih tanggal diterima. </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Rubah Tanggal</button>
                     </div>
                 </form>
             </div>
