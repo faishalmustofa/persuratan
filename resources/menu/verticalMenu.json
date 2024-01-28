@@ -54,13 +54,13 @@
           "slug": "buku-agenda-surat-keluar"
         },
         {
-          "url": "",
+          "url": "transaction/pengiriman-surat-keluar",
           "name": "Pengiriman Surat",
-          "slug": "pengiriman-surat"
+          "slug": "pengiriman-surat-keluar"
         },
         {
           "url": "",
-          "name": "Laporan Penerimaan",
+          "name": "Laporan Penerimaan Surat",
           "slug": "laporan-penerimaan"
         }
       ]

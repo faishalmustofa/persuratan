@@ -210,7 +210,19 @@ class Helpers
   {
         $currentYear = Carbon::now()->translatedFormat('Y');
 
-        $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
+        if (!is_null($jenis_surat)) {
+          if ($jenis_surat == 'masuk') {
+            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+            $number = '0000';
+          } else {
+            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->count();
+            $number = '0000';
+          }
+        } else {
+          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+          $number = '0000';
+        }
+
 
         if($totalData != null){
             $lastId = explode('-', $totalData->tx_number);

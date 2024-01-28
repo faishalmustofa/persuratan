@@ -1,9 +1,6 @@
-<div>
-    <!-- When there is no desire, all things are at peace. - Laozi -->
-</div>
 @extends('layouts/layoutMaster')
 
-@section('title', 'Surat Keluar - Data Permintaan Surat Keluar')
+@section('title', 'Surat Keluar - Permintaan Surat Keluar')
 
 @section('vendor-style')
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
@@ -123,13 +120,15 @@
       </div>
     </div>
 </div>
-  <!--/ Card Border Shadow -->
+<!--/ Card Border Shadow -->
 
+
+<!-- Daftar permintaan penomoran surat -->
 <div class="row mb-4">
     <div class="col-md">
         <div class="card">
             <div class="card-header">
-                Data Permintaan Surat Keluar
+                Daftar Masuk Permintaan Nomor Surat
             </div>
             <div class="card-body">
               <div class="card-datatable table-responsive pt-0">
@@ -152,6 +151,120 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Daftar permintaan penomoran surat -->
+<div class="row mb-4">
+    <div class="col-md">
+        <div class="card">
+            <div class="card-header">
+                Log Data Permintaan Nomor Surat
+            </div>
+            <div class="card-body">
+              <div class="card-datatable table-responsive pt-0">
+                <table class="datatables-basic table table-bordered" id="table-log-permintaan-surat">
+                  <thead>
+                    <tr>
+                        <th></th>
+                        <th>#</th>
+                        <th>No. Draft Surat</th>
+                        <th>Tanggal Surat</th>
+                        <th>Tujuan Surat</th>
+                        <th>Perihal</th>
+                        <th>Status</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail -->
+<div class="modal fade" id="modal-detail" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <form action="javascript:void(0)" id="form-surat-belum-sesuai" class="needs-validation" novalidate>
+          @csrf
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalCenterTitle">Detail Permintaan Nomor Surat</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div class="card text-white bg-primary rounded-pills mb-4">
+                  <div class="card-body">
+                      <h5 class="card-title text-white">Informasi Draft Surat Keluar</h5>
+                      <div class="row justify-content-center align-items-center" id="header-data">
+                          {{-- <div class="col-md-4 col-12 mb-2">No. Surat</div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span class='badge rounded-pill bg-label-info' id="no_surat"></span>
+                          </div> --}}
+                          <div class="col-md-4 col-12 mb-2">Draft File</div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="file_surat"></span>
+                          </div>
+
+                          <div class="col-md-4 col-12 mb-2">Konseptor</div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <b id="konseptor"></b>
+                          </div>
+
+                          <div class="col-md-4 col-12 mb-2">
+                              Tanggal Surat
+                          </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="tgl_surat"></span>
+                          </div>
+                          
+                          <div class="col-md-4 col-12 mb-2"> Penandatangan Surat </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="penandatangan"></span>
+                          </div>
+
+                          <div class="col-md-4 col-12 mb-2"> Perihal </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="perihal"></span>
+                          </div>
+                          
+                          <div class="col-md-4 col-12 mb-2"> Tujuan Surat </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="tujuan_surat"></span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="card text-whiterounded-pills">
+                <div class="card-body" id="detail-data">
+                  <div class="card mb-2">
+                    <input type="hidden" id="tx_number" name="txNo" value="">
+                    <div class="form-floating form-floating-outline">
+                      <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" required></textarea>
+                      <label for="catatan">Catatan</label>
+                      <div class="invalid-feedback"> Mohon masukan catatan surat.</div>
+                    </div>
+                   </div>
+                   
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-outline-warning">Surat Belum Sesuai</button>
+            <div id="section-action"></div>
+          </div>
+        </form>
+          
+      </div>
+  </div>
 </div>
 
 @endsection

@@ -1,8 +1,11 @@
 <?php
 
 use App\Http\Controllers\Transaction\BukuAgendaController;
+use App\Http\Controllers\Transaction\BukuAgendaSuratKeluar;
 use App\Http\Controllers\Transaction\DisposisiController;
 use App\Http\Controllers\Transaction\DisposisiMasukController;
+use App\Http\Controllers\Transaction\PengirimanSuratKeluarController;
+use App\Http\Controllers\Transaction\PermintaanNoSuratController;
 use App\Http\Controllers\Transaction\SuratKeluarController;
 use App\Http\Controllers\Transaction\SuratMasukController;
 use Illuminate\Support\Facades\Route;
@@ -48,19 +51,37 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::get('/{txNo?}', [SuratKeluarController::class, 'index'])->name('create-bukuagenda-suratkeluar');
         Route::post('/store', [SuratKeluarController::class, 'store']);
         Route::post('/data', [SuratKeluarController::class, 'data']);
+        Route::get('/detail/{txNo}', [SuratKeluarController::class, 'show']);
         Route::get('/minta-no-surat/{txNo}', [SuratKeluarController::class, 'mintaNoSurat']);
+        Route::get('/download-file/{txNo}', [SuratKeluarController::class, 'downloadFile'])->name('download-surat-keluar');
+        Route::get('/get-timeline-surat/{txNo}', [SuratKeluarController::class, 'getTimelineSurat'])->name('get-timeline-surat');
     });
 
     /** MENU SURAT KELUAR */
     Route::prefix('permintaan-no-surat')->group(function(){
-        Route::get('/', [SuratKeluarController::class, 'permintaanNoSurat']);
-        Route::post('/data', [SuratKeluarController::class, 'dataMintaNoSurat']);
+        Route::get('/', [PermintaanNoSuratController::class, 'permintaanNoSurat']);
+        Route::post('/data', [PermintaanNoSuratController::class, 'dataMintaNoSurat']);
+        Route::post('/log-data', [PermintaanNoSuratController::class, 'logPermintaanSurat']);
+        Route::get('/detail/{txNo}', [PermintaanNoSuratController::class, 'detailPermintaanNoSurat']);
+        Route::get('/minta-no-surat/{txNo}', [PermintaanNoSuratController::class, 'mintaNoSurat']);
+        Route::post('/tindak-surat', [PermintaanNoSuratController::class, 'tindakSurat']);
+        Route::get('/ttd-surat/{txNo}', [PermintaanNoSuratController::class, 'tandaTanganSurat']);
     });
-
+    
     /** MENU BUKU AGENDA SURAT KELUAR*/
     Route::prefix('buku-agenda-surat-keluar')->group(function(){
-        Route::get('/', [BukuAgendaController::class, 'index']);
-        Route::post('/get-data', [BukuAgendaController::class, 'getData']);
+        Route::get('/', [BukuAgendaSuratKeluar::class, 'index']);
+        Route::get('/buat-agenda-surat/{txNo}', [BukuAgendaSuratKeluar::class, 'buatAgenda']);
+        Route::get('/get-form-kirim-surat/{txNo}', [BukuAgendaSuratKeluar::class, 'getFormKirimSurat']);
+        Route::post('/get-data', [BukuAgendaSuratKeluar::class, 'getData']);
+        Route::get('/detail/{txNo}', [BukuAgendaSuratKeluar::class, 'show']);
+    });
+    
+    /** MENU BUKU AGENDA SURAT KELUAR*/
+    Route::prefix('pengiriman-surat-keluar')->group(function(){
+        Route::get('/', [PengirimanSuratKeluarController::class, 'index']);
+        Route::post('/store', [PengirimanSuratKeluarController::class, 'store']);
+        Route::post('/get-data', [PengirimanSuratKeluarController::class, 'getData']);
     });
 });
 

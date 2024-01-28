@@ -12,6 +12,10 @@ $customizerHidden = 'customizer-hide';
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/@form-validation/umd/styles/index.min.css')}}" />
 @endsection
 
+@section('vendor-script')
+{{-- <script src="{{asset('assets/vendor/libs/sweetalert2/sweetalert2.js')}}"></script> --}}
+@endsection
+
 @section('page-style')
 <!-- Page -->
 <link rel="stylesheet" href="{{asset('assets/vendor/css/pages/page-auth.css')}}">
@@ -67,8 +71,8 @@ $customizerHidden = 'customizer-hide';
         <!-- Logo -->
         <div class="app-brand justify-content-center mt-5">
           <a href="{{url('/')}}" class="app-brand-link gap-2">
-            <span class="app-brand-logo demo">@include('_partials.macros',["width"=>25,"withbg"=>'var(--bs-primary)'])</span>
-            <span class="app-brand-text demo text-heading fw-bold">E-office</span>
+            <span class="app-brand-logo demo">@include('_partials.macros',["width"=>100,"withbg"=>'var(--bs-primary)'])</span>
+            {{-- <span class="app-brand-text demo text-heading fw-bold">E-office</span> --}}
           </a>
         </div>
         <!-- /Logo -->

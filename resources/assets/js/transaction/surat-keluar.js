@@ -179,8 +179,8 @@ function getDataSuratMasuk(){
                 name: 'tgl_surat',
             },
             {
-                data: 'tujuan_surat.nama',
-                name: 'tujuan_surat.nama',
+                data: 'tujuan_surat.entity_name',
+                name: 'tujuan_surat.entity_name',
             },
             {
                 data: 'perihal',
@@ -216,6 +216,38 @@ function getDataSuratMasuk(){
             }
         ],
     });
+}
+
+function detailSurat(txNo) {
+    txNo = btoa(txNo)
+    ajaxGetJson(`/transaction/surat-keluar/detail/${txNo}`, 'showModalDetail', 'error_get')
+}
+
+function showModalDetail(res){
+    Swal.close()
+
+    if (res.status != 200) {
+        var text = res.message
+        error_notif(text)
+        return false
+    }
+
+    var header = res.data.header
+    var detail = res.data.detail
+
+    Object.keys(header).map((key) => {
+        $('#header-data').find(`#${key}`).html(header[key])
+    })
+
+    $('#modal-detail').modal('toggle')
+
+    // let button_teruskan = `<button onclick="actionMintaNomorSurat(`+detail.tx_number+`)" type="button" class="btn btn-info btn-sm rounded-pill px-2">Teruskan</button>`
+    $('#section-action').html(header.btn_action)
+    $('#detail-data').find('#tx_number').val(detail.tx_number)
+    $('#tx_number').val(header.tx_number)
+    // $('#detail-data').find('#penandatangan').html(header.penandatangan)
+    // $('#detail-data').find('#perihal').html(header.perihal)
+
 }
 
 function postForm() {
@@ -261,7 +293,7 @@ function input_success(data) {
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if(result.isConfirmed){
-            ajaxGetJson(`/transaction/surat-masuk/print-blanko/${data.txNumber}`, 'printBlanko', 'input_error')
+            ajaxGetJson(`/transaction/surat-keluar/minta-no-surat/${data.txNumber}`, 'minta_surat_success', 'input_error')
         } else {
             return false
         }
@@ -297,28 +329,9 @@ function minta_surat_success(data) {
     table.ajax.reload()
 }
 
-// function actionPrintBlanko(txNumber){
-//     ajaxGetJson(`/transaction/surat-masuk/print-blanko/${txNumber}`, 'printBlanko', 'input_error')
-// }
-
 function actionMintaNomorSurat(txNumber){
     ajaxGetJson(`/transaction/surat-keluar/minta-no-surat/${txNumber}`, 'minta_surat_success', 'input_error')
 }
-
-// function printBlanko(data){
-//     var tempDownload = document.createElement("a");
-//     tempDownload.style.display = 'none';
-
-//     document.body.appendChild( tempDownload );
-
-//     var download = data.file;
-//     tempDownload.setAttribute( 'href', `/transaction/surat-masuk/download-blanko/${download}` );
-//     tempDownload.setAttribute( 'download', download );
-
-//     tempDownload.click();
-
-//     table.ajax.reload()
-// }
 
 function input_error(err) {
     Swal.close()

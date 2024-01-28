@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Master\AsalSurat;
 use App\Models\Master\EntityAsalSurat;
 use App\Models\Master\Organization;
+use App\Models\Transaction\SuratKeluar;
 use App\Models\Transaction\SuratMasuk;
 use App\Models\User;
 use Carbon\Carbon;
@@ -126,7 +127,7 @@ class BukuAgendaController extends Controller
      */
     public function create()
     {
-        //
+        return view('content.surat-keluar.buku-agenda');
     }
 
     /**

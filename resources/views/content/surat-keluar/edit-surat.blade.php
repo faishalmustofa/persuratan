@@ -52,7 +52,7 @@
 <!--/ Toast with Animation -->
 
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Surat Keluar /</span> Draft Surat Keluar
+  <span class="text-muted fw-light">Surat Keluar /</span>Edit Draft Surat Keluar
 </h4>
 
 <!-- Card Border Shadow -->
@@ -130,12 +130,12 @@
 </div>
   <!--/ Card Border Shadow -->
 
-@can('create-surat')
+@can('edit-surat')
     <div class="row mb-4">
         <!-- Bootstrap Validation -->
         <div class="col-md">
         <div class="card">
-            <h5 class="card-header">Form Draft Surat Keluar</h5>
+            <h5 class="card-header">Form Edit Draft Surat Keluar</h5>
             <div class="card-body">
             <form action="javascript:void(0)" id="form-surat-keluar" class="needs-validation" novalidate>
                 @csrf
@@ -217,7 +217,7 @@
                   <input type="text" class="form-control" id="entity_tujuan_surat_detail" placeholder="Detail Entity Tujuan Surat" name="entity_tujuan_surat_detail" required />
                   <label for="entity_asal_surat_detail">Detail Entity Tujuan Surat</label>
                   <div class="invalid-feedback"> Mohon masukan detail entity tujuan surat. </div>
-                </div>
+              </div>
 
                 <div class="row">
                     <div class="col-8">
@@ -276,7 +276,7 @@
                         <option value="">User tidak memiliki atasan.</option>
                       @else
                         @foreach ($penandatanganSurat as $penandatangan)
-                            <option value="{{$penandatangan->id}}">{{$penandatangan->leader_alias}}</option>
+                            <option value="{{$penandatangan->id}}">{{$penandatangan->nama}}</option>
                         @endforeach
                       @endif
                   </select>
@@ -309,104 +309,5 @@
         <!-- /Bootstrap Validation -->
     </div>
 @endcan
-
-<div class="row mb-4">
-    <div class="col-md">
-        <div class="card">
-            <div class="card-header">
-                Data Draft Surat Keluar
-            </div>
-            <div class="card-body">
-                @include('content.surat-keluar.data-list')
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Detail -->
-<div class="modal fade" id="modal-detail" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="modalCenterTitle">Detail Permintaan Nomor Surat</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <div class="card text-white bg-primary rounded-pills mb-4">
-                <div class="card-body">
-                    <h5 class="card-title text-white">Informasi Draft Surat Keluar</h5>
-                    <div class="row justify-content-center align-items-center" id="header-data">
-                        {{-- <div class="col-md-4 col-12 mb-2">No. Surat</div>
-                        <div class="col-md-1 col-12 mb-2"> : </div>
-                        <div class="col-md-7 col-12 mb-2">
-                            <span class='badge rounded-pill bg-label-info' id="no_surat"></span>
-                        </div> --}}
-                        <div class="col-md-4 col-12 mb-2">Draft File</div>
-                        <div class="col-md-1 col-12 mb-2"> : </div>
-                        <div class="col-md-7 col-12 mb-2">
-                            <span id="file_surat"></span>
-                        </div>
-
-                        <div class="col-md-4 col-12 mb-2">Konseptor</div>
-                        <div class="col-md-1 col-12 mb-2"> : </div>
-                        <div class="col-md-7 col-12 mb-2">
-                            <b id="konseptor"></b>
-                        </div>
-
-                        <div class="col-md-4 col-12 mb-2">
-                            Tanggal Surat
-                        </div>
-                        <div class="col-md-1 col-12 mb-2"> : </div>
-                        <div class="col-md-7 col-12 mb-2">
-                            <span id="tgl_surat"></span>
-                        </div>
-                        
-                        <div class="col-md-4 col-12 mb-2"> Penandatangan Surat </div>
-                        <div class="col-md-1 col-12 mb-2"> : </div>
-                        <div class="col-md-7 col-12 mb-2">
-                            <span id="penandatangan"></span>
-                        </div>
-
-                        <div class="col-md-4 col-12 mb-2"> Perihal </div>
-                        <div class="col-md-1 col-12 mb-2"> : </div>
-                        <div class="col-md-7 col-12 mb-2">
-                            <span id="perihal"></span>
-                        </div>
-                        
-                        <div class="col-md-4 col-12 mb-2"> Tujuan Surat </div>
-                        <div class="col-md-1 col-12 mb-2"> : </div>
-                        <div class="col-md-7 col-12 mb-2">
-                            <span id="tujuan_surat"></span>
-                        </div>
-                        
-                        <div class="col-md-4 col-12 mb-2"> Status Surat </div>
-                        <div class="col-md-1 col-12 mb-2"> : </div>
-                        <div class="col-md-7 col-12 mb-2">
-                            <span id="status_surat"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card text-whiterounded-pills">
-              <div class="card-body" id="detail-data">
-                <div class="card mb-2">
-                  <div class="form-floating form-floating-outline">
-                    <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" disabled></textarea>
-                    <label for="catatan">Catatan</label>
-                    <div class="invalid-feedback"> Mohon masukan catatan surat.</div>
-                  </div>
-                 </div>
-                 
-              </div>
-            </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-warning" id="edit-surat">Edit Surat</button>
-          <div id="section-action"></div>
-        </div>
-      </div>
-  </div>
-</div>
 
 @endsection
