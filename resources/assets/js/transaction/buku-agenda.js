@@ -47,6 +47,14 @@ $( function(){
             $(this).addClass('was-validated');
         }
     });
+
+    $('#form-revisi').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postRevisiBerkas()
+            $(this).addClass('was-validated');
+        }
+    });
 })
 
 function searchData(){
@@ -217,7 +225,7 @@ function postDisposisi() {
 
     async function postData(){
         let form = $('#form-disposisi').serialize()
-        await ajaxPostJson('/transaction/disposisi/store', form, 'input_success_', 'input_error')
+        await ajaxPostJson('/transaction/disposisi/store', form, 'input_success', 'input_error')
         $('#modal-disposisi').modal('toggle')
     }
 }
@@ -258,7 +266,7 @@ function pindahBerkas(txNo, status) {
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if(result.isConfirmed){
-            ajaxGetJson(`/transaction/surat-masuk/pindah-berkas/${txNo}`, 'success_pindah', 'input_error')
+            ajaxGetJson(`/transaction/surat-masuk/pindah-berkas/${txNo}`, 'input_success', 'input_error')
         } else {
             return false
         }
@@ -282,14 +290,64 @@ function terimaBerkas(txNo, status){
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if(result.isConfirmed){
-            ajaxGetJson(`/transaction/surat-masuk/terima-berkas/${txNo}`, 'success_pindah', 'input_error')
+            ajaxGetJson(`/transaction/surat-masuk/terima-berkas/${txNo}`, 'input_success', 'input_error')
         } else {
             return false
         }
     });
 }
 
-function success_pindah(data){
+async function postRevisiBerkas(){
+    let form =  new FormData($("#form-revisi")[0])
+    await ajaxPostFile('/transaction/surat-masuk/revisi-berkas', form, 'input_success', 'input_error')
+    $('#modal-reject').modal('toggle')
+}
+
+function revisiBerkas(txNumber){
+    $('#modal-reject').modal('toggle')
+    $('#form-revisi').find('input[name="tx_number"]').val(txNumber)
+}
+
+
+function viewDetailRejected(txNumber){
+    txNumber = btoa(txNumber)
+    ajaxGetJson(`/transaction/surat-masuk/view-reject/${txNumber}`, 'render_rejected', 'input_error')
+}
+
+function render_rejected(res){
+    const dataSurat = res.data.surat
+    const dataReject = res.data.reject
+    var headerCont = $('#modal-reject-detail').find('#header-data')
+    var detailCont = $('#modal-reject-detail').find('#detail-data')
+
+    $('#modal-reject-detail').modal('toggle')
+    $(headerCont).find('#no_surat').html(dataSurat.no_surat)
+    $(headerCont).find('#no_agenda').html(dataSurat.no_agenda)
+
+    $(detailCont).find('#tgl_revisi').html(dataReject.rejected_at)
+    $(detailCont).find('#revisi_by').html(dataReject.rejected_by)
+    $(detailCont).find('#notes').html(dataReject.notes)
+
+    var imgEl = '';
+    if(dataReject.image.length > 0){
+        for (let i = 0; i < dataReject.image.length; i++) {
+            imgEl += `<div class="col">
+                            <img src="${dataReject.image[i]}" alt="Image" class="img-fluid">
+                        </div>
+                        `
+
+        }
+
+        $('#modal-reject-detail').find('#image-data').html(imgEl)
+    } else {
+        $('#modal-reject-detail').find('#image-data').html(`
+            <b><h6 class="text-danger text-center">Tidak ada gambar yang diupload</h6></b>
+        `)
+    }
+
+}
+
+function input_success(data){
     Swal.close()
     table.ajax.reload()
 

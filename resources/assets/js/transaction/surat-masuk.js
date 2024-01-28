@@ -82,6 +82,14 @@ $(function () {
         }
     });
 
+    $('#form-revisi').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postRevisiBerkas()
+            $(this).addClass('was-validated');
+        }
+    });
+
     // custom template to render icons
     function renderIcons(option) {
         if (!option.id) {
@@ -260,9 +268,9 @@ async function PostEditTglDiterima(){
     $('#modal-edit-tgl').modal('toggle')
 }
 
-function postForm() {
+async function postForm() {
     let form =  new FormData($("#form-surat-masuk")[0])
-    ajaxPostFile('/transaction/surat-masuk/store', form, 'input_success', 'input_error')
+    await ajaxPostFile('/transaction/surat-masuk/store', form, 'input_success', 'input_error')
 
     var currentUrl = window.location.href
     var newURL = currentUrl.split('/');
@@ -270,6 +278,11 @@ function postForm() {
         newURL = currentUrl.replace('/'+newURL[newURL.length-1], '')
         history.pushState({}, null, newURL)
     }
+
+    $('#form-surat-masuk').removeClass('was-validated')
+    $('#form-surat-masuk').find('.form-control').val('')
+    $('#form-surat-masuk').find('textarea').val('')
+    $('#form-surat-masuk').find('select').val('').trigger('change')
 }
 
 function actionPrintBlanko(txNumber){
@@ -400,6 +413,85 @@ function replaceSpace(el){
     $(el).val(newVal)
 }
 
+async function postRevisiBerkas(){
+    let form =  new FormData($("#form-revisi")[0])
+    await ajaxPostFile('/transaction/surat-masuk/revisi-berkas', form, 'input_success', 'input_error')
+    $('#modal-reject').modal('toggle')
+}
+
+function revisiBerkas(txNumber){
+    $('#modal-reject').modal('toggle')
+    $('#form-revisi').find('input[name="tx_number"]').val(txNumber)
+}
+
+function viewDetailRejected(txNumber){
+    txNumber = btoa(txNumber)
+    ajaxGetJson(`/transaction/surat-masuk/view-reject/${txNumber}`, 'render_rejected', 'input_error')
+}
+
+function render_rejected(res){
+    const dataSurat = res.data.surat
+    const dataReject = res.data.reject
+    var headerCont = $('#modal-reject-detail').find('#header-data')
+    var detailCont = $('#modal-reject-detail').find('#detail-data')
+
+    $('#modal-reject-detail').modal('toggle')
+    $(headerCont).find('#no_surat').html(dataSurat.no_surat)
+    $(headerCont).find('#no_agenda').html(dataSurat.no_agenda)
+
+    $(detailCont).find('#tgl_revisi').html(dataReject.rejected_at)
+    $(detailCont).find('#revisi_by').html(dataReject.rejected_by)
+    $(detailCont).find('#notes').html(dataReject.notes)
+
+    var imgEl = '';
+    if(dataReject.image.length > 0){
+        for (let i = 0; i < dataReject.image.length; i++) {
+            imgEl += `<div class="col">
+                            <img src="${dataReject.image[i]}" alt="Image" class="img-fluid">
+                        </div>
+                        `
+
+        }
+
+        $('#modal-reject-detail').find('#image-data').html(imgEl)
+    } else {
+        $('#modal-reject-detail').find('#image-data').html(`
+            <b><h6 class="text-danger text-center">Tidak ada gambar yang diupload</h6></b>
+        `)
+    }
+
+}
+
+function cekNoSurat(){
+    let noSurat = $('input[name="nomor_surat"]').val()
+    if(noSurat == '' || noSurat == null){
+        $('input[name="nomor_surat"]').next().next().fadeIn()
+        return false
+    } else {
+        $('input[name="nomor_surat"]').next().next().fadeOut()
+        noSurat = btoa(noSurat)
+        ajaxGetJson(`/transaction/surat-masuk/cek-surat/${noSurat}`, 'notif_used', 'input_error')
+    }
+
+}
+
+function notif_used(res){
+    if(res.data != null){
+        $('#usedNoSurat').fadeIn()
+        $('#lastStatus').html(res.data.status_surat.name)
+
+        if(res.data.status_surat.name != 'Direvisi'){
+            $('#form-surat-masuk').find('.form-control').not('#nomor_surat').attr('disabled', 'disabled')
+            $('#form-surat-masuk').find('.form-select').attr('disabled', 'disabled')
+            $('#form-surat-masuk').find('#btn-save').attr('disabled', 'disabled')
+        } else {
+            $('#form-surat-masuk').find('.form-control').not('#nomor_agenda').removeAttr('disabled')
+            $('#form-surat-masuk').find('.form-select').removeAttr('disabled')
+            $('#form-surat-masuk').find('#btn-save').removeAttr('disabled')
+        }
+    }
+}
+
 function input_success_(data){
     Swal.close()
 
@@ -441,7 +533,7 @@ function input_success(data) {
         return false
     }
 
-    Command: toastr["success"]("Data Surat Masuk Berhasil Disimpan", "Berhasil Simpan Data")
+    Command: toastr["success"](data.message, "Berhasil Simpan Data")
 
     toastr.options = {
       "closeButton": true,
@@ -479,10 +571,6 @@ function input_success(data) {
     }
 
     table.ajax.reload()
-    $('#form-surat-masuk').removeClass('was-validated')
-    $('#form-surat-masuk').find('.form-control').val('')
-    $('#form-surat-masuk').find('textarea').val('')
-    $('#form-surat-masuk').find('select').val('').trigger('change')
 }
 
 function success_pindah(data){

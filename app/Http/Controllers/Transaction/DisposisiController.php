@@ -32,16 +32,17 @@ class DisposisiController extends Controller
         $search = '';
 
         $loggedInOrg = User::with('org')->find(Auth::user()->id);
-        if(strtolower($loggedInOrg->org->nama) != 'spri'){
-            $suratMasuk = SuratMasuk::orderBy('tgl_diterima', 'asc')
+        $suratMasuk = SuratMasuk::orderBy('tgl_diterima', 'asc')
                             ->with('asalSurat')
                             ->with('entityAsalSurat')
                             ->With('statusSurat')
                             ->with('klasifikasiSurat')
                             ->with('derajatSurat')
                             ->with('tujuanSurat')
-                            ->with('createdUser')
-                            ->whereHas('createdUser', function($user){
+                            ->with('createdUser');
+
+        if(strtolower($loggedInOrg->org->nama) != 'spri'){
+            $suratMasuk = $suratMasuk->whereHas('createdUser', function($user){
                                 $user->where('organization', Auth::user()->organization);
                             });
 
@@ -50,16 +51,9 @@ class DisposisiController extends Controller
                 $suratMasuk = $suratMasuk->where('no_agenda', 'like', '%' .$noAgenda. '%');
             }
         } else {
-            $suratMasuk = SuratMasuk::orderBy('tgl_diterima', 'DESC')
-                        ->with('asalSurat')
-                        ->with('entityAsalSurat')
-                        ->With('statusSurat')
-                        ->with('klasifikasiSurat')
-                        ->with('derajatSurat')
-                        ->with('tujuanSurat')
-                        ->with('createdUser')
-                        ->whereIn('status_surat', [9, 4]) ;
+            $suratMasuk = $suratMasuk->whereIn('status_surat', [9, 4, 12]) ;
         }
+
         $suratMasuk = $suratMasuk->get();
 
         return DataTables::of($suratMasuk)

@@ -12,6 +12,7 @@ use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
 use App\Models\Transaction\DisposisiSuratMasuk;
 use App\Models\Transaction\SuratMasuk;
+use App\Models\Transaction\SuratMasukRejected;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -19,8 +20,10 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Str;
 
 class SuratMasukController extends Controller
 {
@@ -70,8 +73,7 @@ class SuratMasukController extends Controller
         } else {
             $dataSurat = $dataSurat->whereHas('createdUser', function($user){
                 $user->where('organization', Auth::user()->organization);
-            })
-            ->get();
+            })->get();
         }
 
         return DataTables::of($dataSurat)
@@ -163,10 +165,13 @@ class SuratMasukController extends Controller
                     $noAgenda = base64_encode($data->no_agenda);
                     $html = '<a href="'.url('transaction/disposisi/'.$noAgenda).'" class="btn btn-info btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </a>';
                 }
+            } else if($data->status_surat == 12){
+                $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="viewDetailRejected(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail revisi berkas" > <span class="mdi mdi-folder-eye"></span> </button>';
             }
         } else if(strtolower($loggedInOrg->org->nama) == 'spri'){
             if($data->status_surat == 6){
                 $html = '<button class="btn btn-warning btn-sm rounded-pill" onclick="terimaBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Terima Berkas" > <span class="mdi mdi-file-document-check"></span> </button>';
+                $html .= '<button class="btn btn-danger btn-sm rounded-pill mt-2" onclick="revisiBerkas(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Revisi Berkas" > <span class="mdi mdi-book-cancel"></span> </button>';
             } else if($data->status_surat == 8){
                 $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
             } else if($data->status_surat == 3) {
@@ -419,6 +424,92 @@ class SuratMasukController extends Controller
                 'detail' => $th
             ]);
         }
+    }
+
+    public function revisiBerkas(Request $request)
+    {
+        try {
+            // Check Directory
+            $path = public_path().'/upload/images/rejected/'.$request->tx_number;
+            if(!file_exists($path)){
+                File::makeDirectory($path, 0777, true);
+            }
+
+            $images = [];
+            if ($request->hasFile('image')) {
+                foreach ($request->file('image') as $imageFile) {
+                    $filename = date('y-m-d') . '_' . $imageFile->getClientOriginalName();
+                    $imageFile->move($path, $filename);
+                    $images[] = $filename;
+                }
+            }
+
+            $data = [
+                'tx_number' => $request->tx_number,
+                'notes' => $request->notes,
+                'rejected_by' => Auth::user()->name,
+                'rejected_at' => Carbon::now(),
+            ];
+
+            if (!empty($images)) {
+                $data['image'] = implode(',', $images);
+            } else {
+                $data['image'] = null;
+            }
+
+            $insert = SuratMasukRejected::create($data);
+
+            // Update Status Surat
+            SuratMasuk::where('tx_number', $request->tx_number)->update([
+                'status_surat' => 12
+            ]);
+
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil submir revisi berkas',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => JsonResponse::HTTP_NOT_FOUND,
+                'message' => 'Gagal Submit revisi berkas',
+                'detail' => $th
+            ]);
+        }
+    }
+
+    public function viewReject($txNumber)
+    {
+        $txNumber = base64_decode($txNumber);
+        $data['reject'] = SuratMasukRejected::where('tx_number', $txNumber)->first();
+        $data['surat'] = SuratMasuk::select('no_surat', 'no_agenda')->where('tx_number', $txNumber)->first();
+
+        $data['reject']->rejected_at = Carbon::parse($data['reject']->rejected_at)->translatedFormat('d F Y H:i').' WIB';
+
+        $image = [];
+        if($data['reject']->image != null){
+            $image = explode(',', $data['reject']->image);
+            for ($i=0; $i < count($image); $i++) {
+                $image[$i] = asset('upload/images/rejected/'.$data['reject']->tx_number.'/'.$image[$i]);
+            }
+        }
+        $data['reject']->image = $image;
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'message' => 'OK',
+            'data' => $data,
+        ]);
+    }
+
+    public function cekSurat($noSurat){
+        $noSurat = base64_decode($noSurat);
+        $data = SuratMasuk::where('no_surat', $noSurat)->With('statusSurat')->first();
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'message' => 'OK',
+            'data' => $data,
+        ]);
     }
 
     /**
