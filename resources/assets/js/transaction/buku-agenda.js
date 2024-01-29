@@ -39,6 +39,22 @@ $( function(){
             $(this).addClass('was-validated');
         }
     });
+
+    $('#form-edit-tgl').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            PostEditTglDiterima()
+            $(this).addClass('was-validated');
+        }
+    });
+
+    $('#form-revisi').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postRevisiBerkas()
+            $(this).addClass('was-validated');
+        }
+    });
 })
 
 function searchData(){
@@ -80,26 +96,34 @@ function searchData(){
             {
                 data: 'no_agenda',
                 name: 'no_agenda',
+                responsivePriority: 0,
+                className: 'editable'
             },
             {
                 data: 'noSurat',
                 name: 'noSurat',
+                responsivePriority: 0
             },
             {
                 data: 'tgl_surat',
                 name: 'tgl_surat',
+                responsivePriority: 1
             },
             {
                 data: 'tgl_diterima',
                 name: 'tgl_diterima',
+                responsivePriority: 2,
+                className: 'editable'
             },
             {
-                data: 'asal_surat.name',
-                name: 'asal_surat.name',
+                data: 'surat_dari',
+                name: 'surat_dari',
+                responsivePriority: 0
             },
             {
                 data: 'tujuan_surat.nama',
                 name: 'tujuan_surat.nama',
+                responsivePriority: 1
             },
             {
                 data: 'perihal',
@@ -109,12 +133,12 @@ function searchData(){
             {
                 data: 'status',
                 name: 'status',
-                responsivePriority: 0
+                responsivePriority: 2
             },
             {
                 data: 'action',
                 name: 'action',
-                responsivePriority: 0
+                responsivePriority: -1
             }
         ],
         order: [[4, 'asc']],
@@ -137,6 +161,73 @@ function searchData(){
     });
 
     $('#container-data').slideDown()
+}
+
+function editTglDiterima(txNumber, tglDiterima){
+    $('#modal-edit-tgl').modal('toggle')
+    $('#form-edit-tgl').find('input[name="tx_number"]').val(txNumber)
+    $('#form-edit-tgl').find('#tanggal-diterima').val(tglDiterima).attr('min')
+}
+
+async function PostEditTglDiterima(){
+    var form = $('#form-edit-tgl').serialize()
+    await ajaxPostJson('/transaction/surat-masuk/edit-tgl', form, 'input_success', 'input_error')
+    $('#modal-edit-tgl').modal('toggle')
+}
+
+function updateDisposisi(txNumber, no_agenda) {
+    $('#modal-disposisi').modal('toggle')
+    $('#form-disposisi').find('input[name="tx_number"]').val(txNumber)
+    $('#form-disposisi').find('input[name="nomor_agenda"]').val(no_agenda)
+
+    ajaxGetJson(`/transaction/disposisi/get-tujuan/${txNumber}`, 'renderTujuanDisposisi', 'error_get')
+}
+
+function renderTujuanDisposisi(data) {
+    const org = data.data
+    let option = '<option></option>';
+    for (let i = 0; i < org.length; i++) {
+        option += `<option value="${org[i].id}"> ${org[i].nama} </option>`
+    }
+
+    $('#tujuan_disposisi').html(option)
+    $("#tujuan_disposisi").select2({
+        dropdownParent : $('#modal-disposisi .modal-content'),
+        placeholder: 'Harap Pilih Tujuan Disposisi',
+        allowClear: true
+    });
+}
+
+function postDisposisi() {
+    var tujuanDisposisi = $('#tujuan_disposisi').val()
+
+    if(tujuanDisposisi.length == 0){
+        Swal.fire({
+            title: "Tidak ada tujuan Disposisi yang dipilih",
+            text: 'Anda tidak memilih tujuan disposisi, maka berkas ini akan diarsipkan. Apakah Anda yakin?',
+            icon: 'warning',
+            showDenyButton: true,
+            showCancelButton: true,
+            confirmButtonText: "Ya, Arsipkan Berkas",
+            denyButtonText: `Tidak`,
+            showCancelButton: false,
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                postData()
+            } else {
+                return false
+            }
+        });
+    } else {
+        postData()
+    }
+
+    async function postData(){
+        let form = $('#form-disposisi').serialize()
+        await ajaxPostJson('/transaction/disposisi/store', form, 'input_success', 'input_error')
+        $('#modal-disposisi').modal('toggle')
+    }
 }
 
 function actionPrintBlanko(txNumber){
@@ -175,7 +266,7 @@ function pindahBerkas(txNo, status) {
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if(result.isConfirmed){
-            ajaxGetJson(`/transaction/surat-masuk/pindah-berkas/${txNo}`, 'success_pindah', 'input_error')
+            ajaxGetJson(`/transaction/surat-masuk/pindah-berkas/${txNo}`, 'input_success', 'input_error')
         } else {
             return false
         }
@@ -199,14 +290,64 @@ function terimaBerkas(txNo, status){
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if(result.isConfirmed){
-            ajaxGetJson(`/transaction/surat-masuk/terima-berkas/${txNo}`, 'success_pindah', 'input_error')
+            ajaxGetJson(`/transaction/surat-masuk/terima-berkas/${txNo}`, 'input_success', 'input_error')
         } else {
             return false
         }
     });
 }
 
-function success_pindah(data){
+async function postRevisiBerkas(){
+    let form =  new FormData($("#form-revisi")[0])
+    await ajaxPostFile('/transaction/surat-masuk/revisi-berkas', form, 'input_success', 'input_error')
+    $('#modal-reject').modal('toggle')
+}
+
+function revisiBerkas(txNumber){
+    $('#modal-reject').modal('toggle')
+    $('#form-revisi').find('input[name="tx_number"]').val(txNumber)
+}
+
+
+function viewDetailRejected(txNumber){
+    txNumber = btoa(txNumber)
+    ajaxGetJson(`/transaction/surat-masuk/view-reject/${txNumber}`, 'render_rejected', 'input_error')
+}
+
+function render_rejected(res){
+    const dataSurat = res.data.surat
+    const dataReject = res.data.reject
+    var headerCont = $('#modal-reject-detail').find('#header-data')
+    var detailCont = $('#modal-reject-detail').find('#detail-data')
+
+    $('#modal-reject-detail').modal('toggle')
+    $(headerCont).find('#no_surat').html(dataSurat.no_surat)
+    $(headerCont).find('#no_agenda').html(dataSurat.no_agenda)
+
+    $(detailCont).find('#tgl_revisi').html(dataReject.rejected_at)
+    $(detailCont).find('#revisi_by').html(dataReject.rejected_by)
+    $(detailCont).find('#notes').html(dataReject.notes)
+
+    var imgEl = '';
+    if(dataReject.image.length > 0){
+        for (let i = 0; i < dataReject.image.length; i++) {
+            imgEl += `<div class="col">
+                            <img src="${dataReject.image[i]}" alt="Image" class="img-fluid">
+                        </div>
+                        `
+
+        }
+
+        $('#modal-reject-detail').find('#image-data').html(imgEl)
+    } else {
+        $('#modal-reject-detail').find('#image-data').html(`
+            <b><h6 class="text-danger text-center">Tidak ada gambar yang diupload</h6></b>
+        `)
+    }
+
+}
+
+function input_success(data){
     Swal.close()
     table.ajax.reload()
 

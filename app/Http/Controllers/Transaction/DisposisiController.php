@@ -30,22 +30,30 @@ class DisposisiController extends Controller
     public function getData(Request $request)
     {
         $search = '';
-        $suratMasuk = SuratMasuk::orderBy('tgl_diterima', 'asc')
-                        ->with('asalSurat')
-                        ->with('entityAsalSurat')
-                        ->With('statusSurat')
-                        ->with('klasifikasiSurat')
-                        ->with('derajatSurat')
-                        ->with('tujuanSurat')
-                        ->with('createdUser')
-                        ->whereHas('createdUser', function($user){
-                            $user->where('organization', Auth::user()->organization);
-                        });
 
-        if ($request->nomor_agenda != null) {
-            $noAgenda = base64_decode($request->nomor_agenda);
-            $suratMasuk = $suratMasuk->where('no_agenda', 'like', '%' .$noAgenda. '%');
+        $loggedInOrg = User::with('org')->find(Auth::user()->id);
+        $suratMasuk = SuratMasuk::orderBy('tgl_diterima', 'asc')
+                            ->with('asalSurat')
+                            ->with('entityAsalSurat')
+                            ->With('statusSurat')
+                            ->with('klasifikasiSurat')
+                            ->with('derajatSurat')
+                            ->with('tujuanSurat')
+                            ->with('createdUser');
+
+        if(strtolower($loggedInOrg->org->nama) != 'spri'){
+            $suratMasuk = $suratMasuk->whereHas('createdUser', function($user){
+                                $user->where('organization', Auth::user()->organization);
+                            });
+
+            if ($request->nomor_agenda != null) {
+                $noAgenda = base64_decode($request->nomor_agenda);
+                $suratMasuk = $suratMasuk->where('no_agenda', 'like', '%' .$noAgenda. '%');
+            }
+        } else {
+            $suratMasuk = $suratMasuk->whereIn('status_surat', [9, 4, 12]) ;
         }
+
         $suratMasuk = $suratMasuk->get();
 
         return DataTables::of($suratMasuk)
@@ -93,6 +101,8 @@ class DisposisiController extends Controller
             $html .= '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
         } else if ($data->status_surat == 4) {
             $html = '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
+        } else if($data->status_surat == 2){
+            $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
         }
 
         return $html;

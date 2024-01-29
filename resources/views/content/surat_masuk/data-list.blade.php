@@ -2,17 +2,17 @@
     <table class="datatables-basic table table-bordered" id="table-list">
       <thead>
         <tr>
-            <th></th>
-            <th>#</th>
-            <th>No. Agenda</th>
-            <th>No. Surat</th>
-            <th>Tanggal Surat</th>
-            <th>Tanggal Diterima</th>
-            <th>Asal Surat</th>
-            <th>Tujuan Surat</th>
-            <th>Perihal</th>
-            <th>Status</th>
-            <th>Action</th>
+            <th scope="col"></th>
+            <th scope="col">#</th>
+            <th scope="col">No. Agenda</th>
+            <th scope="col">No. Surat</th>
+            <th scope="col">Tanggal Surat</th>
+            <th scope="col">Tanggal Diterima</th>
+            <th scope="col">Surat Dari</th>
+            <th scope="col">Tujuan Surat</th>
+            <th scope="col">Perihal</th>
+            <th scope="col">Status</th>
+            <th scope="col">Action</th>
         </tr>
       </thead>
     </table>
