@@ -209,7 +209,7 @@ class Helpers
   public static function generateTxNumber($jenis_surat = null)
   {
         $currentYear = Carbon::now()->translatedFormat('Y');
-        
+
         if (!is_null($jenis_surat)) {
           if ($jenis_surat == 'masuk') {
             $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
@@ -222,29 +222,27 @@ class Helpers
           $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
           $number = '0000';
         }
-        
 
-        if($totalData == 0){
-            $number = '0001';
-        } else if(strlen($totalData) < 4){
-            // $totalData = (int)$totalData == 1 ? (int)$totalData + 1 : (int)$totalData;
-            $number = sprintf("%04d", (int)$totalData+1);
+
+        if($totalData != null){
+            $lastId = explode('-', $totalData->tx_number);
+            $nextId = (int)$lastId[count($lastId)-1] + 1;
+            $nextId = sprintf("%04d", $nextId);
         } else {
-            $number = $totalData;
+            $nextId = '0001';
         }
 
-        $code = self::generateRandomString(3);
         if (!is_null($jenis_surat)) {
           if ($jenis_surat == 'masuk') {
-            $transNumber = "TX-SM-$currentYear-$number";
+            $transNumber = "TX-SM-$currentYear-$nextId";
           } else {
-            $transNumber = "TX-SK-$currentYear-$number";
+            $transNumber = "TX-SK-$currentYear-$nextId";
           }
         } else {
-          $transNumber = "TX-SM-$currentYear-$number";
+          $transNumber = "TX-SM-$currentYear-$nextId";
         }
-        
-        
+
+
 
         return $transNumber;
   }
@@ -257,26 +255,23 @@ class Helpers
 
         if (!is_null($jenis_surat)) {
           if ($jenis_surat == 'masuk') {
-            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
           } else {
-            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->count();
+            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
           }
         } else {
-          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
         }
-        
-        $number = '0000';
 
-        if($totalData == 0){
-            $number = '0001';
-        } else if(strlen($totalData) < 4){
-            // $totalData = (int)$totalData == 1 ? (int)$totalData + 1 : (int)$totalData;
-            $number = sprintf("%04d", (int)$totalData+1);
+        if($totalData != null){
+            $lastId = explode('-', $totalData->tx_number);
+            $nextId = (int)$lastId[count($lastId)-1] + 1;
+            $nextId = sprintf("%04d", $nextId);
         } else {
-            $number = $totalData;
+            $nextId = '0001';
         }
 
-        $noAgenda = "$number/$currentMonth/$currentYear/$org";
+        $noAgenda = "$nextId/$currentMonth/$currentYear/$org";
 
         return $noAgenda;
   }
@@ -296,7 +291,7 @@ class Helpers
     return $returnValue;
 }
 
-  public static function generateRandomString($length = 10) 
+  public static function generateRandomString($length = 10)
   {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
@@ -316,7 +311,7 @@ class Helpers
     if (!is_null($parent)) {
       while (!is_null($child->parent_id)) {
         array_push($orgs,$parent);
-  
+
         $child = $parent;
         $parent = Organization::where('id',$child->parent_id)->first();
       }
@@ -324,7 +319,7 @@ class Helpers
 
     return $orgs;
   }
-  
+
   public static function getAllChildOrg($org,$current_org)
   {
     $orgs = [];

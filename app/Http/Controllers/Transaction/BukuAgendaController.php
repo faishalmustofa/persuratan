@@ -103,9 +103,22 @@ class BukuAgendaController extends Controller
                 })
                 ->editColumn('tgl_diterima', function($data) {
                     $tgl = Carbon::parse($data->tgl_diterima)->translatedFormat('d F Y');
-                    return $tgl;
+                    $loggedInOrg = User::with('org')->find(Auth::user()->id);
+                    if(strtolower($loggedInOrg->org->nama) == 'spri'){
+                        if($data->status_surat == 6 || $data->status_surat == 8){
+                            return $tgl.'<button class="btn btn-warning btn-sm rounded-pill ms-2" onclick="editTglDiterima(`'.$data->tx_number.'`, `'.$data->tgl_diterima.'`)"> <span class="mdi mdi-square-edit-outline"></span> </button>';
+                        } else {
+                            return $tgl;
+                        }
+                    } else {
+                        return $tgl;
+                    }
+                    // return $tgl;// . '<button type="button" class="edit btn btn-warning btn-sm rounded-pill ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Rubah Tanggal Diterima" onclick="editTglDiterima(`'.$data->tx_number.'`, event)"><span class="mdi mdi-square-edit-outline"></span></button>';
                 })
-                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima'])
+                ->editColumn('surat_dari', function($data){
+                    return "<span> ". $data->entityAsalSurat->entity_name ." (" . $data->entity_asal_surat_detail . ")  </span>";
+                })
+                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima', 'surat_dari'])
                 ->make(true);
     }
 

@@ -12,14 +12,18 @@ use App\Models\Reference\DerajatSurat;
 use App\Models\Reference\KlasifikasiSurat;
 use App\Models\Transaction\DisposisiSuratMasuk;
 use App\Models\Transaction\SuratMasuk;
+use App\Models\Transaction\SuratMasukRejected;
 use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Str;
 
 class SuratMasukController extends Controller
 {
@@ -69,8 +73,7 @@ class SuratMasukController extends Controller
         } else {
             $dataSurat = $dataSurat->whereHas('createdUser', function($user){
                 $user->where('organization', Auth::user()->organization);
-            })
-            ->get();
+            })->get();
         }
 
         return DataTables::of($dataSurat)
@@ -99,9 +102,22 @@ class SuratMasukController extends Controller
                 })
                 ->editColumn('tgl_diterima', function($data) {
                     $tgl = Carbon::parse($data->tgl_diterima)->translatedFormat('d F Y');
-                    return $tgl;
+                    $loggedInOrg = User::with('org')->find(Auth::user()->id);
+                    if(strtolower($loggedInOrg->org->nama) == 'spri'){
+                        if($data->status_surat == 6 || $data->status_surat == 8){
+                            return $tgl.'<button class="btn btn-warning btn-sm rounded-pill ms-2" onclick="editTglDiterima(`'.$data->tx_number.'`, `'.$data->tgl_diterima.'`)"> <span class="mdi mdi-square-edit-outline"></span> </button>';
+                        } else {
+                            return $tgl;
+                        }
+                    } else {
+                        return $tgl;
+                    }
+                    // return $tgl;// . '<button type="button" class="edit btn btn-warning btn-sm rounded-pill ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Rubah Tanggal Diterima" onclick="editTglDiterima(`'.$data->tx_number.'`, event)"><span class="mdi mdi-square-edit-outline"></span></button>';
                 })
-                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima'])
+                ->editColumn('surat_dari', function($data){
+                    return "<span> ". $data->entityAsalSurat->entity_name ." (" . $data->entity_asal_surat_detail . ")  </span>";
+                })
+                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima', 'surat_dari'])
                 ->make(true);
     }
 
@@ -111,22 +127,51 @@ class SuratMasukController extends Controller
         $status = StatusSurat::where('id', $data->status_surat)->first();
 
         $html = '';
-        if(($data->status_surat == 1 || $data->status_surat == 10) && Auth::user()->hasPermissionTo('print-blanko')){
-            $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
-        } else if(strtolower($loggedInOrg->org->nama) == 'taud'){
-            if($data->status_surat == 11){
+        if(strtolower($loggedInOrg->org->nama) != 'taud' && strtolower($loggedInOrg->org->nama) != 'spri'){
+            if($data->status_surat == 1 && Auth::user()->hasPermissionTo('print-blanko')){
+                $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
+            } else if($data->status_surat == 9){
+                if (Auth::user()->hasPermissionTo('kirim-disposisi')){
+                    $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
+                }
+                $html .= '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
+            } else if ($data->status_surat == 4) {
+                $html = '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
+            } else if($data->status_surat == 2){
+                $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
+            }
+        }  else if(strtolower($loggedInOrg->org->nama) == 'taud'){
+            if($data->status_surat == 10) {
+                if($data->tujuanSurat->need_disposisi == 1){
+                    // ACTION PRINT BLANKO DISPOSISI TAUD
+                    $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
+                } else {
+                    // ACTION KIRIM SURAT LANGSUNG TAUD
+                    $disposisi = DisposisiSuratMasuk::where('tx_number', $data->tx_number)->get();
+
+                    if(count($disposisi) != 0){
+                        $noAgenda = base64_encode($data->no_agenda);
+                        $html = '<a href="'.url('transaction/disposisi/'.$noAgenda).'" class="btn btn-info btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </a>';
+                    }
+                }
+            } else if($data->status_surat == 11){
+                // ACTION PINDAH BERKAS TAUD KE SPRI
                 $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="pindahBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Pindah Berkas ke SPRI" > <span class="mdi mdi-file-move"></span> </button>';
             } else if($data->status_surat == 9 && Auth::user()->hasPermissionTo('kirim-disposisi')){
+                // ACTION KIRIM SURAT SETELAH DISPOSISI
                 $disposisi = DisposisiSuratMasuk::where('tx_number', $data->tx_number)->get();
 
                 if(count($disposisi) != 0){
                     $noAgenda = base64_encode($data->no_agenda);
                     $html = '<a href="'.url('transaction/disposisi/'.$noAgenda).'" class="btn btn-info btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </a>';
                 }
+            } else if($data->status_surat == 12){
+                $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="viewDetailRejected(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail revisi berkas" > <span class="mdi mdi-folder-eye"></span> </button>';
             }
         } else if(strtolower($loggedInOrg->org->nama) == 'spri'){
             if($data->status_surat == 6){
                 $html = '<button class="btn btn-warning btn-sm rounded-pill" onclick="terimaBerkas(`'.$data->tx_number.'`, `'.$status->name.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Terima Berkas" > <span class="mdi mdi-file-document-check"></span> </button>';
+                $html .= '<button class="btn btn-danger btn-sm rounded-pill mt-2" onclick="revisiBerkas(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Revisi Berkas" > <span class="mdi mdi-book-cancel"></span> </button>';
             } else if($data->status_surat == 8){
                 $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
             } else if($data->status_surat == 3) {
@@ -151,6 +196,11 @@ class SuratMasukController extends Controller
     public function store(Request $request)
     {
         DB::beginTransaction();
+        $this->validate($request, [
+            'nomor_surat' => 'unique:surat_masuk,no_surat'
+        ],[
+            'nomor_surat' => 'Nomor Surat '.$request->nomor_surat.' sudah pernah dibuatkan agenda surat masuk'
+        ]);
         try {
             $entityAsalSurat = EntityAsalSurat::find($request->asal_surat);
             $asalSurat = AsalSurat::find($entityAsalSurat->asal_surat_id);
@@ -203,8 +253,13 @@ class SuratMasukController extends Controller
                 'klasifikasi' => $request->klasifikasi,
                 'derajat' => $request->derajat,
                 'created_by' => Auth::user()->id,
-                'file_path' => $file_path
+                'file_path' => $file_path,
+                'no_surat_asal' => $request->nomor_surat_asal
             ];
+
+            if($request->nomor_surat_asal != null){
+                SuratMasuk::where('no_surat', $request->nomor_surat_asal)->update(['status_surat' => 1]);
+            }
 
             SuratMasuk::create($insertedData);
 
@@ -214,13 +269,18 @@ class SuratMasukController extends Controller
                 'message' => 'Berhasil Buat Agenda Surat',
                 'txNumber' => $txNumber,
                 'noAgenda' => $noAgenda,
+                'printBlanko' => $org->need_disposisi
             ]);
-        } catch (\Throwable $e) {
+        } catch (Exception $th) {
             DB::rollBack();
             return response()->json([
-                'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => 'Terjadi Kesalahan Pada Sistem, Harap Coba Lagi',
-                'detail' => $e
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Hapus Data, Harap Coba lagi!'
             ]);
         }
 
@@ -251,17 +311,30 @@ class SuratMasukController extends Controller
                 'jml_lampiran' => $jml_lampiran,
             ));
 
-            $filename = 'Blanko Disposisi - '. $dataSurat->tx_number .'.docx';
-            $path = public_path().'/document/'.$filename;
+            $filename = 'Blanko Disposisi - '. $dataSurat->tx_number;
+            $path = public_path().'/document/'.$filename .'.docx';
+
+            if(file_exists($path)){
+                unlink($path);
+            }
+
             $template_document->saveAs($path);
 
-            $statusNext = 0;
-            // $loggedInOrg = User::with('org')->find(Auth::user()->id);
-            // strtolower($org->nama) == 'kadiv propam' && strtolower($loggedInOrg->org->name) == 'taud'
+            $pdfPath = public_path().'/document/';
+            $convert='"C:/Program Files/LibreOffice/program/soffice" --headless --convert-to pdf "'.$path.'" --outdir "'.$pdfPath.'"';
+            if(!exec($convert)){
+                return response()->json([
+                    'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                    'message' => 'Gagal Memproses file blanko disposisi, harap coba lagi',
+                ]);
+            }
+            $pdfFile = $filename.'.pdf';
+            unlink($path);
 
+            $statusNext = 0;
             if($dataSurat->status_surat == 10){
                 $statusNext = 11;
-            } else {
+            } else if ($dataSurat->status_surat == 1) {
                 $statusNext = 2;
             }
 
@@ -274,6 +347,7 @@ class SuratMasukController extends Controller
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Cetak Blanko Disposisi',
                 'file' => $filename,
+                'filePath' => asset('document/'.$pdfFile)
             ]);
         } else {
             return response()->json([
@@ -327,6 +401,114 @@ class SuratMasukController extends Controller
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'message' => 'Berhasil Melakukan Penerimaan Berkas',
+        ]);
+    }
+
+    public function editTgl(Request $request)
+    {
+        try {
+            $suratMasuk = SuratMasuk::where('tx_number', $request->tx_number);
+
+            $suratMasuk->update([
+                'tgl_diterima' => $request->tanggal_diterima
+            ]);
+
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil update tanggal diterima surat',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => JsonResponse::HTTP_NOT_FOUND,
+                'message' => 'Gagal update tanggal diterima surat',
+                'detail' => $th
+            ]);
+        }
+    }
+
+    public function revisiBerkas(Request $request)
+    {
+        try {
+            // Check Directory
+            $path = public_path().'/upload/images/rejected/'.$request->tx_number;
+            if(!file_exists($path)){
+                File::makeDirectory($path, 0777, true);
+            }
+
+            $images = [];
+            if ($request->hasFile('image')) {
+                foreach ($request->file('image') as $imageFile) {
+                    $filename = date('y-m-d') . '_' . $imageFile->getClientOriginalName();
+                    $imageFile->move($path, $filename);
+                    $images[] = $filename;
+                }
+            }
+
+            $data = [
+                'tx_number' => $request->tx_number,
+                'notes' => $request->notes,
+                'rejected_by' => Auth::user()->name,
+                'rejected_at' => Carbon::now(),
+            ];
+
+            if (!empty($images)) {
+                $data['image'] = implode(',', $images);
+            } else {
+                $data['image'] = null;
+            }
+
+            $insert = SuratMasukRejected::create($data);
+
+            // Update Status Surat
+            SuratMasuk::where('tx_number', $request->tx_number)->update([
+                'status_surat' => 12
+            ]);
+
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil submir revisi berkas',
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => JsonResponse::HTTP_NOT_FOUND,
+                'message' => 'Gagal Submit revisi berkas',
+                'detail' => $th
+            ]);
+        }
+    }
+
+    public function viewReject($txNumber)
+    {
+        $txNumber = base64_decode($txNumber);
+        $data['reject'] = SuratMasukRejected::where('tx_number', $txNumber)->first();
+        $data['surat'] = SuratMasuk::select('no_surat', 'no_agenda')->where('tx_number', $txNumber)->first();
+
+        $data['reject']->rejected_at = Carbon::parse($data['reject']->rejected_at)->translatedFormat('d F Y H:i').' WIB';
+
+        $image = [];
+        if($data['reject']->image != null){
+            $image = explode(',', $data['reject']->image);
+            for ($i=0; $i < count($image); $i++) {
+                $image[$i] = asset('upload/images/rejected/'.$data['reject']->tx_number.'/'.$image[$i]);
+            }
+        }
+        $data['reject']->image = $image;
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'message' => 'OK',
+            'data' => $data,
+        ]);
+    }
+
+    public function cekSurat($noSurat){
+        $noSurat = base64_decode($noSurat);
+        $data = SuratMasuk::where('no_surat', $noSurat)->With('statusSurat')->first();
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'message' => 'OK',
+            'data' => $data,
         ]);
     }
 
