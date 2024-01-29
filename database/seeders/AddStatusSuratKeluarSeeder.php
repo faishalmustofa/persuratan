@@ -15,13 +15,18 @@ class AddStatusSuratKeluarSeeder extends Seeder
     {
         $surat_keluar = array(
             [
-                'name' => 'Diterima',
-                'description' => 'Surat telah diterima',
+                'name' => 'Dibuat',
+                'description' => 'Surat telah dibuat',
                 'tipe_surat' => 'keluar'
             ],
             [
-                'name' => 'Diajukan',
-                'description' => 'Surat telah diajukan',
+                'name' => 'Diminta penomoran surat',
+                'description' => 'Surat telah diminta nomor surat',
+                'tipe_surat' => 'keluar'
+            ],
+            [
+                'name' => 'Diterima',
+                'description' => 'Surat telah diterima',
                 'tipe_surat' => 'keluar'
             ],
             [
@@ -30,38 +35,38 @@ class AddStatusSuratKeluarSeeder extends Seeder
                 'tipe_surat' => 'keluar'
             ],
             [
-                'name' => 'Diterima (TAUD)',
-                'description' => 'Surat telah diterima oleh TAUD',
+                'name' => 'Diberi tanda tangan',
+                'description' => 'Surat telah diberi tanda tangan',
+                'tipe_surat' => 'keluar'
+            ],
+            [
+                'name' => 'Diberi nomor dan diagendakan',
+                'description' => 'Surat telah diberi nomor dan diagendakan',
+                'tipe_surat' => 'keluar'
+            ],
+            [
+                'name' => 'Dikirim ke tujuan',
+                'description' => 'Surat telah dikirim ke tujuan',
+                'tipe_surat' => 'keluar'
+            ],
+            [
+                'name' => 'Diterima di tujuan',
+                'description' => 'Surat telah diterima di tujuan',
                 'tipe_surat' => 'keluar'
             ],
             [
                 'name' => 'Dikembalikan',
-                'description' => 'Surat dikembalikan dengan catatan',
+                'description' => 'Surat telah dikembalikan dengan catatan',
                 'tipe_surat' => 'keluar'
             ],
             [
-                'name' => 'Ditandatangan',
-                'description' => 'Surat telah ditandatangan',
-                'tipe_surat' => 'keluar'
-            ],
-            [
-                'name' => 'Diberi nomor surat',
-                'description' => 'Surat telah ditandatangan',
-                'tipe_surat' => 'keluar'
-            ],
-            [
-                'name' => 'Diagendakan',
-                'description' => 'Surat telah diagendakan',
-                'tipe_surat' => 'keluar'
-            ],
-            [
-                'name' => 'Dikirimkan ke tujuan',
+                'name' => 'Telah disesuaikan',
                 'description' => 'Surat telah dikirimkan ke tujuan',
                 'tipe_surat' => 'keluar'
             ],
             [
-                'name' => 'Sampai Tujuan',
-                'description' => 'Surat telah dikirimkan ke tujuan',
+                'name' => 'Diminta penomoran surat kembali',
+                'description' => 'Surat telah diminta penomoran surat kembali',
                 'tipe_surat' => 'keluar'
             ],
         );

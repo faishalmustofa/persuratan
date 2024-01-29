@@ -26,6 +26,26 @@ $(function () {
             $(this).addClass('was-validated');
         }
     });
+    
+    var form_penomoran_surat = document.querySelectorAll('.needs-validation')
+
+    Array.prototype.slice.call(form_penomoran_surat).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+
+    $('#form-penomoran-surat').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postFormPenomoranSurat()
+            $(this).addClass('was-validated');
+        }
+    });
 
     // custom template to render icons
     function renderIcons(option) {
@@ -185,6 +205,11 @@ function postForm() {
     ajaxPostJson('/transaction/permintaan-no-surat/tindak-surat', form, 'tindak_surat_success', 'input_error')
 }
 
+function postFormPenomoranSurat() {
+    let form = $("#form-penomoran-surat").serialize()
+    ajaxPostJson('/transaction/buku-agenda-surat-keluar/buat-agenda-surat', form, 'penomoran_surat_success', 'input_error')
+}
+
 function input_success(data) {
     Swal.close()
 
@@ -236,6 +261,27 @@ function input_success(data) {
     $('#form-surat-keluar').find('select').val('').trigger('change')
 }
 
+function modalPenomoranSurat(txNo) {
+    txNo = btoa(txNo)
+    ajaxGetJson(`/transaction/permintaan-no-surat/get-form-penomoran-surat/${txNo}`, 'showModalPenomoranSurat', 'error_get')
+}
+
+function showModalPenomoranSurat(res){
+    Swal.close()
+
+    if (res.status != 200) {
+        var text = res.message
+        error_notif(text)
+        return false
+    }
+    var detail = res.data.detail
+    
+    $('#modal-detail').modal('hide')
+    $('#modal-penomoran-surat').modal('toggle')
+    $('#detail-data-penomoran').find('#tx_number_penomoran').val(detail.tx_number)
+
+}
+
 function detailSurat(txNo) {
     txNo = btoa(txNo)
     ajaxGetJson(`/transaction/permintaan-no-surat/detail/${txNo}`, 'showModalDetail', 'error_get')
@@ -281,6 +327,10 @@ function actionTindakSurat(txNumber){
     ajaxGetJson(`/transaction/permintaan-no-surat/tindak-surat/${txNumber}`, 'tindak_surat_success', 'input_error')
 }
 
+function actionTerimaSurat(txNumber){
+    ajaxGetJson(`/transaction/permintaan-no-surat/terima-surat/${txNumber}`, 'terima_surat_success', 'input_error')
+}
+
 function actionTTDSurat(txNumber){
     ajaxGetJson(`/transaction/permintaan-no-surat/ttd-surat/${txNumber}`, 'ttd_surat_success', 'input_error')
 }
@@ -308,6 +358,29 @@ function agendakan_surat_success(data) {
     $('#modal-detail').modal('hide')
     table.ajax.reload()
     
+}
+
+function penomoran_surat_success(data) {
+    Swal.close()
+
+    if (data.status != 200) {
+        var text = data.message
+        error_notif(text)
+        return false
+    }
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Surat berhasil diberi nomor dan diagendakan!',
+        type: 'success',
+        customClass: {
+          confirmButton: 'btn btn-primary waves-effect waves-light'
+        },
+        buttonsStyling: false
+    })
+
+    table.ajax.reload()
 }
 
 function ttd_surat_success(data) {
@@ -345,7 +418,30 @@ function tindak_surat_success(data) {
     Swal.fire({
         icon: 'success',
         title: 'Berhasil',
-        text: 'Surat berhasil dikirim!',
+        text: 'Surat berhasil dikembalikan!',
+        type: 'success',
+        customClass: {
+          confirmButton: 'btn btn-primary waves-effect waves-light'
+        },
+        buttonsStyling: false
+    })
+
+    table.ajax.reload()
+}
+
+function terima_surat_success(data) {
+    Swal.close()
+
+    if (data.status != 200) {
+        var text = data.message
+        error_notif(text)
+        return false
+    }
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Surat berhasil diterima!',
         type: 'success',
         customClass: {
           confirmButton: 'btn btn-primary waves-effect waves-light'
@@ -368,7 +464,7 @@ function minta_surat_success(data) {
     Swal.fire({
         icon: 'success',
         title: 'Berhasil',
-        text: 'Surat berhasil dikirim!',
+        text: 'Surat berhasil diminta!',
         type: 'success',
         customClass: {
           confirmButton: 'btn btn-primary waves-effect waves-light'

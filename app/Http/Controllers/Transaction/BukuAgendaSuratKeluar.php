@@ -32,7 +32,7 @@ class BukuAgendaSuratKeluar extends Controller
             ->with('createdUser')
             ->with('posisiSurat')
             ->whereHas('statusSurat', function($surat){
-                $surat->where('status_surat',19);
+                $surat->where('status_surat',17);
             })
             ->whereHas('posisiSurat',function($surat){
                 $surat->where('posisi_surat',Auth::user()->organization)
@@ -47,18 +47,21 @@ class BukuAgendaSuratKeluar extends Controller
         return view('content.surat-keluar.buku-agenda', $data);
     }
 
-    public function buatAgenda($txNo)
+    public function buatAgenda(Request $request)
     {
-        $txNo = base64_decode($txNo);
+        $txNo = $request->txNo;
         $user = Auth::getUser();
         $surat = SuratKeluar::find($txNo);
         $org = Organization::where('id', $surat->konseptor)->first();
 
         $noAgenda = Helpers::generateNoAgenda($org->suffix_agenda,'keluar');
-        $status_surat = 19;
+        $status_surat = 17;
         $posisi = $surat->konseptor;
-
+        $bulan_romawi = Helpers::getBulanRomawi(Carbon::now()->format('m'));
+        $nomor_surat = $surat->jenisSurat->nama .'/'.$request->nomor_surat.'/'. $bulan_romawi .'/'. Carbon::now()->year; //input data
+        
         $surat->update([
+            'no_surat' => $nomor_surat,
             'no_agenda' => $noAgenda,
             'status_surat' => $status_surat
         ]);
@@ -91,7 +94,7 @@ class BukuAgendaSuratKeluar extends Controller
                         ->with('createdUser')
                         ->with('posisiSurat')
                         ->whereHas('statusSurat', function($surat){
-                            $surat->where('status_surat', 19);
+                            $surat->where('status_surat', 17);
                         })
                         ->whereHas('statusSurat', function($surat){
                             $user = Auth::getUser();

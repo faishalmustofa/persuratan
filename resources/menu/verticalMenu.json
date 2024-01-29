@@ -59,7 +59,7 @@
           "slug": "pengiriman-surat-keluar"
         },
         {
-          "url": "",
+          "url": "transaction/laporan-penerimaan-surat",
           "name": "Laporan Penerimaan Surat",
           "slug": "laporan-penerimaan"
         }

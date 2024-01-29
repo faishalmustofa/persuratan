@@ -239,6 +239,12 @@
                           <div class="col-md-7 col-12 mb-2">
                               <span id="tujuan_surat"></span>
                           </div>
+
+                          <div class="col-md-4 col-12 mb-2"> Status Surat </div>
+                          <div class="col-md-1 col-12 mb-2"> : </div>
+                          <div class="col-md-7 col-12 mb-2">
+                              <span id="status_surat"></span>
+                          </div>
                       </div>
                   </div>
               </div>
@@ -259,6 +265,42 @@
           </div>
           <div class="modal-footer">
             <button type="submit" class="btn btn-outline-warning">Surat Belum Sesuai</button>
+            <div id="section-action"></div>
+          </div>
+        </form>
+          
+      </div>
+  </div>
+</div>
+
+<!-- Modal Penomoran surat -->
+<div class="modal fade" id="modal-penomoran-surat" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <form action="javascript:void(0)" id="form-penomoran-surat" class="needs-validation" novalidate>
+          @csrf
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalCenterTitle">Beri nomor surat</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+            <div class="card text-whiterounded-pills">
+              <div class="card-body" id="detail-data-penomoran">
+                <div class="card mb-2">
+                  <div class="form-floating form-floating-outline">
+                      <input type="hidden" id="tx_number_penomoran" name="txNo" value="">
+                      <textarea class="form-control h-px-75" id="nomor_surat" name="nomor_surat" rows="3" placeholder="Nomor Surat" required></textarea>
+                      <label for="nomor_surat">Nomor Surat</label>
+                      <div class="invalid-feedback"> Mohon masukan nomor surat.</div>
+                    </div>
+                   </div>
+                   
+                </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-outline-warning">Agendakan</button>
             <div id="section-action"></div>
           </div>
         </form>

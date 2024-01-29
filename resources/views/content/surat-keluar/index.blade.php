@@ -32,6 +32,8 @@
   <script src="{{asset('assets/js/transaction/surat-keluar.js')}}"></script>
   <script>
     $(function () {
+      // let form =  new FormData($("#form-surat-keluar")[0])
+      // console.log(form.getAll)
     });
   </script>
 @endsection
@@ -137,19 +139,19 @@
         <div class="card">
             <h5 class="card-header">Form Draft Surat Keluar</h5>
             <div class="card-body">
-            <form action="javascript:void(0)" id="form-surat-keluar" class="needs-validation" novalidate>
+            <form action="javascript:void(0)" id="{{isset($suratKeluar) ? 'form-update-surat' : 'form-surat-keluar'}}" class="needs-validation" novalidate>
                 @csrf
                 <div class="row mb-4">
                   <div class="col">
                     <div class="form-check form-check-primary">
-                      <input name="tipe-draft-surat" class="form-check-input" type="radio" value="1" id="with-document" required/>
+                      <input name="tipe-draft-surat" class="form-check-input" type="radio" value="1" id="with-document" required {{isset($suratKeluar) ? (!is_null($suratKeluar->file_path) ? 'checked' : '') : ''}} {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}/>
                       <label class="form-check-label" for="with-document"> Dengan draft dokumen surat </label>
                       <div class="invalid-feedback"> Mohon pilih jenis draft surat. </div>
                     </div>
                   </div>
                   <div class="col">
                     <div class="form-check form-check-primary">
-                      <input name="tipe-draft-surat" class="form-check-input" type="radio" value="0" id="without-document" required/>
+                      <input name="tipe-draft-surat" class="form-check-input" type="radio" value="0" id="without-document" required {{isset($suratKeluar) ? (is_null($suratKeluar->file_path) ? 'checked' : '') : ''}} {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}/>
                       <label class="form-check-label" for="without-document"> Tanpa draft dokumen surat </label>
                       <div class="invalid-feedback"> Mohon pilih jenis draft surat. </div>
                     </div>
@@ -161,60 +163,48 @@
                     <select id="jenis_surat" name="jenis_surat" class="select2 form-select" required>
                         <option value="">Pilih Jenis Surat</option>
                         @foreach ($jenis_surat as $surat)
-                            <option value="{{$surat->id}}" {{isset($suratKeluar) ? ($suratKeluar->jenis_surat == $surat->id ? 'selected' : '') : ''}} >{{$surat->nama}}</option>
+                            <option value="{{$surat->id}}" {{isset($suratKeluar) ? ($suratKeluar->jenis_surat == $surat->id ? 'selected' : '') : ''}} {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>{{$surat->nama}}</option>
                         @endforeach
                     </select>
                     <div class="invalid-feedback"> Mohon pilih jenis surat. </div>
                 </div>
 
                 <div class="form-floating form-floating-outline mb-4">
-                    <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat (DINOMORI SETELAH DI TTD)" name="nomor_surat" disabled {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->no_surat : '') : ''}}" />
+                    <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat (DINOMORI SETELAH DI TTD)" name="nomor_surat" disabled {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->no_surat : '') : ''}}" {{ isset($is_konseptor) ? ($is_konseptor ? 'disabled' : '') : '' }}/>
                     <label for="nomor_surat">Nomor Surat (DINOMORI SETELAH DI TTD)</label>
                     <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
                 </div>
 
                 <div class="mb-4 form-floating form-floating-outline">
-                    <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->tgl_surat : '') : ''}}"/>
+                    <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->tgl_surat : '') : ''}}" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}/>
                     <label for="tanggal_surat">Pilih Tanggal Surat</label>
                     <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
                 </div>
 
                 <div class="form-floating form-floating-outline mb-4">
-                    <textarea class="form-control h-px-75" id="perihal" name="perihal" rows="3" placeholder="Perihal" required {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}}>{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->perihal : '') : ''}}</textarea>
+                    <textarea class="form-control h-px-75" id="perihal" name="perihal" rows="3" placeholder="Perihal" required {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->perihal : '') : ''}}</textarea>
                     <label for="perihal">Perihal</label>
                     <div class="invalid-feedback"> Mohon masukan perihal surat. </div>
                 </div>
 
                 <div class="form-floating form-floating-outline mb-4">
-                    <select id="tujuan_surat" name="tujuan_surat" class="select2 form-select" required>
+                    <select id="tujuan_surat" name="tujuan_surat" class="select2 form-select" required {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>
                         <option value="">Pilih Tujuan Surat</option>
                         @foreach ($tujuanSurat as $header)
-                            @if(isset($suratKeluar))
-                                @if($header->id == '1')
-                                    <optgroup label="{{$header->name}}">
-                                        @foreach ($entityTujuan as $detail)
-                                            @if ($detail->tujuan_surat_id == $header->id)
-                                                <option value="{{$detail->id}}">{{$detail->entity_name}}</option>
-                                            @endif
-                                        @endforeach
-                                    </optgroup>
+                            <optgroup label="{{$header->name}}">
+                              @foreach ($entityTujuan as $detail)
+                                @if ($detail->tujuan_surat_id == $header->id)
+                                  <option value="{{$detail->id}}" {{ isset($suratKeluar) ? ( $detail->id == $suratKeluar->tujuanSurat->id ? 'selected' : '') : '' }}>{{$detail->entity_name}}</option>
                                 @endif
-                            @else
-                                <optgroup label="{{$header->name}}">
-                                    @foreach ($entityTujuan as $detail)
-                                        @if ($detail->tujuan_surat_id == $header->id)
-                                            <option value="{{$detail->id}}">{{$detail->entity_name}}</option>
-                                        @endif
-                                    @endforeach
-                                </optgroup>
-                            @endif
+                              @endforeach
+                            </optgroup>
                         @endforeach
                     </select>
                     <div class="invalid-feedback"> Mohon pilih asal surat. </div>
                 </div>
 
                 <div class="form-floating form-floating-outline mb-4">
-                  <input type="text" class="form-control" id="entity_tujuan_surat_detail" placeholder="Detail Entity Tujuan Surat" name="entity_tujuan_surat_detail" required />
+                  <input type="text" class="form-control" id="entity_tujuan_surat_detail" placeholder="Detail Entity Tujuan Surat" name="entity_tujuan_surat_detail" value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->entity_tujuan_surat_detail : '') : ''}}" required {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}/>
                   <label for="entity_asal_surat_detail">Detail Entity Tujuan Surat</label>
                   <div class="invalid-feedback"> Mohon masukan detail entity tujuan surat. </div>
                 </div>
@@ -222,7 +212,7 @@
                 <div class="row">
                     <div class="col-8">
                         <div class="form-floating form-floating-outline mb-4">
-                            <input type="text" class="form-control" id="judul_lampiran" placeholder="Judul Lampiran" name="judul_lampiran" {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->lampiran : '') : ''}}"/>
+                            <input type="text" class="form-control" id="judul_lampiran" placeholder="Judul Lampiran" name="judul_lampiran" {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->lampiran : '') : ''}}" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}/>
                             <label for="judul_lampiran">Judul Lampiran</label>
                             <div class="invalid-feedback"> Mohon masukan judul lampiran. </div>
                         </div>
@@ -230,7 +220,7 @@
 
                     <div class="col-2">
                         <div class="form-floating form-floating-outline mb-4">
-                            <input type="number" class="form-control" id="jumlah_lampiran" placeholder="Jumlah Lampiran" name="jumlah_lampiran" value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->jml_lampiran : '') : ''}}"/>
+                            <input type="number" class="form-control" id="jumlah_lampiran" placeholder="Jumlah Lampiran" name="jumlah_lampiran" value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->jml_lampiran : '') : ''}}" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}/>
                             <label for="jumlah_lampiran">Jumlah Lampiran</label>
                             <div class="invalid-feedback"> Mohon masukan jumlah lampiran. </div>
                         </div>
@@ -238,7 +228,7 @@
 
                     <div class="col-2">
                         <div class="form-floating form-floating-outline mb-4">
-                            <select name="lampiran_type" class="form-select select2" id="lampiran_type">
+                            <select name="lampiran_type" class="form-select select2" id="lampiran_type" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>
                                 <option value="">Tipe Lampiran</option>
                                 <option value="bundle" {{isset($suratKeluar) ? ($suratKeluar->lampiran_type == 'bundle' ? 'selected' : '') : ''}}>Bundle</option>
                                 <option value="lembar" {{isset($suratKeluar) ? ($suratKeluar->lampiran_type == 'lembar' ? 'selected' : '') : ''}}>Lembar</option>
@@ -256,13 +246,13 @@
                 </div>
 
                 <div class="form-floating form-floating-outline mb-4">
-                  <select id="unit_kerja_pemohon" name="unit_kerja_pemohon" class="select2 form-select">
+                  <select id="unit_kerja_pemohon" name="unit_kerja_pemohon" class="select2 form-select" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }} {{ count($childUser) < 1 ? 'disabled' : '' }}>
                       <option value="">Pilih Unit Kerja Pemohon</option>
                       @if (count($childUser) < 1)
-                        <option value="">User tidak memiliki bawahan.</option>
+                        <option value="" selected>Konseptor tidak memiliki bawahan.</option>
                       @else
                         @foreach ($childUser as $child)
-                            <option value="{{$child->id}}">{{$child->nama}}</option>
+                            <option value="{{$child->id}}" {{ isset($suratKeluar) ? ( $child->id == $suratKeluar->unit_kerja ? 'selected' : '') : '' }}>{{$child->nama}}</option>
                         @endforeach
                       @endif
                   </select>
@@ -270,13 +260,13 @@
                 </div>
                 
                 <div class="form-floating form-floating-outline mb-4">
-                  <select id="penandatangan_surat" name="penandatangan_surat" class="select2 form-select" required>
+                  <select id="penandatangan_surat" name="penandatangan_surat" class="select2 form-select" required {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>
                       <option value="">Pilih Penandatangan Surat</option>
                       @if (count($penandatanganSurat) < 1)
                         <option value="">User tidak memiliki atasan.</option>
                       @else
                         @foreach ($penandatanganSurat as $penandatangan)
-                            <option value="{{$penandatangan->id}}">{{$penandatangan->leader_alias}}</option>
+                            <option value="{{$penandatangan->id}}" {{ isset($suratKeluar) ? ($penandatangan->id == $suratKeluar->penandatangan_surat ? 'selected' : '') : '' }}>{{$penandatangan->leader_alias}}</option>
                         @endforeach
                       @endif
                   </select>
@@ -284,22 +274,37 @@
                 </div>
 
                 <div class="form-floating form-floating-outline mb-4">
-                    <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}}>{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->perihal : '') : ''}}</textarea>
+                    <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->perihal : '') : ''}}</textarea>
                     <label for="catatan">Catatan</label>
                     <div class="invalid-feedback"> Mohon masukan catatan surat. </div>
                 </div>
 
-                @if (!isset($suratKeluar))
+                @if (isset($suratKeluar) && !is_null($suratKeluar->file_path))
                     <div class="form-group mb-4">
                         <label for="formFile" class="form-label">Upload Draft Dokumen Surat</label>
-                        <input class="form-control" type="file" id="file-surat" name="file_surat" accept=".pdf" required>
+                        <input class="form-control" type="file" id="file-surat" name="file_surat" value="{{$suratKeluar->file_path}}" accept=".pdf" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>
                         <div class="invalid-feedback"> Mohon upload draft dokumen surat. </div>
+                        <div class="preview-files mt-3">
+                          Lihat dokumen : <a href="{{ route('download-surat-keluar',['txNo'=>base64_encode($suratKeluar->tx_number)]) }}" target="_blank" class="btn btn-info btn-sm rounded-pill px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Klik untuk lihat surat  " ><span class="mdi mdi-file-search-outline"></span> {{ $suratKeluar->file_path }}</a>
+                        </div>
                     </div>
+                @else
+                  <div class="form-group mb-4">
+                    <label for="formFile" class="form-label">Upload Draft Dokumen Surat</label>
+                    <input class="form-control" type="file" id="file-surat" name="file_surat" accept=".pdf" required>
+                    <div class="invalid-feedback"> Mohon upload draft dokumen surat. </div>
+                  </div>
                 @endif
+
 
                 <div class="row">
                     <div class="col-12">
-                        <button type="submit" id="btn-save" class="btn btn-primary">Buat Draft</button>
+                        @if (isset($suratKeluar))
+                          <input type="hidden" value="{{ $suratKeluar->tx_number }}" id="txNo" name="txNo">
+                          <button type="submit" id="btn-save" class="btn btn-warning">Update Draft Surat</button>
+                        @else
+                          <button type="submit" id="btn-save" class="btn btn-primary">Buat Draft Surat</button>
+                        @endif
                     </div>
                 </div>
             </form>
@@ -392,7 +397,7 @@
               <div class="card-body" id="detail-data">
                 <div class="card mb-2">
                   <div class="form-floating form-floating-outline">
-                    <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" disabled></textarea>
+                    <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" readonly></textarea>
                     <label for="catatan">Catatan</label>
                     <div class="invalid-feedback"> Mohon masukan catatan surat.</div>
                   </div>
@@ -402,7 +407,6 @@
             </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-warning" id="edit-surat">Edit Surat</button>
           <div id="section-action"></div>
         </div>
       </div>

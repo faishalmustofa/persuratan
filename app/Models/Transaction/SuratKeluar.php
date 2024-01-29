@@ -5,6 +5,7 @@ namespace App\Models\Transaction;
 use App\Models\Master\EntityTujuanSurat;
 use App\Models\Master\Organization;
 use App\Models\Master\StatusSurat;
+use App\Models\Reference\JenisSurat;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -38,4 +39,14 @@ class SuratKeluar extends Model
     function posisiSurat(){
         return $this->hasOne(Organization::class, 'id', 'posisi_surat');
     }
+
+    function konseptorSurat(){
+        return $this->hasOne(User::class, 'id', 'konseptor');
+    }
+    
+    function jenisSurat(){
+        return $this->hasOne(JenisSurat::class, 'id', 'jenis_surat');
+    }
+
+
 }

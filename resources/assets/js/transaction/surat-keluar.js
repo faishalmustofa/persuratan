@@ -77,7 +77,15 @@ $(function () {
             postForm()
             $(this).addClass('was-validated');
         }
-        // postForm()
+    });
+    
+    $('#form-update-surat').on('submit', function (e) {
+        let txNo = $('#txNo').val()
+        if (this.checkValidity()) {
+            e.preventDefault();
+            updateForm(txNo)
+            $(this).addClass('was-validated');
+        }
     });
 
     // custom template to render icons
@@ -244,7 +252,8 @@ function showModalDetail(res){
     // let button_teruskan = `<button onclick="actionMintaNomorSurat(`+detail.tx_number+`)" type="button" class="btn btn-info btn-sm rounded-pill px-2">Teruskan</button>`
     $('#section-action').html(header.btn_action)
     $('#detail-data').find('#tx_number').val(detail.tx_number)
-    $('#tx_number').val(header.tx_number)
+    $('#detail-data').find('#catatan').val(detail.catatan)
+    // $('#catatan').val(header.catatan)
     // $('#detail-data').find('#penandatangan').html(header.penandatangan)
     // $('#detail-data').find('#perihal').html(header.perihal)
 
@@ -253,6 +262,62 @@ function showModalDetail(res){
 function postForm() {
     let form =  new FormData($("#form-surat-keluar")[0])
     ajaxPostFile('/transaction/surat-keluar/store', form, 'input_success', 'input_error')
+}
+
+function updateForm(txNo) {
+    txNo = btoa(txNo)
+    let form =  new FormData($("#form-update-surat")[0])
+    ajaxPostFile(`/transaction/surat-keluar/update/${txNo}`, form, 'update_success', 'input_error')
+}
+
+function update_success(data) {
+    Swal.close()
+
+    if (data.status != 200) {
+        var text = data.message
+        error_notif(text)
+        return false
+    }
+
+    Command: toastr["success"]("Data Berhasil Diupdate", "Berhasil Update Data")
+
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+
+    Swal.fire({
+        title: 'Berhasil!',
+        text: 'Update Data Berhasil!',
+        type: 'success',
+        timer: 1500,
+        customClass: {
+          confirmButton: 'btn btn-primary waves-effect waves-light'
+        },
+        buttonsStyling: false,
+        showConfirmButton: false,
+    })
+
+    table.ajax.reload()
+    window.location.replace(data.redirect)
+    // window.location('/transaction/surat-keluar')
+    // $('#form-update-surat').removeClass('was-validated')
+    // $('#form-update-surat').find('input').val('')
+    // $('#form-update-surat').find('textarea').val('')
+    // $('#form-update-surat').find('select').val('').trigger('change')
 }
 
 function input_success(data) {
@@ -264,7 +329,7 @@ function input_success(data) {
         return false
     }
 
-    Command: toastr["success"]("Data Surat Masuk Berhasil Disimpan", "Berhasil Simpan Data")
+    Command: toastr["success"]("Data Surat Keluar Berhasil Disimpan", "Berhasil Simpan Data")
 
     toastr.options = {
       "closeButton": true,

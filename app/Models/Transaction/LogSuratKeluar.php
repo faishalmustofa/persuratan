@@ -3,6 +3,7 @@
 namespace App\Models\Transaction;
 
 use App\Models\Master\StatusSurat;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -18,5 +19,9 @@ class LogSuratKeluar extends Model
     
     function suratKeluar(){
         return $this->hasOne(SuratKeluar::class, 'tx_number', 'tx_number');
+    }
+    
+    function updatedBy(){
+        return $this->hasOne(User::class, 'id', 'updated_by');
     }
 }

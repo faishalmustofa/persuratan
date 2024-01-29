@@ -69,7 +69,7 @@ function getDataSuratMasuk(){
         responsive: true,
         "pageLength": 10,
         ajax: {
-            url: "/transaction/pengiriman-surat-keluar/get-data",
+            url: "/transaction/laporan-penerimaan-surat/get-data",
             method: "post",
             data: function (data) {
                 data._token = $('meta[name="csrf-token"]').attr('content')
@@ -133,8 +133,8 @@ function getDataSuratMasuk(){
 }
 
 function postForm() {
-    let form = $("#form-kirim-surat").serialize()
-    ajaxPostJson('/transaction/pengiriman-surat-keluar/store', form, 'input_success', 'input_error')
+    let form = $("#form-laporan-penerimaan-surat").serialize()
+    ajaxPostJson('/transaction/laporan-penerimaan-surat-keluar/store', form, 'input_success', 'input_error')
 }
 
 function input_success(data) {
@@ -219,9 +219,9 @@ function showModalDetail(res){
 
 }
 
-function getFormKirimSurat(txNumber){
+function penerimaanSurat(txNumber){
     txNumber = btoa(txNumber)
-    ajaxGetJson(`/transaction/buku-agenda-surat-keluar/get-form-kirim-surat/${txNumber}`, 'showFormKirimSurat', 'input_error')
+    ajaxGetJson(`/transaction/laporan-penerimaan-surat/buat-laporan-penerimaan/${txNumber}`, 'buat_laporan_success', 'input_error')
 }
 
 function showFormKirimSurat(res){
@@ -256,7 +256,7 @@ function showTimeline() {
     $('#modal-timeline').modal('toggle')
   }
 
-function get_form_success(data) {
+function buat_laporan_success(data) {
     Swal.close()
 
     if (data.status != 200) {
@@ -277,36 +277,6 @@ function get_form_success(data) {
     })
 
     $('#modal-detail').modal('toggle')
-    table.ajax.reload()
-    
-}
-
-function penerimaanSurat(txNumber){
-    txNumber = btoa(txNumber)
-    ajaxGetJson(`/transaction/laporan-penerimaan-surat/buat-laporan-penerimaan/${txNumber}`, 'buat_laporan_success', 'input_error')
-}
-
-function buat_laporan_success(data) {
-    Swal.close()
-
-    if (data.status != 200) {
-        var text = data.message
-        error_notif(text)
-        return false
-    }
-
-    Swal.fire({
-        icon: 'success',
-        title: 'Berhasil',
-        text: 'Surat berhasil diterima di tujuan!',
-        type: 'success',
-        customClass: {
-          confirmButton: 'btn btn-primary waves-effect waves-light'
-        },
-        buttonsStyling: false
-    })
-
-    // $('#modal-detail').modal('toggle')
     table.ajax.reload()
     
 }

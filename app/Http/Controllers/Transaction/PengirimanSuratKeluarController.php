@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Transaction;
 
 use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
+use App\Models\Master\EntityTujuanSurat;
 use App\Models\Master\Organization;
+use App\Models\Master\StatusSurat;
 use App\Models\Transaction\LogSuratKeluar;
 use App\Models\Transaction\SuratKeluar;
+use App\Models\User;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -49,7 +53,7 @@ class PengirimanSuratKeluarController extends Controller
                         ->with('createdUser')
                         ->with('posisiSurat')
                         ->whereHas('statusSurat', function($surat){
-                            $surat->where('status_surat', 20);
+                            $surat->where('status_surat', 18);
                         })
                         ->whereHas('statusSurat', function($surat){
                             $user = Auth::getUser();
@@ -87,10 +91,18 @@ class PengirimanSuratKeluarController extends Controller
 
     public function renderAction($data)
     {
-        $html = '
-            <button class="btn btn-outline-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" > <span class="mdi mdi-eye"></span> </button>
-            <button class="btn btn-outline-primary btn-sm rounded-pill px-2" onclick="showTimeline()" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat timeline surat" > <span class="mdi mdi-timeline-text-outline"></span> </button>
-            ';
+        if ($data->status_surat != 19) {
+            $html = '
+                <button class="btn btn-outline-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" > <span class="mdi mdi-eye"></span> </button>
+                <button class="btn btn-outline-success btn-sm rounded-pill px-2" onclick="penerimaanSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Buat Laporan Penerimaan Surat" > <span class="mdi mdi-playlist-plus"></span> </button>
+                <button class="btn btn-outline-primary btn-sm rounded-pill px-2" onclick="showTimeline()" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat timeline surat" > <span class="mdi mdi-timeline-text-outline"></span> </button>
+                ';
+        } else {
+            $html = '
+                <button class="btn btn-outline-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" > <span class="mdi mdi-eye"></span> </button>
+                <button class="btn btn-outline-primary btn-sm rounded-pill px-2" onclick="showTimeline()" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat timeline surat" > <span class="mdi mdi-timeline-text-outline"></span> </button>
+                ';
+        }
         return $html;
     }
 
@@ -112,7 +124,7 @@ class PengirimanSuratKeluarController extends Controller
         $org = Organization::where('id', $surat->konseptor)->first();
 
         $noAgenda = Helpers::generateNoAgenda($org->suffix_agenda,'keluar');
-        $status_surat = 20;
+        $status_surat = 18;
         $posisi = $user->organization;
 
         $surat->update([
@@ -138,9 +150,55 @@ class PengirimanSuratKeluarController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($txNo)
     {
-        //
+        try {
+            $user = Auth::getUser();
+            $txNo = base64_decode($txNo);
+            $surat = SuratKeluar::where('tx_number', $txNo)
+            ->with('statusSurat')
+            ->with('tujuanSurat')
+            ->with('createdUser')->first();
+            $entity_tujuan_surat = EntityTujuanSurat::find($surat->entity_tujuan_surat);
+            $penandatangan = Organization::find($surat->penandatangan_surat);
+            $konseptor = User::find($surat->konseptor);
+            $status_surat = StatusSurat::find($surat->statusSurat->id);
+
+            if (!$surat){
+                throw new Exception('Data Disposisi tidak ditemukan atau operator belum melakukan update disposisi', 404);
+            } else {
+                
+                $header = [
+                    'konseptor' => $konseptor->name,
+                    'tgl_surat' => Carbon::parse($surat->tgl_surat)->translatedFormat('d F Y'),
+                    'penandatangan' => $penandatangan->leader_alias,
+                    'perihal' => $surat->perihal,
+                    'catatan_surat' => $surat->catatan ?? 'TIDAK ADA',
+                    'status_surat' => $status_surat->description.' oleh ',
+                    'tujuan_surat' => $entity_tujuan_surat->entity_name.' - '.$surat->entity_tujuan_surat_detail,
+                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
+                ];
+                $detail = [
+                    'tx_number' => $surat->tx_number
+                ];
+            }
+
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'OK',
+                'data' => [
+                    'header' => $header,
+                    'detail' => $detail,
+                ]
+            ]);
+        } catch (Exception $th) {
+            return response()->json([
+                'status' =>  $th->getCode() != '' ? $th->getCode() : 500,
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
+            ]);
+        } 
     }
 
     /**

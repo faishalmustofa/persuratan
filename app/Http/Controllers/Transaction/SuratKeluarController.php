@@ -55,6 +55,7 @@ class SuratKeluarController extends Controller
         if($txNo != ''){
             $txNo = base64_decode($txNo);
             $data['suratKeluar'] = SuratKeluar::where('tx_number', $txNo)->first();
+            $data['is_konseptor'] = $data['suratKeluar']->konseptor == $user->id ? true : false;
         }
 
         return view('content.surat-keluar.index', $data);
@@ -90,7 +91,7 @@ class SuratKeluarController extends Controller
                         $bg = 'bg-label-info';
                     }
 
-                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description." oleh ".$data->konseptorSurat->name."'>" .$data->statusSurat->name. "</span>";
                 })
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
@@ -118,17 +119,18 @@ class SuratKeluarController extends Controller
         $dataSurat = SuratKeluar::where('tx_number', $txNo)->first();
         $user = Auth::getUser();
         $user_org = Organization::where('id',$user->organization)->first();
-        $posisi = $user_org->parent_id;
-
-        if (($posisi == 1) && ($user_org->id != 2)) {
-            $posisi = 2;
-        } elseif (($posisi == 1) && ($user_org->id == 2)) {
-            $posisi = 13;
-        }
-
-        if ($dataSurat->penandatangan_surat != $user->organization) {
-            $status_surat = 14;
-        } else {
+        
+        if ($user->organization == $dataSurat->konseptorSurat->organization) {
+            # code...
+            $log_surat = LogSuratKeluar::where('tx_number',$dataSurat->tx_number)
+            ->where('status',20)
+            ->where('updated_by','<>',$dataSurat->konseptor)
+            ->latest('created_at')
+            ->first();
+            $posisi = $dataSurat->status_surat == 12 ? $user_org->parent_id : $log_surat->updatedBy->id;
+            $status_surat = $dataSurat->status_surat == 12 ? 13 : 22;
+        }  else {
+            $posisi = $user_org->parent_id;
             $status_surat = 15;
         }
         
@@ -146,13 +148,6 @@ class SuratKeluarController extends Controller
             'posisi_surat' => $posisi,
             'catatan' => $dataSurat->catatan,
         ]);
-
-        // PermintaanNoSurat::create([
-        //     'tx_number' => $dataSurat->tx_number,
-        //     'created_by' => Auth::getUser()->id,
-        //     'catatan' => $dataSurat->catatan,
-        //     'penandatangan' => $dataSurat->penandatangan_surat,
-        // ]);
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
@@ -255,12 +250,12 @@ class SuratKeluarController extends Controller
             $insertedData = [
                 'tx_number' => $txNumber,
                 'no_agenda' => null,
-                'no_surat' => '-',
+                'no_surat' => 'BELUM DIBERI NOMOR',
                 'posisi_surat' => $asalSurat->id,
                 'jenis_surat' => $request->jenis_surat,
                 'tgl_surat' => $request->tanggal_surat,
                 'perihal' => $request->perihal,
-                'lampiran' => $request->lampiran,
+                'lampiran' => $request->judul_lampiran,
                 'lampiran_type' => $request->lampiran_type,
                 'jml_lampiran' => $request->jumlah_lampiran,
                 'konseptor' => $request->konseptor,
@@ -313,19 +308,31 @@ class SuratKeluarController extends Controller
             $surat = SuratKeluar::where('tx_number', $txNo)
             ->with('statusSurat')
             ->with('tujuanSurat')
-            ->with('createdUser')->first();
+            ->with('createdUser')
+            ->with('konseptorSurat')
+            ->first();
             $entity_tujuan_surat = EntityTujuanSurat::find($surat->entity_tujuan_surat);
             $penandatangan = Organization::find($surat->penandatangan_surat);
             $konseptor = User::find($surat->konseptor);
             $status_surat = StatusSurat::find($surat->statusSurat->id);
+            $log_surat = LogSuratKeluar::where('tx_number',$surat->tx_number)->latest('created_at')->first();
+            // dd($log_surat);
 
             if (!$surat){
                 throw new Exception('Data Disposisi tidak ditemukan atau operator belum melakukan update disposisi', 404);
             } else {
                 if ( ($user->organization == $surat->penandatangan_surat) || $user->organization == 13 ) {
                     $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionTTDSurat(`'.$surat->tx_number.'`)">TTD SURAT</button>';
-                } else {
-                    $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionMintaNomorSurat(`'.$surat->tx_number.'`)">Teruskan</button>';
+                } 
+                
+                if ($user->organization == $surat->konseptorSurat->organization) {
+                    if ($surat->status_surat == 20 || $surat->status_surat == 21) {
+                        $btn_action = '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning">Edit Surat</a>
+                        <button type="button" class="btn btn-outline-warning" onclick="actionMintaNomorSurat(`'.$surat->tx_number.'`)">Minta Ulang Nomor Surat</button>';
+                    } else {
+                        $btn_action = '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning">Edit Surat</a>
+                        <button type="button" class="btn btn-outline-warning" onclick="actionMintaNomorSurat(`'.$surat->tx_number.'`)">Minta Nomor Surat</button>';
+                    }
                 }
                 
                 if ($surat->statusSurat->id == 17) { 
@@ -336,15 +343,15 @@ class SuratKeluarController extends Controller
                     'tgl_surat' => Carbon::parse($surat->tgl_surat)->translatedFormat('d F Y'),
                     'penandatangan' => $penandatangan->leader_alias,
                     'perihal' => $surat->perihal,
-                    'catatan' => $surat->catatan,
-                    'status_surat' => $status_surat->description.' oleh ',
+                    'status_surat' => $status_surat->description.' oleh '. $log_surat->updatedBy->name,
                     'tujuan_surat' => $entity_tujuan_surat->entity_name.' - '.$surat->entity_tujuan_surat_detail,
                     // 'btn_teruskan' => $btn_teruskan,
                     'btn_action' => $btn_action,
                     'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
                 ];
                 $detail = [
-                    'tx_number' => $surat->tx_number
+                    'tx_number' => $surat->tx_number,
+                    'catatan' => $surat->catatan,
                 ];
             }
 
@@ -377,7 +384,6 @@ class SuratKeluarController extends Controller
             // ->with('createdUser')->get();
 
             $log_surat = LogSuratKeluar::where('tx_number',$txNo)->get();
-            dd($log_surat);
 
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
@@ -405,9 +411,97 @@ class SuratKeluarController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $txNo)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $user = Auth::user();
+            $txNo = base64_decode($txNo);
+            $surat = SuratKeluar::find($txNo);
+            $txNumber = $surat->tx_number;
+            $status_surat = $surat->status_surat;
+
+            if ( ($surat->status_surat == 20) || ($surat->status_surat == 21) ) {
+                $status_surat = 21;
+            }
+
+            $entityTujuanSurat = EntityAsalSurat::find($request->tujuan_surat);
+            $tujuanSurat = AsalSurat::find($entityTujuanSurat->asal_surat_id);
+
+            // $org = Organization::where('id', $request->tujuan_surat)->first();
+            $user = Auth::getUser();
+            $asalSurat = Organization::where('id',$user->organization)->first();
+            // $noAgenda = Helpers::generateNoAgenda($org->suffix_agenda,'keluar');
+
+            $file = '';
+            if ($request->hasFile('file_surat')) {
+                $documentFile = $request->file('file_surat');
+                $filename = $documentFile->getClientOriginalName();
+                $path = $txNumber.'.pdf';
+                $documentFile->move(public_path().'/document/surat-keluar/', $path);
+                $file = $path;
+            } else {
+                $file_path = $surat->file_path;
+            }
+
+            // if ($file != '') {
+            //     $file_path = $file;
+            // } else {
+            //     $file_path = null;
+            // }
+
+            $insertedData = [
+                'tx_number' => $txNumber,
+                'no_agenda' => null,
+                'no_surat' => 'BELUM DIBERI NOMOR',
+                'posisi_surat' => $asalSurat->id,
+                'jenis_surat' => $request->jenis_surat,
+                'tgl_surat' => $request->tanggal_surat,
+                'perihal' => $request->perihal,
+                'lampiran' => $request->judul_lampiran,
+                'lampiran_type' => $request->lampiran_type,
+                'jml_lampiran' => $request->jumlah_lampiran,
+                'konseptor' => $request->konseptor,
+                'unit_kerja' => $request->unit_kerja_pemohon ?? $user->organization,
+                'penandatangan_surat' => $request->penandatangan_surat,
+                'catatan' => $request->catatan,
+                'created_by' => $user->id,
+                'status_surat' => $status_surat,
+                'file_path' => $file_path,
+                'tujuan_surat' => $tujuanSurat->id,
+                'asal_surat' => $asalSurat->id,
+                'entity_tujuan_surat' => $entityTujuanSurat->id,
+                'entity_tujuan_surat_detail' => $request->entity_tujuan_surat_detail,
+            ];
+
+            $surat->update($insertedData);
+
+            LogSuratKeluar::create([
+                'tx_number' => $surat->tx_number,
+                'process_date' => Carbon::now(),
+                'status' => $surat->status_surat,
+                'updated_by' => $user->id,
+                'posisi_surat' => $surat->posisi_surat,
+                'catatan' => $surat->catatan,
+            ]);
+
+            // dd($log_surat);
+
+            DB::commit();
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Update Draft Surat',
+                'txNumber' => $txNumber,
+                'redirect' => route('create-bukuagenda-suratkeluar')
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Terjadi Kesalahan Pada Sistem, Harap Coba Lagi',
+                'detail' => $e
+            ]);
+        }
     }
 
     /**
@@ -423,10 +517,11 @@ class SuratKeluarController extends Controller
         $html = '';
         if($data->status_surat == 12 && Auth::user()->hasPermissionTo('print-blanko'))
         {
-            $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Minta Nomor Surat" > <span class="mdi mdi-file-download-outline"></span> </button>';
+            $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
+            // $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Minta Nomor Surat" > <span class="mdi mdi-file-download-outline"></span> </button>';
         }
         
-        if ($data->status_surat == 16 && Auth::user()->hasPermissionTo('edit-surat')) {
+        if ( ( ($data->status_surat == 20) || ($data->status_surat == 21) ) && Auth::user()->hasPermissionTo('edit-surat')) {
             # code...
             $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
             // $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="View Data" > <span class="mdi mdi-eye-outline"></span> </button>

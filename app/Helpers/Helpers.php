@@ -44,7 +44,7 @@ class Helpers
         'layoutNavbarOptions',
         'themes',
       ],
-        'defaultLanguage'=>'id',
+        'defaultLanguage'=>'en',
     ];
 
     // if any key missing of array from custom.php file it will be merge and set a default value from dataDefault array and store in data variable
@@ -315,7 +315,8 @@ class Helpers
 
     if (!is_null($parent)) {
       while (!is_null($child->parent_id)) {
-        array_push($orgs,$parent);
+        array_unshift($orgs,$parent);
+        // array_push($orgs,$parent);
   
         $child = $parent;
         $parent = Organization::where('id',$child->parent_id)->first();
@@ -332,5 +333,47 @@ class Helpers
     $orgs = $org->where('parent_id',$current_org->id);
 
     return $orgs;
+  }
+
+  public static function getBulanRomawi($bulan)
+  {
+    switch ($bulan) {
+        case 1:
+            return "I";
+            break;
+        case 2:
+            return "II";
+            break;
+        case 3:
+            return "III";
+            break;
+        case 4:
+            return "IV";
+            break;
+        case 5:
+            return "V";
+            break;
+        case 6:
+            return "VI";
+            break;
+        case 7:
+            return "VII";
+            break;
+        case 8:
+            return "VIII";
+            break;
+        case 9:
+            return "IX";
+            break;
+        case 10:
+            return "X";
+            break;
+        case 11:
+            return "XI";
+            break;
+        case 12:
+            return "XII";
+            break;
+    }
   }
 }
