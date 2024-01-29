@@ -57,6 +57,14 @@ function getData(){
                 name: 'name',
             },
             {
+                data: 'tipe_surat',
+                name: 'tipe_surat',
+            },
+            {
+                data: 'kode_status',
+                name: 'kode_status',
+            },
+            {
                 data: 'description',
                 name: 'description',
             },

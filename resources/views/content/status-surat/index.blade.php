@@ -34,6 +34,8 @@
                                 <th></th>
                                 <th>#</th>
                                 <th>Nama Status</th>
+                                <th>Tipe Surat</th>
+                                <th>Kode Status</th>
                                 <th>Deskripsi</th>
                                 <th>Action</th>
                             </tr>

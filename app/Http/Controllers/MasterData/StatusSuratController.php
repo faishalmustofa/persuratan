@@ -29,10 +29,8 @@ class StatusSuratController extends Controller
         return DataTables::of($data)
                 ->addIndexColumn()
                 ->editColumn('action', function($data){
-                    $html = '';
-                    $html .= "<a href='".route('status-surat.edit', $data->id)."' class='btn btn-warning btn-sm'><span class='mdi mdi-square-edit-outline'></span></a>";
-                    $html .= "<button class='btn btn-danger btn-sm ms-2' onclick='deleteData(`$data->id`)'><span class='mdi mdi-delete'></span></button>";
-
+                    $html = '<a href="'.route('status-surat.edit', $data->id).'" class="btn btn-outline-warning btn-sm rounded-pill px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-square-edit-outline"></span> </a>
+                    <button onclick="deleteData(`'.$data->id.')" class="btn btn-outline-danger btn-sm rounded-pill px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-delete"></span> </button>';
                     return $html;
                 })
                 ->rawColumns(['action'])
@@ -54,8 +52,21 @@ class StatusSuratController extends Controller
     {
         DB::beginTransaction();
         try {
+            $data_status_surat = StatusSurat::all();
+            foreach ($data_status_surat as $key => $value) {
+                if ($value->kode_status == $request->kode_status) {
+                    DB::rollBack();
+                    return response()->json([
+                        'status' => JsonResponse::HTTP_BAD_REQUEST,
+                        'message' => 'Kode Status yang dipilih sudah ada!',
+                        'detail' => 'Kode Status sudah ada'
+                    ]);
+                }
+            }
             $data = [
                 'name' => $request->name,
+                'tipe_surat' => $request->tipe_surat,
+                'kode_status' => $request->kode_status,
                 'description' => $request->description,
             ];
 
@@ -102,6 +113,8 @@ class StatusSuratController extends Controller
         try {
             $data = [
                 'name' => $request->name,
+                'tipe_surat' => $request->tipe_surat,
+                'kode_status' => $request->kode_status,
                 'description' => $request->description,
             ];
 
@@ -110,7 +123,7 @@ class StatusSuratController extends Controller
             DB::commit();
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
-                'message' => 'Berhasil Rubah Data Status Surat'
+                'message' => 'Berhasil ubah data status surat'
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
