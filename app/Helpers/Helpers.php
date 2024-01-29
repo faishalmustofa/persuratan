@@ -212,20 +212,20 @@ class Helpers
 
         if (!is_null($jenis_surat)) {
           if ($jenis_surat == 'masuk') {
-            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear);
             $number = '0000';
           } else {
-            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->count();
+            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear);
             $number = '0000';
           }
         } else {
-          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->count();
+          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear);
           $number = '0000';
         }
 
-
-        if($totalData != null){
-            $lastId = explode('-', $totalData->tx_number);
+        if($totalData->count() > 0){
+            $data = (clone $totalData)->latest('created_at')->first();
+            $lastId = explode('-', $data->tx_number);
             $nextId = (int)$lastId[count($lastId)-1] + 1;
             $nextId = sprintf("%04d", $nextId);
         } else {
@@ -241,7 +241,6 @@ class Helpers
         } else {
           $transNumber = "TX-SM-$currentYear-$nextId";
         }
-
 
 
         return $transNumber;
