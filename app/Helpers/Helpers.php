@@ -212,20 +212,19 @@ class Helpers
 
         if (!is_null($jenis_surat)) {
           if ($jenis_surat == 'masuk') {
-            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear);
+            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
             $number = '0000';
           } else {
-            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear);
+            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
             $number = '0000';
           }
         } else {
-          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear);
+          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
           $number = '0000';
         }
 
-        if($totalData->count() > 0){
-            $data = (clone $totalData)->latest('created_at')->first();
-            $lastId = explode('-', $data->tx_number);
+        if($totalData != null){
+            $lastId = explode('-', $totalData->tx_number);
             $nextId = (int)$lastId[count($lastId)-1] + 1;
             $nextId = sprintf("%04d", $nextId);
         } else {
