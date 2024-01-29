@@ -52,7 +52,7 @@
                         
                         <div class="col-12 col-md-12 mb-4">
                             <div class="form-floating form-floating-outline">
-                                <input type="number" class="form-control" id="kode_status" placeholder="Nama Status" name="kode_status" required />
+                                <input type="number" class="form-control" id="kode_status" placeholder="Nama Status" name="kode_status" value="{{$status->kode_status}}" required />
                                 <label for="kode_status">Kode Status</label>
                                 <div class="invalid-feedback"> Mohon masukan kode status. </div>
                             </div>
