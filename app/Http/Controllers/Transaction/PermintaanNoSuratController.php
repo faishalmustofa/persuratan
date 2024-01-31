@@ -426,7 +426,7 @@ class PermintaanNoSuratController extends Controller
             $html = '<button class="btn btn-success btn-sm rounded-pill px-2" onclick="actionTerimaSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Terima Surat" ><span class="mdi mdi-file-plus-outline"></span></button>';
         } 
         
-        if ( ($data->status_surat == 14) && ($data->posisi_surat != $data->penandatangan_surat) ) {
+        if ($data->status_surat == 14 ) {
             $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
         }
         

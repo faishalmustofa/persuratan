@@ -110,6 +110,9 @@ class SuratKeluarController extends Controller
     public function downloadFile($txNo){
         $txNo = base64_decode($txNo);
         $surat = SuratKeluar::find($txNo);
+        if (!$surat->file_path) {
+            return back()->with('error','File Dokumen belum diupload!');
+        }
         $filePath = public_path().'/document/surat-keluar/'.$surat->file_path;
         return response()->file($filePath);
     }
@@ -325,12 +328,13 @@ class SuratKeluarController extends Controller
                     $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionTTDSurat(`'.$surat->tx_number.'`)">TTD SURAT</button>';
                 } 
                 
+                $btn_action = '';
                 if ($user->organization == $surat->konseptorSurat->organization) {
-                    if ($surat->status_surat == 20 || $surat->status_surat == 21) {
-                        $btn_action = '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning">Edit Surat</a>
+                    if (($surat->status_surat == 20) || ($surat->status_surat == 21)) {
+                        $btn_action .= '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning">Edit Surat</a>
                         <button type="button" class="btn btn-outline-warning" onclick="actionMintaNomorSurat(`'.$surat->tx_number.'`)">Minta Ulang Nomor Surat</button>';
-                    } else {
-                        $btn_action = '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning">Edit Surat</a>
+                    } elseif($surat->status_surat == 12) {
+                        $btn_action .= '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning mx-2">Edit Surat</a>
                         <button type="button" class="btn btn-outline-warning" onclick="actionMintaNomorSurat(`'.$surat->tx_number.'`)">Minta Nomor Surat</button>';
                     }
                 }
@@ -347,7 +351,7 @@ class SuratKeluarController extends Controller
                     'tujuan_surat' => $entity_tujuan_surat->entity_name.' - '.$surat->entity_tujuan_surat_detail,
                     // 'btn_teruskan' => $btn_teruskan,
                     'btn_action' => $btn_action,
-                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
+                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" target="_blank" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
                 ];
                 $detail = [
                     'tx_number' => $surat->tx_number,
@@ -515,18 +519,18 @@ class SuratKeluarController extends Controller
     public function renderAction($data)
     {
         $html = '';
-        if($data->status_surat == 12 && Auth::user()->hasPermissionTo('print-blanko'))
-        {
-            $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
-            // $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Minta Nomor Surat" > <span class="mdi mdi-file-download-outline"></span> </button>';
-        }
+        // if($data->status_surat == 12 && Auth::user()->hasPermissionTo('print-blanko'))
+        // {
+        //     $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
+        //     // $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Minta Nomor Surat" > <span class="mdi mdi-file-download-outline"></span> </button>';
+        // }
         
-        if ( ( ($data->status_surat == 20) || ($data->status_surat == 21) ) && Auth::user()->hasPermissionTo('edit-surat')) {
-            # code...
-            $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
-            // $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="View Data" > <span class="mdi mdi-eye-outline"></span> </button>
-            // <button class="btn btn-warning btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-file-edit-outline"></span> </button>';
-        }
+        // if ( ( ($data->status_surat == 20) || ($data->status_surat == 21) ) && Auth::user()->hasPermissionTo('edit-surat')) {
+        //     # code...
+        //     // $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="View Data" > <span class="mdi mdi-eye-outline"></span> </button>
+        //     // <button class="btn btn-warning btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-file-edit-outline"></span> </button>';
+        // }
+        $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
 
         return $html;
     }

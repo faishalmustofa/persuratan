@@ -143,6 +143,35 @@
     </div>
 </div>
 
+<!-- Daftar pengiriman surat -->
+<div class="row mb-4">
+  <div class="col-md">
+      <div class="card">
+          <div class="card-header">
+              Log Data Agenda Surat Keluar
+          </div>
+          <div class="card-body">
+            <div class="card-datatable table-responsive pt-0">
+              <table class="datatables-basic table table-bordered" id="table-log-agenda-surat">
+                <thead>
+                  <tr>
+                      <th></th>
+                      <th>#</th>
+                      <th>No. Draft Surat</th>
+                      <th>Tanggal Surat</th>
+                      <th>Tujuan Surat</th>
+                      <th>Perihal</th>
+                      <th>Status</th>
+                  </tr>
+                </thead>
+              </table>
+            </div>
+          
+          </div>
+      </div>
+  </div>
+</div>
+
 <!-- Modal Detail -->
 <div class="modal fade" id="modal-detail" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">

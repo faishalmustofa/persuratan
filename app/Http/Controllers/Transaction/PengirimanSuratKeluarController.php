@@ -89,6 +89,45 @@ class PengirimanSuratKeluarController extends Controller
                 ->make(true);
     }
 
+    public function logPengiriman()
+    {
+        $user = Auth::getUser();
+        $dataSurat = LogSuratKeluar::where('posisi_surat',$user->organization)
+            ->distinct('tx_number')
+            ->with('statusSurat')
+            ->with('suratKeluar')
+            ->get();
+
+        return DataTables::of($dataSurat)
+                ->addIndexColumn()
+                ->editColumn('no_draft_surat', function($data){
+                    return $data->tx_number;
+                })
+                ->editColumn('tujuan_surat', function($data){
+                    $tujuan_surat = $data->suratKeluar->tujuanSurat;
+                    return $tujuan_surat->entity_name;
+                })
+                ->editColumn('status', function($data){
+                    $surat = $data->suratKeluar;
+                    $bg = '';
+                    if ($data->status_surat == '1') {
+                        $bg = 'bg-label-warning';
+                    } else if($data->status_surat == '2') {
+                        $bg = 'bg-label-success';
+                    } else if($data->status_surat == '3') {
+                        $bg = 'bg-label-primary';
+                    } else if($data->status_surat == '4') {
+                        $bg = 'bg-label-info';
+                    } else {
+                        $bg = 'bg-label-info';
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$surat->statusSurat->description."'>" .$surat->statusSurat->name. "</span>";
+                })
+                ->rawColumns(['no_draft_surat','tujuan_surat','status'])
+                ->make(true);
+    }
+
     public function renderAction($data)
     {
         if ($data->status_surat != 19) {
@@ -176,7 +215,7 @@ class PengirimanSuratKeluarController extends Controller
                     'catatan_surat' => $surat->catatan ?? 'TIDAK ADA',
                     'status_surat' => $status_surat->description.' oleh ',
                     'tujuan_surat' => $entity_tujuan_surat->entity_name.' - '.$surat->entity_tujuan_surat_detail,
-                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
+                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" target="_blank" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
                 ];
                 $detail = [
                     'tx_number' => $surat->tx_number

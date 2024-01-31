@@ -130,6 +130,45 @@ class BukuAgendaSuratKeluar extends Controller
                 ->make(true);
     }
 
+    public function logAgenda()
+    {
+        $user = Auth::getUser();
+        $dataSurat = LogSuratKeluar::where('posisi_surat',$user->organization)
+            ->distinct('tx_number')
+            ->with('statusSurat')
+            ->with('suratKeluar')
+            ->get();
+
+        return DataTables::of($dataSurat)
+                ->addIndexColumn()
+                ->editColumn('no_draft_surat', function($data){
+                    return $data->tx_number;
+                })
+                ->editColumn('tujuan_surat', function($data){
+                    $tujuan_surat = $data->suratKeluar->tujuanSurat;
+                    return $tujuan_surat->entity_name;
+                })
+                ->editColumn('status', function($data){
+                    $surat = $data->suratKeluar;
+                    $bg = '';
+                    if ($data->status_surat == '1') {
+                        $bg = 'bg-label-warning';
+                    } else if($data->status_surat == '2') {
+                        $bg = 'bg-label-success';
+                    } else if($data->status_surat == '3') {
+                        $bg = 'bg-label-primary';
+                    } else if($data->status_surat == '4') {
+                        $bg = 'bg-label-info';
+                    } else {
+                        $bg = 'bg-label-info';
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$surat->statusSurat->description."'>" .$surat->statusSurat->name. "</span>";
+                })
+                ->rawColumns(['no_draft_surat','tujuan_surat','status'])
+                ->make(true);
+    }
+
     public function renderAction($data)
     {
         $html = '
