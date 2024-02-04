@@ -212,7 +212,7 @@
                 <div class="row">
                     <div class="col-8">
                         <div class="form-floating form-floating-outline mb-4">
-                            <input type="text" class="form-control" id="judul_lampiran" placeholder="Judul Lampiran" name="judul_lampiran" {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->lampiran : '') : ''}}" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}/>
+                            <input type="text" class="form-control" id="judul_lampiran" placeholder="Judul Lampiran" name="judul_lampiran" value="{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->lampiran : '') : ''}}" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}/>
                             <label for="judul_lampiran">Judul Lampiran</label>
                             <div class="invalid-feedback"> Mohon masukan judul lampiran. </div>
                         </div>
@@ -274,7 +274,7 @@
                 </div>
 
                 <div class="form-floating form-floating-outline mb-4">
-                    <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" {{isset($suratKeluar) ? ($suratKeluar != null ? 'readonly' : '') : ''}} {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->perihal : '') : ''}}</textarea>
+                    <textarea class="form-control h-px-75" id="catatan" name="catatan" rows="3" placeholder="Catatan" {{ isset($is_konseptor) ? ($is_konseptor ? '' : 'disabled') : '' }}>{{isset($suratKeluar) ? ($suratKeluar != null ? $suratKeluar->perihal : '') : ''}}</textarea>
                     <label for="catatan">Catatan</label>
                     <div class="invalid-feedback"> Mohon masukan catatan surat. </div>
                 </div>

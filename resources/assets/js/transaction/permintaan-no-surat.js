@@ -206,9 +206,14 @@ function postForm() {
 }
 
 function postFormPenomoranSurat() {
-    let form = $("#form-penomoran-surat").serialize()
-    ajaxPostJson('/transaction/buku-agenda-surat-keluar/buat-agenda-surat', form, 'penomoran_surat_success', 'input_error')
+    let form =  new FormData($("#form-penomoran-surat")[0])
+    ajaxPostFile('/transaction/buku-agenda-surat-keluar/buat-agenda-surat', form, 'penomoran_surat_success', 'input_error')
 }
+
+// function postFormPenomoranSurat() {
+//     let form = $("#form-penomoran-surat").serialize()
+//     ajaxPostJson('/transaction/buku-agenda-surat-keluar/buat-agenda-surat', form, 'penomoran_surat_success', 'input_error')
+// }
 
 function input_success(data) {
     Swal.close()
@@ -308,6 +313,11 @@ function showModalDetail(res){
     // let button_teruskan = `<button onclick="actionMintaNomorSurat(`+detail.tx_number+`)" type="button" class="btn btn-info btn-sm rounded-pill px-2">Teruskan</button>`
     $('#section-action').html(header.btn_action)
     $('#detail-data').find('#tx_number').val(detail.tx_number)
+    $('#detail-data').find('#catatan').val(detail.catatan)
+    console.log(detail)
+    if (detail['status_surat'] == '209' & detail['user'].organization == 2) {
+        $('#btn-belum-sesuai').attr("hidden",true)
+    }
     // $('#detail-data').find('#penandatangan').html(header.penandatangan)
     // $('#detail-data').find('#perihal').html(header.perihal)
 
@@ -404,6 +414,7 @@ function ttd_surat_success(data) {
     })
 
     table.ajax.reload()
+    $('#modal-detail').modal('hide')
 }
 
 function tindak_surat_success(data) {
@@ -427,6 +438,7 @@ function tindak_surat_success(data) {
     })
 
     table.ajax.reload()
+    $('#modal-detail').modal('hide')
 }
 
 function terima_surat_success(data) {
@@ -473,6 +485,7 @@ function minta_surat_success(data) {
     })
 
     table.ajax.reload()
+    $('#modal-detail').modal('hide')
 }
 
 function input_error(err) {

@@ -26,15 +26,9 @@ class PermintaanNoSuratController extends Controller
         $dataSurat = SuratKeluar::where('tx_number', $txNo)->with('jenisSurat')->first();
         $user = Auth::getUser();
         $user_org = Organization::where('id',$user->organization)->first();
+        $status_surat = Helpers::getStatusSurat('205')->id;
+        $posisi = $dataSurat->penandatangan_surat == 1 ? 2 : $user_org->id;
 
-        if ($dataSurat->penandatangan_surat == 1) { 
-            $posisi = 2;
-            $status_surat = 16;
-        } else {
-            $posisi = $user->organization;
-            $status_surat = 16;
-        }
-        
         // Update Status Surat
         $dataSurat->update([
             'status_surat' => $status_surat,
@@ -50,13 +44,6 @@ class PermintaanNoSuratController extends Controller
             'catatan' => $dataSurat->catatan,
         ]);
 
-        // PermintaanNoSurat::create([
-        //     'tx_number' => $dataSurat->tx_number,
-        //     'created_by' => Auth::getUser()->id,
-        //     'catatan' => $dataSurat->catatan,
-        //     'penandatangan' => $dataSurat->penandatangan_surat,
-        // ]);
-
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'message' => 'Berhasil Melakukan Permintaan Nomor Surat',
@@ -69,10 +56,11 @@ class PermintaanNoSuratController extends Controller
         $dataSurat = SuratKeluar::where('tx_number', $txNo)->first();
         $user = Auth::getUser();
         $user_org = Organization::where('id',$user->organization)->first();
+        $staus_surat = Helpers::getStatusSurat('203')->id;
         
         // Update Status Surat
         $dataSurat->update([
-            'status_surat' => 14,
+            'status_surat' => $staus_surat,
             'posisi_surat' => $user_org->id,
         ]);
 
@@ -84,13 +72,6 @@ class PermintaanNoSuratController extends Controller
             'posisi_surat' => $dataSurat->posisi_surat,
             'catatan' => $dataSurat->catatan,
         ]);
-
-        // PermintaanNoSurat::create([
-        //     'tx_number' => $dataSurat->tx_number,
-        //     'created_by' => Auth::getUser()->id,
-        //     'catatan' => $dataSurat->catatan,
-        //     'penandatangan' => $dataSurat->penandatangan_surat,
-        // ]);
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
@@ -105,36 +86,30 @@ class PermintaanNoSuratController extends Controller
         $user = Auth::getUser();
         $user_org = Organization::where('id',$user->organization)->first();
         $posisi = $user_org->parent_id;
+        $currentStatus = $dataSurat->statusSurat;
         
         if ($user->organization == $dataSurat->konseptorSurat->organization) {
             # code...
+            $log_status_surat = StatusSurat::where('kode_status','209')->first();
             $log_surat = LogSuratKeluar::where('tx_number',$dataSurat->tx_number)
-            ->where('status',20)
+            ->where('status',$log_status_surat->id)
             ->where('updated_by','<>',$dataSurat->konseptor)
             ->latest('created_at')
             ->first();
-            $posisi = $dataSurat->status_surat == 12 ? $user_org->parent_id : $log_surat->updatedBy->id;
-            $status_surat = $dataSurat->status_surat == 12 ? 13 : 22;
-        } elseif ($user->organization == $posisi) {
+            $posisi = $currentStatus->kode_status == '201' ? $user_org->parent_id : $log_surat->updatedBy->organization;
+            $status_surat = $currentStatus->kode_status == '201' ? Helpers::getStatusSurat('202')->id : Helpers::getStatusSurat('211')->id;
+        }  elseif ($user->organization == $posisi) {
             # code...
             $posisi = 13;
-            $status_surat = 15;
+            $status_surat = Helpers::getStatusSurat('204')->id;
         } else {
-            $posisi = $user_org->parent_id;
-            $status_surat = 15;
+            if ($user_org->id != 2) {
+                $posisi = 2;
+            } elseif ($user_org->id == 2) {
+                $posisi = 13;
+            }
+            $status_surat = Helpers::getStatusSurat('204')->id;
         }
-
-        // if (($posisi == 1) && ($user_org->id != 2)) {
-        //     $posisi = 2;
-        // } elseif (($posisi == 1) && ($user_org->id == 2)) {
-        //     $posisi = 13;
-        // }
-
-        // if ($dataSurat->penandatangan_surat != $user->organization) {
-        //     $status_surat = 14;
-        // } else {
-        //     $status_surat = 15;
-        // }
         
         // Update Status Surat
         $dataSurat->update([
@@ -151,13 +126,6 @@ class PermintaanNoSuratController extends Controller
             'catatan' => $dataSurat->catatan,
         ]);
 
-        // PermintaanNoSurat::create([
-        //     'tx_number' => $dataSurat->tx_number,
-        //     'created_by' => Auth::getUser()->id,
-        //     'catatan' => $dataSurat->catatan,
-        //     'penandatangan' => $dataSurat->penandatangan_surat,
-        // ]);
-
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
             'message' => 'Berhasil Melakukan Permintaan Nomor Surat',
@@ -171,9 +139,12 @@ class PermintaanNoSuratController extends Controller
         $user = Auth::getUser();
         $user_org = Organization::where('id',$user->organization)->first();
         $posisi = $dataSurat->unit_kerja;
+        $status_surat = Helpers::getStatusSurat('209')->id;
         
-        $status_surat = 20;
-        
+        if ($user_org->id == 13) {
+            $posisi = 2;
+        }
+
         // Update Status Surat
         $dataSurat->update([
             'status_surat' => $status_surat,
@@ -212,7 +183,7 @@ class PermintaanNoSuratController extends Controller
 
         $data = [
             'organization' => $organization,
-            'konseptor' => $user,
+            'user' => $user,
             'permintaanSurat' => $permintaanSurat
         ];
 
@@ -250,9 +221,20 @@ class PermintaanNoSuratController extends Controller
                     } else {
                         $bg = 'bg-label-info';
                     }
-                    $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->latest('created_at')->first();
+                    // $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->latest('created_at')->first();
 
-                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description." oleh ".$log_surat->updatedBy->name."'>" .$data->statusSurat->name. "</span>";
+                    if ($data->status_surat == Helpers::getStatusSurat('209')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->oldest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    } elseif ($data->status_surat == Helpers::getStatusSurat('205')->id || $data->status_surat == Helpers::getStatusSurat('208')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description;
+                    } else {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
                 })
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
@@ -294,7 +276,18 @@ class PermintaanNoSuratController extends Controller
                         $bg = 'bg-label-info';
                     }
 
-                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$surat->statusSurat->description."'>" .$surat->statusSurat->name. "</span>";
+                    if ($data->status_surat == Helpers::getStatusSurat('209')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->oldest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    } elseif ($data->status_surat == Helpers::getStatusSurat('205')->id || $data->status_surat == Helpers::getStatusSurat('208')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description;
+                    } else {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
                 })
                 ->rawColumns(['no_draft_surat','tujuan_surat','status'])
                 ->make(true);
@@ -308,21 +301,23 @@ class PermintaanNoSuratController extends Controller
             $surat = SuratKeluar::where('tx_number', $txNo)
             ->with('statusSurat')
             ->with('tujuanSurat')
-            ->with('createdUser')->first();
+            ->with('createdUser')
+            ->first();
             $entity_tujuan_surat = EntityTujuanSurat::find($surat->entity_tujuan_surat);
             $penandatangan = Organization::find($surat->penandatangan_surat);
             $konseptor = User::find($surat->konseptor);
             $status_surat = StatusSurat::find($surat->statusSurat->id);
             $log_surat = LogSuratKeluar::where('tx_number',$surat->tx_number)->latest('created_at')->first();
-            $log_surat_ttd = LogSuratKeluar::where('tx_number',$surat->tx_number)->where('status',16)->latest('created_at')->first();
-
-            // dd($surat->penandatangan_surat);
+            $log_surat_ttd = LogSuratKeluar::where('tx_number',$surat->tx_number)->where('status',Helpers::getStatusSurat('205')->id)->latest('created_at')->first();
 
             if (!$surat){
                 throw new Exception('Data Surat tidak ditemukan atau operator belum melakukan update surat', 404);
             } else {
                 if ( ($user->organization == $surat->penandatangan_surat) || $user->organization == 13 ) {
                     $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionTTDSurat(`'.$surat->tx_number.'`)">TTD SURAT</button>';
+                } elseif ($user->organization == 2 && $surat->status_surat == Helpers::getStatusSurat('209')->id) {
+                    // $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionTindakSurat(`'.$surat->tx_number.'`)">KEMBALIKAN KE KONSEPTOR</button>';
+                    $btn_action = '<button type="submit" class="btn btn-outline-warning">KEMBALIKAN KE KONSEPTOR</button>';
                 } else {
                     $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionMintaNomorSurat(`'.$surat->tx_number.'`)">TERUSKAN PERMINTAAN SURAT</button>';
                 }
@@ -343,7 +338,10 @@ class PermintaanNoSuratController extends Controller
                     'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" target="_blank" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Lihat Dokumen">'.$surat->tx_number.'</a>',
                 ];
                 $detail = [
-                    'tx_number' => $surat->tx_number
+                    'tx_number' => $surat->tx_number,
+                    'catatan' => $surat->catatan,
+                    'status_surat' => Helpers::getStatusSurat($status_surat->kode_status)->kode_status,
+                    'user' => $user
                 ];
             }
 
@@ -422,13 +420,18 @@ class PermintaanNoSuratController extends Controller
     {
         $html = '';
         
-        if ($data->status_surat == 13 || $data->status_surat == 15 || $data->status_surat == 16 || $data->status_surat == 22) {
+        if ( $data->status_surat == Helpers::getStatusSurat('202')->id || 
+            $data->status_surat == Helpers::getStatusSurat('204')->id || 
+            $data->status_surat == Helpers::getStatusSurat('205')->id || 
+            $data->status_surat == Helpers::getStatusSurat('211')->id
+            ) {
             $html = '<button class="btn btn-success btn-sm rounded-pill px-2" onclick="actionTerimaSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Terima Surat" ><span class="mdi mdi-file-plus-outline"></span></button>';
         } 
         
-        if ($data->status_surat == 14 ) {
+        if ($data->status_surat == Helpers::getStatusSurat('203')->id || $data->status_surat == Helpers::getStatusSurat('209')->id) {
             $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
         }
+        
         
         return $html;
     }
