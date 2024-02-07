@@ -90,8 +90,20 @@ class SuratKeluarController extends Controller
                     } else {
                         $bg = 'bg-label-info';
                     }
+                    
 
-                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description." oleh ".$data->konseptorSurat->name."'>" .$data->statusSurat->name. "</span>";
+                    if ($data->status_surat == Helpers::getStatusSurat('209')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->oldest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    } elseif ($data->status_surat == Helpers::getStatusSurat('205')->id || $data->status_surat == Helpers::getStatusSurat('208')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description;
+                    } else {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
                 })
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
@@ -110,6 +122,9 @@ class SuratKeluarController extends Controller
     public function downloadFile($txNo){
         $txNo = base64_decode($txNo);
         $surat = SuratKeluar::find($txNo);
+        if (!$surat->file_path) {
+            return back()->with('error','File Dokumen belum diupload!');
+        }
         $filePath = public_path().'/document/surat-keluar/'.$surat->file_path;
         return response()->file($filePath);
     }
@@ -119,19 +134,30 @@ class SuratKeluarController extends Controller
         $dataSurat = SuratKeluar::where('tx_number', $txNo)->first();
         $user = Auth::getUser();
         $user_org = Organization::where('id',$user->organization)->first();
+        $posisi = $user_org->parent_id;
+        $currentStatus = $dataSurat->statusSurat;
         
         if ($user->organization == $dataSurat->konseptorSurat->organization) {
             # code...
+            $log_status_surat = Helpers::getStatusSurat('209')->id;
             $log_surat = LogSuratKeluar::where('tx_number',$dataSurat->tx_number)
-            ->where('status',20)
+            ->where('status',$log_status_surat)
             ->where('updated_by','<>',$dataSurat->konseptor)
             ->latest('created_at')
             ->first();
-            $posisi = $dataSurat->status_surat == 12 ? $user_org->parent_id : $log_surat->updatedBy->id;
-            $status_surat = $dataSurat->status_surat == 12 ? 13 : 22;
-        }  else {
-            $posisi = $user_org->parent_id;
-            $status_surat = 15;
+            $posisi = $currentStatus->kode_status == '201' ? $user_org->parent_id : $log_surat->updatedBy->organization;
+            $status_surat = $currentStatus->kode_status == '201' ? Helpers::getStatusSurat('202')->id : Helpers::getStatusSurat('211')->id;
+        }  elseif ($user->organization == $posisi) {
+            # code...
+            $posisi = 13;
+            $status_surat = Helpers::getStatusSurat('204')->id;
+        } else {
+            if ($user_org->id != 2) {
+                $posisi = 2;
+            } elseif ($user_org->id == 2) {
+                $posisi = 13;
+            }
+            $status_surat = Helpers::getStatusSurat('204')->id;
         }
         
         // Update Status Surat
@@ -224,6 +250,7 @@ class SuratKeluarController extends Controller
             $user = Auth::user();
             $entityTujuanSurat = EntityAsalSurat::find($request->tujuan_surat);
             $tujuanSurat = AsalSurat::find($entityTujuanSurat->asal_surat_id);
+            $status_surat = StatusSurat::where('kode_status','201')->first();
 
             // $org = Organization::where('id', $request->tujuan_surat)->first();
             $user = Auth::getUser();
@@ -253,7 +280,7 @@ class SuratKeluarController extends Controller
                 'no_surat' => 'BELUM DIBERI NOMOR',
                 'posisi_surat' => $asalSurat->id,
                 'jenis_surat' => $request->jenis_surat,
-                'tgl_surat' => $request->tanggal_surat,
+                'tgl_surat' => Carbon::createFromFormat('Y-m-d',$request->tanggal_surat)->format('Y-m-d H:i:s'),
                 'perihal' => $request->perihal,
                 'lampiran' => $request->judul_lampiran,
                 'lampiran_type' => $request->lampiran_type,
@@ -263,7 +290,7 @@ class SuratKeluarController extends Controller
                 'penandatangan_surat' => $request->penandatangan_surat,
                 'catatan' => $request->catatan,
                 'created_by' => $user->id,
-                'status_surat' => 12,
+                'status_surat' =>$status_surat->id,
                 'file_path' => $file_path,
                 'tujuan_surat' => $tujuanSurat->id,
                 'asal_surat' => $asalSurat->id,
@@ -325,17 +352,18 @@ class SuratKeluarController extends Controller
                     $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionTTDSurat(`'.$surat->tx_number.'`)">TTD SURAT</button>';
                 } 
                 
+                $btn_action = '';
                 if ($user->organization == $surat->konseptorSurat->organization) {
-                    if ($surat->status_surat == 20 || $surat->status_surat == 21) {
-                        $btn_action = '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning">Edit Surat</a>
+                    if (($surat->status_surat == Helpers::getStatusSurat('209')->id) || ($surat->status_surat == Helpers::getStatusSurat('210')->id)) {
+                        $btn_action .= '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning">Edit Surat</a>
                         <button type="button" class="btn btn-outline-warning" onclick="actionMintaNomorSurat(`'.$surat->tx_number.'`)">Minta Ulang Nomor Surat</button>';
-                    } else {
-                        $btn_action = '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning">Edit Surat</a>
+                    } elseif($surat->status_surat == Helpers::getStatusSurat('201')->id) {
+                        $btn_action .= '<a href="'.route('create-bukuagenda-suratkeluar',['txNo'=>base64_encode($surat->tx_number)]).'" type="button" class="btn btn-outline-warning mx-2">Edit Surat</a>
                         <button type="button" class="btn btn-outline-warning" onclick="actionMintaNomorSurat(`'.$surat->tx_number.'`)">Minta Nomor Surat</button>';
                     }
                 }
                 
-                if ($surat->statusSurat->id == 17) { 
+                if ($surat->statusSurat->id == Helpers::getStatusSurat('206')->id) { 
                     $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionAgendakanSurat(`'.$surat->tx_number.'`)">Agendakan</button>';
                 }
                 $header = [
@@ -347,7 +375,7 @@ class SuratKeluarController extends Controller
                     'tujuan_surat' => $entity_tujuan_surat->entity_name.' - '.$surat->entity_tujuan_surat_detail,
                     // 'btn_teruskan' => $btn_teruskan,
                     'btn_action' => $btn_action,
-                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
+                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" target="_blank" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
                 ];
                 $detail = [
                     'tx_number' => $surat->tx_number,
@@ -421,8 +449,8 @@ class SuratKeluarController extends Controller
             $txNumber = $surat->tx_number;
             $status_surat = $surat->status_surat;
 
-            if ( ($surat->status_surat == 20) || ($surat->status_surat == 21) ) {
-                $status_surat = 21;
+            if ( ($surat->status_surat == Helpers::getStatusSurat('209')->id) || ($surat->status_surat == Helpers::getStatusSurat('210')->id) ) {
+                $status_surat = Helpers::getStatusSurat('210')->id;
             }
 
             $entityTujuanSurat = EntityAsalSurat::find($request->tujuan_surat);
@@ -441,14 +469,8 @@ class SuratKeluarController extends Controller
                 $documentFile->move(public_path().'/document/surat-keluar/', $path);
                 $file = $path;
             } else {
-                $file_path = $surat->file_path;
+                $file = $surat->file_path;
             }
-
-            // if ($file != '') {
-            //     $file_path = $file;
-            // } else {
-            //     $file_path = null;
-            // }
 
             $insertedData = [
                 'tx_number' => $txNumber,
@@ -467,12 +489,13 @@ class SuratKeluarController extends Controller
                 'catatan' => $request->catatan,
                 'created_by' => $user->id,
                 'status_surat' => $status_surat,
-                'file_path' => $file_path,
+                'file_path' => $file,
                 'tujuan_surat' => $tujuanSurat->id,
                 'asal_surat' => $asalSurat->id,
                 'entity_tujuan_surat' => $entityTujuanSurat->id,
                 'entity_tujuan_surat_detail' => $request->entity_tujuan_surat_detail,
             ];
+            
 
             $surat->update($insertedData);
 
@@ -515,18 +538,18 @@ class SuratKeluarController extends Controller
     public function renderAction($data)
     {
         $html = '';
-        if($data->status_surat == 12 && Auth::user()->hasPermissionTo('print-blanko'))
-        {
-            $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
-            // $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Minta Nomor Surat" > <span class="mdi mdi-file-download-outline"></span> </button>';
-        }
+        // if($data->status_surat == 12 && Auth::user()->hasPermissionTo('print-blanko'))
+        // {
+        //     $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
+        //     // $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Minta Nomor Surat" > <span class="mdi mdi-file-download-outline"></span> </button>';
+        // }
         
-        if ( ( ($data->status_surat == 20) || ($data->status_surat == 21) ) && Auth::user()->hasPermissionTo('edit-surat')) {
-            # code...
-            $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
-            // $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="View Data" > <span class="mdi mdi-eye-outline"></span> </button>
-            // <button class="btn btn-warning btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-file-edit-outline"></span> </button>';
-        }
+        // if ( ( ($data->status_surat == 20) || ($data->status_surat == 21) ) && Auth::user()->hasPermissionTo('edit-surat')) {
+        //     # code...
+        //     // $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="View Data" > <span class="mdi mdi-eye-outline"></span> </button>
+        //     // <button class="btn btn-warning btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-file-edit-outline"></span> </button>';
+        // }
+        $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
 
         return $html;
     }

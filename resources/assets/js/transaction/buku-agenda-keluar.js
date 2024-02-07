@@ -60,6 +60,7 @@ $(function () {
     }
 
     getDataSuratMasuk()
+    getLogAgendaSurat()
 });
 
 function getDataSuratMasuk(){
@@ -111,6 +112,76 @@ function getDataSuratMasuk(){
                 name: 'action',
                 responsivePriority: 0
             }
+        ],
+        order: [[3, 'asc']],
+        fnDrawCallback: () => {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        },
+        columnDefs: [
+            {
+                className: 'control',
+                orderable: false,
+                responsivePriority: 2,
+                searchable: false,
+                targets: 0,
+                render: function (data, type, full, meta) {
+                  return '';
+                }
+            }
+        ],
+    });
+}
+
+function getLogAgendaSurat(){
+    table_log = $('#table-log-agenda-surat').DataTable({
+        processing: true,
+        serverSide: true,
+        responsive: true,
+        "pageLength": 10,
+        ajax: {
+            url: "/transaction/buku-agenda-surat-keluar/log-data",
+            method: "post",
+            data: function (data) {
+                data._token = $('meta[name="csrf-token"]').attr('content')
+            }
+        },
+        columns: [
+            { data:null },
+            {
+                data: 'DT_RowIndex',
+                name: 'DT_RowIndex',
+                orderable: false,
+                searchable: false,
+                responsivePriority: -1,
+            },
+            {
+                data: 'no_draft_surat',
+                name: 'no_draft_surat',
+            },
+            {
+                data: 'surat_keluar.tgl_surat',
+                name: 'surat_keluar.tgl_surat',
+            },
+            {
+                data: 'tujuan_surat',
+                name: 'tujuan_surat',
+            },
+            {
+                data: 'surat_keluar.perihal',
+                name: 'surat_keluar.perihal',
+                responsivePriority: 0
+            },
+            {
+                data: 'status',
+                name: 'status',
+                responsivePriority: 0
+            },
+            // {
+            //     data: 'action',
+            //     name: 'action',
+            //     responsivePriority: 0
+            // }
         ],
         order: [[3, 'asc']],
         fnDrawCallback: () => {

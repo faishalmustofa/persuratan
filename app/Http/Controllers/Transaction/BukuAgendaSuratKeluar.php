@@ -32,7 +32,7 @@ class BukuAgendaSuratKeluar extends Controller
             ->with('createdUser')
             ->with('posisiSurat')
             ->whereHas('statusSurat', function($surat){
-                $surat->where('status_surat',17);
+                $surat->where('status_surat',Helpers::getStatusSurat('206')->id);
             })
             ->whereHas('posisiSurat',function($surat){
                 $surat->where('posisi_surat',Auth::user()->organization)
@@ -55,15 +55,26 @@ class BukuAgendaSuratKeluar extends Controller
         $org = Organization::where('id', $surat->konseptor)->first();
 
         $noAgenda = Helpers::generateNoAgenda($org->suffix_agenda,'keluar');
-        $status_surat = 17;
-        $posisi = $surat->konseptor;
+        $status_surat = Helpers::getStatusSurat('206')->id;
+        $posisi = $surat->konseptorSurat->organization;
         $bulan_romawi = Helpers::getBulanRomawi(Carbon::now()->format('m'));
         $nomor_surat = $surat->jenisSurat->nama .'/'.$request->nomor_surat.'/'. $bulan_romawi .'/'. Carbon::now()->year; //input data
         
+        $file = '';
+        if ($request->hasFile('file_surat')) {
+            $documentFile = $request->file('file_surat');
+            $filename = $documentFile->getClientOriginalName();
+            $path = time().'_surat_keluar.pdf';
+            $documentFile->move(public_path().'/document/surat-keluar/', $path);
+            $file = $path;
+        }
+
         $surat->update([
             'no_surat' => $nomor_surat,
             'no_agenda' => $noAgenda,
-            'status_surat' => $status_surat
+            'status_surat' => $status_surat,
+            'posisi_surat' => $posisi,
+            'file_path' => $file
         ]);
 
         LogSuratKeluar::create([
@@ -88,15 +99,17 @@ class BukuAgendaSuratKeluar extends Controller
 
     public function getData()
     {
+        $user = Auth::getUser(); 
         $dataSurat = SuratKeluar::orderBy('created_at', 'DESC')
                         ->With('statusSurat')
                         ->with('tujuanSurat')
                         ->with('createdUser')
                         ->with('posisiSurat')
+                        ->with('konseptorSurat')
                         ->whereHas('statusSurat', function($surat){
-                            $surat->where('status_surat', 17);
+                            $surat->where('status_surat', Helpers::getStatusSurat('206')->id);
                         })
-                        ->whereHas('statusSurat', function($surat){
+                        ->whereHas('posisiSurat', function($surat){
                             $user = Auth::getUser();
                             $surat->where('posisi_surat', $user->organization);
                         })
@@ -127,6 +140,57 @@ class BukuAgendaSuratKeluar extends Controller
                     return self::renderAction($data);
                 })
                 ->rawColumns(['no_draft_surat','status','action'])
+                ->make(true);
+    }
+
+    public function logAgenda()
+    {
+        $user = Auth::getUser();
+        $dataSurat = LogSuratKeluar::where('posisi_surat',$user->organization)
+            ->distinct('tx_number')
+            ->with('statusSurat')
+            ->with('suratKeluar')
+            ->get();
+
+        return DataTables::of($dataSurat)
+                ->addIndexColumn()
+                ->editColumn('no_draft_surat', function($data){
+                    return $data->tx_number;
+                })
+                ->editColumn('tujuan_surat', function($data){
+                    $tujuan_surat = $data->suratKeluar->tujuanSurat;
+                    return $tujuan_surat->entity_name;
+                })
+                ->editColumn('status', function($data){
+                    $surat = $data->suratKeluar;
+                    $bg = '';
+                    if ($data->status_surat == '1') {
+                        $bg = 'bg-label-warning';
+                    } else if($data->status_surat == '2') {
+                        $bg = 'bg-label-success';
+                    } else if($data->status_surat == '3') {
+                        $bg = 'bg-label-primary';
+                    } else if($data->status_surat == '4') {
+                        $bg = 'bg-label-info';
+                    } else {
+                        $bg = 'bg-label-info';
+                    }
+
+                    if ($data->status_surat == Helpers::getStatusSurat('209')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->oldest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    } elseif ($data->status_surat == Helpers::getStatusSurat('205')->id || $data->status_surat == Helpers::getStatusSurat('208')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description;
+                    } else {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
+
+                })
+                ->rawColumns(['no_draft_surat','tujuan_surat','status'])
                 ->make(true);
     }
 

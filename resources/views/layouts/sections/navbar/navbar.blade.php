@@ -202,7 +202,7 @@ $navbarDetached = ($navbarDetached ?? '');
         <!-- Quick links -->
 
         <!-- Notification -->
-        <!--<li class="nav-item dropdown-notifications navbar-dropdown dropdown me-2 me-xl-1">
+        <li class="nav-item dropdown-notifications navbar-dropdown dropdown me-2 me-xl-1">
           <a class="nav-link btn btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
             <i class="mdi mdi-bell-outline mdi-24px"></i>
             <span class="position-absolute top-0 start-50 translate-middle-y badge badge-dot bg-danger mt-2 border"></span>
@@ -368,7 +368,7 @@ $navbarDetached = ($navbarDetached ?? '');
               </a>
             </li>
           </ul>
-        </li> -->
+        </li>
         <!--/ Notification -->
 
         <!-- User -->

@@ -259,12 +259,13 @@
                       <div class="invalid-feedback"> Mohon masukan catatan surat.</div>
                     </div>
                    </div>
-                   
                 </div>
               </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-outline-warning">Surat Belum Sesuai</button>
+            <div id="btn-belum-sesuai">
+              <button type="submit" class="btn btn-outline-warning">Surat Belum Sesuai</button>
+            </div>
             <div id="section-action"></div>
           </div>
         </form>
@@ -287,14 +288,19 @@
 
             <div class="card text-whiterounded-pills">
               <div class="card-body" id="detail-data-penomoran">
-                <div class="card mb-2">
+                <div class="card mb-4">
                   <div class="form-floating form-floating-outline">
                       <input type="hidden" id="tx_number_penomoran" name="txNo" value="">
                       <textarea class="form-control h-px-75" id="nomor_surat" name="nomor_surat" rows="3" placeholder="Nomor Surat" required></textarea>
                       <label for="nomor_surat">Nomor Surat</label>
                       <div class="invalid-feedback"> Mohon masukan nomor surat.</div>
                     </div>
-                   </div>
+                  </div>
+                  <div class="form-group mb-4">
+                    <label for="formFile" class="form-label">Upload Dokumen Surat</label>
+                    <input class="form-control" type="file" id="file-surat" name="file_surat" accept=".pdf" required>
+                    <div class="invalid-feedback"> Mohon upload dokumen surat. </div>
+                  </div>
                    
                 </div>
               </div>

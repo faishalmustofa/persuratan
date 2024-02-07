@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Transaction;
 
+use App\Helpers\Helpers;
 use App\Http\Controllers\Controller;
 use App\Models\Master\Organization;
 use App\Models\Transaction\LogSuratKeluar;
@@ -25,7 +26,7 @@ class LaporanPenerimaanSuratController extends Controller
             ->with('createdUser')
             ->with('posisiSurat')
             ->whereHas('statusSurat', function($surat){
-                $surat->where('status_surat',20);
+                $surat->where('status_surat',Helpers::getStatusSurat('209')->id);
             })
             // ->whereHas('posisiSurat',function($surat){
             //     $surat->where('posisi_surat',Auth::user()->organization)
@@ -49,7 +50,7 @@ class LaporanPenerimaanSuratController extends Controller
                         ->with('posisiSurat')
                         ->whereHas('statusSurat', function($surat){
                             $user = Auth::getUser();
-                            $surat->where('status_surat', 19);
+                            $surat->where('status_surat', Helpers::getStatusSurat('208')->id);
                             $surat->where('posisi_surat', $user->organization);
                         })
                         ->get();
@@ -73,7 +74,18 @@ class LaporanPenerimaanSuratController extends Controller
                         $bg = 'bg-label-info';
                     }
 
-                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
+                    if ($data->status_surat == Helpers::getStatusSurat('209')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->oldest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    } elseif ($data->status_surat == Helpers::getStatusSurat('205')->id || $data->status_surat == Helpers::getStatusSurat('208')->id) {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description;
+                    } else {
+                        $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->where('status',$data->status_surat)->latest('created_at')->first();
+                        $desc = $log_surat->statusSurat->description." oleh ".$log_surat->updatedBy->name;
+                    }
+
+                    return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
                 })
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
@@ -97,22 +109,8 @@ class LaporanPenerimaanSuratController extends Controller
         $dataSurat = SuratKeluar::where('tx_number', $txNo)->first();
         $user = Auth::getUser();
         $user_org = Organization::where('id',$user->organization)->first();
-        
-        // if ($user->organization == $dataSurat->konseptorSurat->organization) {
-        //     # code...
-        //     $log_surat = LogSuratKeluar::where('tx_number',$dataSurat->tx_number)
-        //     ->where('status',20)
-        //     ->where('updated_by','<>',$dataSurat->konseptor)
-        //     ->latest('created_at')
-        //     ->first();
-        //     $posisi = $dataSurat->status_surat == 12 ? $user_org->parent_id : $log_surat->updatedBy->id;
-        //     $status_surat = $dataSurat->status_surat == 12 ? 13 : 22;
-        // }  else {
-        //     $posisi = $user_org->parent_id;
-        //     $status_surat = 15;
-        // }
 
-        $status_surat = 19;
+        $status_surat = Helpers::getStatusSurat('208')->id;
         $posisi = $dataSurat->posisi_surat;
         
         // Update Status Surat

@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\Master\Organization;
+use App\Models\Master\StatusSurat;
 use Carbon\Carbon;
 use Config;
 use Illuminate\Support\Facades\DB;
@@ -368,5 +369,10 @@ class Helpers
             return "XII";
             break;
     }
+  }
+
+  public static function getStatusSurat($kode_surat)
+  {
+    return StatusSurat::where('kode_status',$kode_surat)->first();
   }
 }

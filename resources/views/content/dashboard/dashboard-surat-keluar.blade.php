@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Dashboard - Persuratan')
+@section('title', 'Dashboard Keluar - Persuratan')
 
 @section('vendor-style')
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
@@ -20,17 +20,17 @@
 @endsection
 
 @section('page-script')
-<script src="{{asset('assets/js/dashboard/dashboard-surat-masuk.js')}}"></script>
+<script src="{{asset('assets/js/dashboard/dashboard-surat-keluar.js')}}"></script>
 @endsection
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Persuratan /</span> Dashboard
+  <span class="text-muted fw-light">Persuratan /</span> Dashboard Keluar
 </h4>
 
 <!-- Card Border Shadow -->
 <div class="row">
-  <div class="col-sm-6 col-lg-6 mb-4">
+  <div class="col-sm-6 col-lg-3 mb-4">
     <div class="card card-border-shadow-primary h-100">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
@@ -39,7 +39,7 @@
           </div>
           <h4 class="ms-1 mb-0 display-6">42</h4>
         </div>
-        <p class="mb-0 text-heading">Total Surat Masuk</p>
+        <p class="mb-0 text-heading">Total Surat Keluar</p>
         <p class="mb-0">
           <span class="me-1">+18.2%</span>
           <small class="text-muted">than last week</small>
@@ -47,7 +47,7 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-6 col-lg-6 mb-4">
+  <div class="col-sm-6 col-lg-3 mb-4">
     <div class="card card-border-shadow-warning h-100">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
@@ -57,7 +57,7 @@
           </div>
           <h4 class="ms-1 mb-0 display-6">8</h4>
         </div>
-        <p class="mb-0 text-heading">Total Surat Keluar</p>
+        <p class="mb-0 text-heading">Jumlah Surat Keluar</p>
         <p class="mb-0">
           <span class="me-1">-8.7%</span>
           <small class="text-muted">than last week</small>
@@ -65,8 +65,7 @@
       </div>
     </div>
   </div>
-
-  {{-- <div class="col-sm-6 col-lg-3 mb-4">
+  <div class="col-sm-6 col-lg-3 mb-4">
     <div class="card card-border-shadow-danger h-100">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
@@ -77,7 +76,7 @@
           </div>
           <h4 class="ms-1 mb-0 display-6">27</h4>
         </div>
-        <p class="mb-0 text-heading">Jumlah Surat Didisposisi</p>
+        <p class="mb-0 text-heading">Jumlah Draft Surat</p>
         <p class="mb-0">
           <span class="me-1">+4.3%</span>
           <small class="text-muted">than last week</small>
@@ -94,14 +93,14 @@
           </div>
           <h4 class="ms-1 mb-0 display-6">13</h4>
         </div>
-        <p class="mb-0 text-heading">Jumlah Surat Diarsipkan</p>
+        <p class="mb-0 text-heading">Jumlah Surat Terkirim</p>
         <p class="mb-0">
           <span class="me-1">-2.5%</span>
           <small class="text-muted">than last week</small>
         </p>
       </div>
     </div>
-  </div> --}}
+  </div>
 </div>
 <!--/ Card Border Shadow -->
 
@@ -112,8 +111,8 @@
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
-          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Surat Masuk</h5>
-          <p class="text-body mb-0">Total Surat Masuk 23.8k</p>
+          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Surat Keluar</h5>
+          <p class="text-body mb-0">Total Surat Keluar 23.8k</p>
         </div>
         <div class="dropdown">
           <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Minggu 1</button>
@@ -137,8 +136,8 @@
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
-          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Surat Masuk</h5>
-          <p class="text-body mb-0">Total Surat Masuk 23.8k</p>
+          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Surat Keluar</h5>
+          <p class="text-body mb-0">Total Surat Keluar 23.8k</p>
         </div>
         <div class="dropdown">
           <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Januari</button>
