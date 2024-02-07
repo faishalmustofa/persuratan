@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Dashboard - Persuratan')
+@section('title', 'Dashboard Masuk - Persuratan')
 
 @section('vendor-style')
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
@@ -25,12 +25,12 @@
 
 @section('content')
 <h4 class="py-3 mb-4">
-  <span class="text-muted fw-light">Persuratan /</span> Dashboard
+  <span class="text-muted fw-light">Persuratan /</span> Dashboard Masuk
 </h4>
 
 <!-- Card Border Shadow -->
 <div class="row">
-  <div class="col-sm-6 col-lg-6 mb-4">
+  <div class="col-sm-6 col-lg-3 mb-4">
     <div class="card card-border-shadow-primary h-100">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
@@ -47,7 +47,7 @@
       </div>
     </div>
   </div>
-  <div class="col-sm-6 col-lg-6 mb-4">
+  <div class="col-sm-6 col-lg-3 mb-4">
     <div class="card card-border-shadow-warning h-100">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
@@ -57,7 +57,7 @@
           </div>
           <h4 class="ms-1 mb-0 display-6">8</h4>
         </div>
-        <p class="mb-0 text-heading">Total Surat Keluar</p>
+        <p class="mb-0 text-heading">Jumlah Surat Masuk</p>
         <p class="mb-0">
           <span class="me-1">-8.7%</span>
           <small class="text-muted">than last week</small>
@@ -65,8 +65,7 @@
       </div>
     </div>
   </div>
-
-  {{-- <div class="col-sm-6 col-lg-3 mb-4">
+  <div class="col-sm-6 col-lg-3 mb-4">
     <div class="card card-border-shadow-danger h-100">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
@@ -101,7 +100,7 @@
         </p>
       </div>
     </div>
-  </div> --}}
+  </div>
 </div>
 <!--/ Card Border Shadow -->
 

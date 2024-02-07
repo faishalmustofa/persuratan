@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MasterData\AsalSuratController;
+use App\Http\Controllers\MasterData\JenisSuratController;
 use App\Http\Controllers\MasterData\OrganizationController;
 use App\Http\Controllers\MasterData\StatusDisposisiController;
 use App\Http\Controllers\MasterData\StatusSuratController;
@@ -23,10 +24,21 @@ Route::middleware(['auth'])->group(function() {
             Route::post('/add/store', [OrganizationController::class, 'store']);
             Route::get('/delete/{id}', [OrganizationController::class, 'destroy']);
         });
-
+        
         /** Status Disposisi */
         Route::prefix('status-disposisi')->group(function () {
             Route::get('/', [StatusDisposisiController::class, 'index'])->name('masterdata.status-disposisi');
+        });
+        
+        /** Jenis Surat */
+        Route::prefix('jenis-surat')->group(function () {
+            Route::get('/', [JenisSuratController::class, 'index'])->name('masterdata.jenis-surat');
+            Route::post('/data', [JenisSuratController::class, 'data']);
+            Route::get('/create', [JenisSuratController::class, 'create'])->name('jenis-surat.create');
+            Route::post('/store', [JenisSuratController::class, 'store']);
+            Route::get('/edit/{id}', [JenisSuratController::class, 'edit'])->name('jenis-surat.edit');
+            Route::post('/update/{id}', [JenisSuratController::class, 'update']);
+            Route::get('/destroy/{id}', [JenisSuratController::class, 'destroy'])->name('jenis-surat.destroy');
         });
 
         /** Status Surat */

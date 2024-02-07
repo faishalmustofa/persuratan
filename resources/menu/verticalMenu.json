@@ -2,9 +2,25 @@
   "menu": [
     {
       "name": "Dashboards",
-      "url": "/",
       "icon": "menu-icon tf-icons mdi mdi-home-outline",
-      "slug": "dashboard"
+      "slug": "dashboard",
+      "submenu": [
+        {
+          "url": "/",
+          "name": "Dashboard",
+          "slug": "dasboard-suratmasuk"
+        },
+        {
+          "url": "/dashboard-surat-masuk",
+          "name": "Dashboard Surat Masuk",
+          "slug": "dasboard-suratmasuk"
+        },
+        {
+          "url": "/dashboard-surat-keluar",
+          "name": "Dashboard Surat Keluar",
+          "slug": "dasboard-suratkeluar"
+        }
+      ]
     },
     {
       "name": "Surat Masuk",
@@ -138,7 +154,7 @@
       "name": "Jenis Surat",
       "icon": "menu-icon tf-icons mdi mdi mdi-email-variant",
       "slug": "jenis-surat",
-      "url": "master-data/organization/"
+      "url": "master-data/jenis-surat/"
     },
     {
       "name": "Status Disposisi",

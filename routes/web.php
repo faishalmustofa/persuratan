@@ -16,6 +16,8 @@ Route::post('/login-process', [AuthController::class, 'loginProcess']);
 Route::middleware(['auth'])->group(function() {
     // Main Page Route
     Route::get('/', [DashboardController::class, 'index'])->name('dashboards');
+    Route::get('/dashboard-surat-masuk', [DashboardController::class, 'dashboardSuratMasuk'])->name('dashboard-surat-masuk');
+    Route::get('/dashboard-surat-keluar', [DashboardController::class, 'dashboardSuratKeluar'])->name('dashboard-surat-keluar');
     // locale
     Route::get('lang/{locale}', [LanguageController::class, 'swap']);
 
