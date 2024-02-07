@@ -31,7 +31,7 @@ class SuratMasuk extends Model
     }
 
     function statusSurat(){
-        return $this->hasOne(StatusSurat::class, 'id', 'status_surat');
+        return $this->hasOne(StatusSurat::class, 'kode_status', 'status_surat');
     }
 
     function klasifikasiSurat(){

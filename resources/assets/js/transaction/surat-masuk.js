@@ -3,21 +3,22 @@
 
 const tanggalSurat = $('#tanggal-surat'),
     tanggalDiterima = $('#tanggal-diterima'),
+    tglTerima = $('#tgl_terima'),
     klasifikasi = $('#klasifikasi'),
     derajat = $('#derajat'),
     asal_surat = $('#asal_surat');
-var table
+var table, tableBulking, valTujuan = 0
 
 $(function () {
     tanggalSurat.flatpickr({
-        altInput: true,
-        altFormat: 'F j, Y',
         dateFormat: 'Y-m-d'
     });
     tanggalDiterima.flatpickr({
-        altInput: true,
-        altFormat: 'F j, Y',
         dateFormat: 'Y-m-d'
+    });
+    tglTerima.flatpickr({
+        enableTime: true,
+        dateFormat: "Y-m-d H:i"
     });
 
     // Init custom option check
@@ -90,6 +91,20 @@ $(function () {
         }
     });
 
+    $('#form-bulking').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            sendBulking()
+        }
+    });
+
+    $('#form-terima').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postTerimaSurat()
+        }
+    });
+
     // custom template to render icons
     function renderIcons(option) {
         if (!option.id) {
@@ -146,6 +161,17 @@ $(function () {
     });
 
     $("#tujuan_surat").wrap('<div class="position-relative"></div>').select2({
+        dropdownParent: asal_surat.parent(),
+        templateResult: renderIcons,
+        templateSelection: renderIcons,
+        escapeMarkup: function(es) {
+            return es;
+        }
+    });
+
+    $("#tujuan_surat_bulking").select2();
+
+    $("#jenis_surat").wrap('<div class="position-relative"></div>').select2({
         dropdownParent: asal_surat.parent(),
         templateResult: renderIcons,
         templateSelection: renderIcons,
@@ -328,7 +354,7 @@ function pindahBerkas(txNo, status) {
     });
 }
 
-function terimaBerkas(txNo, status){
+function terimaBerkas(txNo, noAgenda, noSurat, status){
     let text = ''
     if(status.includes("TAUD")){
         text = 'Terima Berkas dari SPRI KADIV?'
@@ -345,11 +371,20 @@ function terimaBerkas(txNo, status){
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if(result.isConfirmed){
-            ajaxGetJson(`/transaction/surat-masuk/terima-berkas/${txNo}`, 'success_pindah', 'input_error')
+            $('#modal-terima').modal('toggle')
+            $('#form-terima').find('input[name="tx_number"]').val(txNo)
+            $('#form-terima').find('input[name="nomor_agenda"]').val(noAgenda)
+            $('#form-terima').find('input[name="no_surat"]').val(noSurat)
         } else {
             return false
         }
     });
+}
+
+async function postTerimaSurat(){
+    let form = $('#form-terima').serialize()
+    await ajaxPostJson('/transaction/surat-masuk/terima-berkas', form, 'success_pindah', 'input_error')
+    $('#modal-terima').modal('toggle')
 }
 
 function updateDisposisi(txNumber, no_agenda) {
@@ -489,6 +524,128 @@ function notif_used(res){
             $('#form-surat-masuk').find('.form-select').removeAttr('disabled')
             $('#form-surat-masuk').find('#btn-save').removeAttr('disabled')
         }
+    } else {
+        $('#usedNoSurat').fadeOut()
+        $('#form-surat-masuk').find('.form-control').not('#nomor_agenda').removeAttr('disabled')
+        $('#form-surat-masuk').find('.form-select').removeAttr('disabled')
+        $('#form-surat-masuk').find('#btn-save').removeAttr('disabled')
+    }
+}
+
+function bulkingSurat(){
+    $('#modal-bulking').modal('toggle')
+
+    if($('#data-container').css('display') == 'none'){
+        $('#data-container').slideDown()
+    }
+
+    getDataBulking()
+}
+
+$('#tujuan_surat_bulking').on('select2:select', function(){
+    valTujuan = $(this).val();
+    tableBulking.ajax.reload()
+})
+
+function getDataBulking(){
+    tableBulking = $('#bulking-list').DataTable({
+        processing: true,
+        serverSide: true,
+        responsive: true,
+        "scrollX":true,
+        "destroy":true,
+        ajax: {
+            url: "/transaction/surat-masuk/data",
+            method: "post",
+            data: function (data) {
+                data._token = $('meta[name="csrf-token"]').attr('content'),
+                data.tujuan_surat = valTujuan,
+                data.from = 'bulking'
+            }
+        },
+        columns: [
+            { data:null },
+            {
+                data: 'no_agenda',
+                name: 'no_agenda',
+                responsivePriority: 0,
+                className: 'editable'
+            },
+            {
+                data: 'noSurat',
+                name: 'noSurat',
+                responsivePriority: 0
+            },
+            {
+                data: 'tgl_surat',
+                name: 'tgl_surat',
+                responsivePriority: 1
+            },
+            {
+                data: 'tgl_diterima',
+                name: 'tgl_diterima',
+                responsivePriority: 2,
+                className: 'editable'
+            },
+            {
+                data: 'surat_dari',
+                name: 'surat_dari',
+                responsivePriority: 0
+            },
+            {
+                data: 'perihal',
+                name: 'perihal',
+                responsivePriority: 0
+            },
+        ],
+        order: [[4, 'asc']],
+        fnDrawCallback: () => {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        },
+        columnDefs: [
+            {
+                targets: 0,
+                orderable: false,
+                responsivePriority: 3,
+                searchable: false,
+                checkboxes: true,
+                render: function (data) {
+                    return `<input type="checkbox" name="txNumber[]" class="dt-checkboxes form-check-input" value="${data.tx_number}">`;
+                },
+                checkboxes: {
+                    selectAllRender: '<input type="checkbox" class="form-check-input">'
+                }
+            },
+        ],
+    });
+}
+
+function sendBulking(){
+    Swal.fire({
+        title: "Anda yakin mengirim berkas surat ini secara bundling?",
+        icon: 'question',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Ya, Kirim Bundling",
+        denyButtonText: `Tidak`,
+        showCancelButton: false,
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            postData()
+        } else {
+            return false
+        }
+    });
+
+    async function postData(){
+        let form = $('#form-bulking').serialize()
+
+        await ajaxPostJson('/transaction/surat-masuk/kirim-bundling', form, 'input_success', 'input_error')
+        tableBulking.ajax.reload()
+
+        $('#modal-bulking').modal('toggle')
     }
 }
 
@@ -568,6 +725,8 @@ function input_success(data) {
                 return false
             }
         });
+    } else {
+        window.location.href = '/transaction/disposisi'
     }
 
     table.ajax.reload()

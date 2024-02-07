@@ -131,9 +131,18 @@
                 <div class="row justify-content-center align-items-center">
                     <div class="col-12 {{isset($suratMasuk) ? 'col-md-4' : 'col-md-6'}}">
                         <div class="form-floating form-floating-outline mb-4">
+                            <select id="jenis_surat" name="jenis_surat" class="form-select select2" data-allow-clear="true" required>
+                                <option>Pilih Jenis Surat</option>
+                                @foreach ($jenis_surat as $item)
+                                    <option value="{{$item->id}}" {{isset($suratMasuk) ? ($suratMasuk->jenis_surat == $item->id ? 'selected' : '') : ''}} >{{$item->jenis_surat}} ({{$item->kd_jenis}})</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback"> Mohon pilih asal surat. </div>
+                        </div>
+                        {{-- <div class="form-floating form-floating-outline mb-4">
                             <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Agenda" name="nomor_agenda" value="" disabled />
                             <label for="nomor_agenda">Nomor Agenda (Auto Generated)</label>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="col-12 {{isset($suratMasuk) ? 'col-md-4' : 'col-md-5'}}">
                         <div class="form-floating form-floating-outline mb-4">
@@ -142,7 +151,7 @@
                                 <label for="nomor_surat_asal">Nomor Surat Asal</label>
                                 <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
                             @else
-                                <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" onkeydown="replaceSpace(this)" required />
+                                <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" onchange="cekNoSurat()" onkeydown="replaceSpace(this)" required />
                                 <label for="nomor_surat">Nomor Surat</label>
                                 <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
                                 <div id="usedNoSurat" class="text-warning" style="display: none"> Nomor Surat ini sudah pernah digunakan, status surat terakhir <b id="lastStatus"></b>. </div>
@@ -152,7 +161,7 @@
                     @if (isset($suratMasuk))
                         <div class="col-12 col-md-4">
                             <div class="form-floating form-floating-outline mb-4">
-                                <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" onkeydown="replaceSpace(this)" required value="{{$suratMasuk->tujuanDisposisi[0]->no_agenda}}" />
+                                <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" onchange="cekNoSurat()" onkeydown="replaceSpace(this)" required value="{{$suratMasuk->tujuanDisposisi[0]->no_agenda}}" />
                                 <label for="nomor_surat">Nomor Surat</label>
                                 <div class="invalid-feedback"> Mohon masukan nomor surat</div>
                             </div>
@@ -164,6 +173,15 @@
                             <button type="button" class="btn btn-sm btn-info" onclick="cekNoSurat()">Cek</button>
                         </div>
                     @endif
+
+
+                    <div class="col-12 col-md-6">
+                        <div class="mb-4 form-floating form-floating-outline">
+                            <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->tgl_surat : '') : ''}}"/>
+                            <label for="tanggal_surat">Pilih Tanggal Surat</label>
+                            <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
+                        </div>
+                    </div>
 
                     <div class="col-12 col-md-6">
                         <div class="form-floating form-floating-outline mb-4">
@@ -194,18 +212,12 @@
                             <div class="invalid-feedback"> Mohon pilih asal surat. </div>
                         </div>
                     </div>
+
                     <div class="col-12 col-md-6">
                         <div class="form-floating form-floating-outline mb-4">
                             <input type="text" class="form-control" id="entity_asal_surat_detail" placeholder="Detail Entity Asal Surat" name="entity_asal_surat_detail" required />
                             <label for="entity_asal_surat_detail">Detail Entity Asal Surat</label>
                             <div class="invalid-feedback"> Mohon masukan detail entity asal surat. </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <div class="mb-4 form-floating form-floating-outline">
-                            <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->tgl_surat : '') : ''}}"/>
-                            <label for="tanggal_surat">Pilih Tanggal Surat</label>
-                            <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
                         </div>
                     </div>
 
@@ -327,9 +339,11 @@
                         Data Agenda Surat Masuk
                     </div>
                     <div class="col-12 col-md-6 order-md-2 order-first">
-                        {{-- <div class="float-start float-lg-end">
-                            <button class="btn btn-outline-primary" onclick="kirimBerkasBundle()">Kirim Berkas Ke TAUD (Bundle)</button>
-                        </div> --}}
+                        @if (strtolower($user->org->nama) == 'taud' || strtolower($user->org->nama) == 'spri')
+                            <div class="float-start float-lg-end">
+                                <button class="btn btn-sm btn-outline-primary" onclick="bulkingSurat()">Kirim Berkas (Bundle)</button>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -339,178 +353,5 @@
         </div>
     </div>
 </div>
-
-    <!-- Modal Disposisi -->
-    <div class="modal fade" id="modal-disposisi" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalCenterTitle">Form Disposisi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="javascript:void(0)" id="form-disposisi" class="needs-validation" novalidate>
-                    <div class="modal-body">
-                        @csrf
-                        <input type="hidden" name="tx_number" class="form-control">
-                        <div class="form-floating form-floating-outline mb-4">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input type="text" class="form-control" id="nomor_agenda" placeholder="Nomor Surat" name="nomor_agenda" value="" readonly />
-                                <label for="nomor_agenda">Nomor Agenda</label>
-                            </div>
-                        </div>
-
-                        <div class="form-floating form-floating-outline mb-4">
-                            <select id="tujuan_disposisi" name="tujuan_disposisi[]" class="select2 form-select" multiple>
-                            </select>
-                            <label for="tujuan_disposisi">Tujuan Disposisi</label>
-                        </div>
-
-                        <div class="form-floating form-floating-outline mb-4">
-                            <textarea class="form-control h-px-75" id="isi_disposisi" name="isi_disposisi" rows="3" placeholder="Isi Disposisi"></textarea>
-                            <label for="isi_disposisi">Isi Disposisi</label>
-                            <div class="invalid-feedback"> Mohon masukan Isi Disposisi. </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Disposisikan Surat</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Rubah Tanggal -->
-    <div class="modal fade" id="modal-edit-tgl" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalCenterTitle">Rubah Tanggal Diterima</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="javascript:void(0)" id="form-edit-tgl" class="needs-validation" novalidate>
-                    <div class="modal-body">
-                        @csrf
-                        <input type="hidden" name="tx_number" class="form-control">
-                        <div class="form-floating form-floating-outline mb-4">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" min="" id="tanggal-diterima" name="tanggal_diterima" required/>
-                                <label for="tanggal_diterima">Pilih Tanggal Diterima</label>
-                                <div class="invalid-feedback"> Mohon pilih tanggal diterima. </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Rubah Tanggal</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Revisi Surat -->
-    <div class="modal fade" id="modal-reject" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-md modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalCenterTitle">Revisi Surat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form action="javascript:void(0)" id="form-revisi" class="needs-validation" novalidate enctype="multipart/form-data">
-                    <div class="modal-body">
-                        @csrf
-                        <input type="hidden" name="tx_number" class="form-control">
-                        <div class="form-group mb-4">
-                            <label for="formFile" class="form-label">Upload Foto Revisi</label>
-                            <input class="form-control" type="file" id="image" name="image[]" multiple accept=".jpg,.jpeg,.png">
-                        </div>
-
-                        <div class="form-floating form-floating-outline mb-4">
-                            <textarea class="form-control h-px-75" id="notes" name="notes" rows="3" placeholder="Catatan Revisi" required></textarea>
-                            <label for="notes">Catatan Revisi</label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Revisi Berkas</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Detail Revisi -->
-    <div class="modal fade" id="modal-reject-detail" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalCenterTitle">Detail Revisi Surat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="card text-white bg-primary rounded-pills mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title text-white">Informasi Data Surat</h5>
-                            <div class="row justify-content-center align-items-center" id="header-data">
-                                <div class="col-md-4 col-12 mb-2">No. Surat</div>
-                                <div class="col-md-1 col-12 mb-2"> : </div>
-                                <div class="col-md-7 col-12 mb-2">
-                                    <span class='badge rounded-pill bg-label-info' id="no_surat"></span>
-                                </div>
-
-                                <div class="col-md-4 col-12 mb-2">No. Agenda</div>
-                                <div class="col-md-1 col-12 mb-2"> : </div>
-                                <div class="col-md-7 col-12 mb-2">
-                                    <b id="no_agenda"></b>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card text-white bg-info rounded-pills mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title text-white">Informasi Revisi</h5>
-                            <div class="row justify-content-center align-items-center" id="detail-data">
-                                <div class="col-md-4 col-12 mb-2">
-                                    Tanggal Direvisi
-                                </div>
-                                <div class="col-md-1 col-12 mb-2"> : </div>
-                                <div class="col-md-7 col-12 mb-2">
-                                    <span id="tgl_revisi"></span>
-                                </div>
-
-                                <div class="col-md-4 col-12 mb-2">
-                                    Direvisi Oleh
-                                </div>
-                                <div class="col-md-1 col-12 mb-2"> : </div>
-                                <div class="col-md-7 col-12 mb-2">
-                                    <span id="revisi_by"></span>
-                                </div>
-
-                                <div class="col-md-4 col-12 mb-2"> Catatan Revisi </div>
-                                <div class="col-md-1 col-12 mb-2"> : </div>
-                                <div class="col-md-7 col-12 mb-2">
-                                    <span id="notes"></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card text-black bg-white rounded-pills mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title text-dark">List Gambar</h5>
-                            <div class="row justify-content-center align-items-center" id="image-data">
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
+@include('content.surat_masuk.modal')
 @endsection

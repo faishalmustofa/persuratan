@@ -24,6 +24,7 @@ class BukuAgendaController extends Controller
         $data['asalSurat'] = AsalSurat::all();
         $data['entityAsal'] = EntityAsalSurat::get();
         $data['organization'] = Organization::orderBy('id')->get();
+        $data['user'] = User::with('org')->find(Auth::user()->id);
 
         return view('content.surat_masuk.buku-agenda', $data);
     }
@@ -40,23 +41,26 @@ class BukuAgendaController extends Controller
                         ->with('tujuanSurat')
                         ->with('createdUser');
 
-
-
         $loggedInOrg = User::with('org')->find(Auth::user()->id);
 
-        if(strtolower($loggedInOrg->org->nama) == 'taud' || strtolower($loggedInOrg->org->nama) == 'spri'){
+        if(strtolower($loggedInOrg->org->nama) == 'spri'){
             $suratMasuk = $suratMasuk->whereHas('tujuanSurat', function($user) use ($loggedInOrg){
                 $user->where('tujuan_surat', $loggedInOrg->org->parent_id);
-            });
+            })->whereIn('status_surat', ['003','100','101','102']);
 
-            if(strtolower($loggedInOrg->org->nama) == 'spri'){
-                $suratMasuk = $suratMasuk->whereIn('status_surat', [3,6,7,8]);
-            }
+        } else if (strtolower($loggedInOrg->org->nama) != 'taud') {
+            $suratMasuk = $suratMasuk->whereHas('tujuanSurat', function($user){
+                $user->Where('tujuan_surat', Auth::user()->organization);
+            })->where('status_surat', '004');
 
-        } else {
-            $suratMasuk = $suratMasuk->whereHas('createdUser', function($user){
-                $user->where('organization', Auth::user()->organization);
-            });
+            // $suratMasuk = $suratMasuk->whereHas('createdUser', function($user){
+            //     $user->where('organization', Auth::user()->organization);
+            // });
+        }
+
+
+        if(isset($request->from) && $request->from == 'bulking'){
+            $suratMasuk = $suratMasuk->where('tujuan_surat', $request->tujuan_surat)->where('status_surat', '112');
         }
 
         if($request->tgl_surat != null){

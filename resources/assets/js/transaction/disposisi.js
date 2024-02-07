@@ -1,4 +1,4 @@
-var table
+var table, valTujuan
 
 $( function(){
     var forms = document.querySelectorAll('.needs-validation')
@@ -30,10 +30,20 @@ $( function(){
     $('#form-pengiriman').on('submit', function (e) {
         if (this.checkValidity()) {
             e.preventDefault();
-            postPengiriman()
+            var type = $(this).find('input[name="type_kirim"]').val()
+            postPengiriman(type)
             $(this).addClass('was-validated');
         }
     });
+
+    $('#form-bulking').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            sendBulking()
+        }
+    });
+
+    $("#tujuan_surat_bulking").select2();
 
     $('#form-pencarian').on('submit', function (e) {
         searchData()
@@ -73,26 +83,34 @@ function searchData(){
             {
                 data: 'no_agenda',
                 name: 'no_agenda',
+                responsivePriority: 0,
+                className: 'editable'
             },
             {
                 data: 'noSurat',
                 name: 'noSurat',
+                responsivePriority: 0
             },
             {
                 data: 'tgl_surat',
                 name: 'tgl_surat',
+                responsivePriority: 1
             },
             {
                 data: 'tgl_diterima',
                 name: 'tgl_diterima',
+                responsivePriority: 2,
+                className: 'editable'
             },
             {
-                data: 'asal_surat.name',
-                name: 'asal_surat.name',
+                data: 'surat_dari',
+                name: 'surat_dari',
+                responsivePriority: 0
             },
             {
                 data: 'tujuan_surat.nama',
                 name: 'tujuan_surat.nama',
+                responsivePriority: 1
             },
             {
                 data: 'perihal',
@@ -102,12 +120,12 @@ function searchData(){
             {
                 data: 'status',
                 name: 'status',
-                responsivePriority: 0
+                responsivePriority: 2
             },
             {
                 data: 'action',
                 name: 'action',
-                responsivePriority: 2
+                responsivePriority: -1
             }
         ],
         order: [[4, 'asc']],
@@ -186,24 +204,43 @@ function postDisposisi() {
     }
 }
 
-function kirimDisposisi(txNo, noSurat, noAgenda) {
-    $('#form-pengiriman').find('input[name="tx_number"]').val(txNo)
-    $('#form-pengiriman').find('#nomor_agenda').val(noAgenda)
-    $('#form-pengiriman').find('#no_surat').val(noSurat)
+function kirimDisposisi(txNo, noSurat, noAgenda, type = 'single') {
+    $('#form-pengiriman').find('input[name="type_kirim"]').val(type)
+
+    if(type == 'bulking'){
+        $('#form-pengiriman').find('#data-surat').fadeOut()
+        $('#form-pengiriman').find('input[name="_token"]').remove()
+    } else {
+        if($('#form-pengiriman').find('input[name="_token"]').length == 0){
+            $('#form-pengiriman').append(`<input type="hidden" name="_token" value="${$('meta[name="csrf-token"]').attr('content')}">`)
+        }
+
+        $('#form-pengiriman').find('#data-surat').fadeIn()
+        $('#form-pengiriman').find('input[name="tx_number"]').val(txNo)
+        $('#form-pengiriman').find('#nomor_agenda').val(noAgenda)
+        $('#form-pengiriman').find('#no_surat').val(noSurat)
+    }
 
     $('#modal-kirim').modal('toggle')
 }
 
-async function postPengiriman(){
+async function postPengiriman(type){
+    if(type == 'single'){
+        $('#nomor_agenda').val('')
+        let form = $('#form-pengiriman').serialize()
+        await ajaxPostJson('/transaction/disposisi/pengiriman-surat', form, 'input_success', 'input_error')
+        $('#modal-kirim').modal('toggle')
+    } else if (type == 'bulking'){
+        await postDataBulking()
+        $('#modal-kirim').modal('toggle')
+    }
+
     var currentUrl = window.location.href
     var newURL = currentUrl.split('/');
-    newURL = currentUrl.replace('/'+newURL[newURL.length-1], '')
-    history.pushState({}, null, newURL)
-    $('#nomor_agenda').val('')
-
-    let form = $('#form-pengiriman').serialize()
-    await ajaxPostJson('/transaction/disposisi/pengiriman-surat', form, 'input_success', 'input_error')
-    $('#modal-kirim').modal('toggle')
+    if(newURL.length > 5){
+        newURL = currentUrl.replace('/'+newURL[newURL.length-1], '')
+        history.pushState({}, null, newURL)
+    }
 }
 
 function detailDisposisi(txNo) {
@@ -213,7 +250,6 @@ function detailDisposisi(txNo) {
 
 function showModalDetail(res){
     Swal.close()
-
     if (res.status != 200) {
         var text = res.message
         error_notif(text)
@@ -224,7 +260,7 @@ function showModalDetail(res){
     var detail = res.data.detail
 
     Object.keys(header).map((key) => {
-        $('#header-data').find(`#${key}`).html(header[key])
+        $('#modal-detail').find('#header-data').find(`#${key}`).html(header[key])
     })
 
     let elTujuan = '';
@@ -234,9 +270,140 @@ function showModalDetail(res){
 
     $('#modal-detail').modal('toggle')
 
-    $('#detail-data').find('#tujuan_disposisi').html(elTujuan)
-    $('#detail-data').find('#isi_disposisi').html(detail.isi_disposisi)
+    $('#modal-detail').find('#detail-data').find('#tujuan_disposisi').html(elTujuan)
+    $('#modal-detail').find('#detail-data').find('#isi_disposisi').html(detail.isi_disposisi)
 
+}
+
+function actionPrintBlanko(txNumber){
+    ajaxGetJson(`/transaction/surat-masuk/print-blanko/${txNumber}`, 'printBlanko', 'input_error')
+}
+
+function printBlanko(data){
+    window.open(data.filePath, '_blank')
+    table.ajax.reload()
+}
+
+function bulkingSurat(){
+    $('#modal-bulking').modal('toggle')
+
+    if($('#data-container').css('display') == 'none'){
+        $('#data-container').slideDown()
+    }
+
+    getDataBulking()
+}
+
+$('#tujuan_surat_bulking').on('select2:select', function(){
+    valTujuan = $(this).val();
+    tableBulking.ajax.reload()
+})
+
+function getDataBulking(){
+    tableBulking = $('#bulking-list').DataTable({
+        processing: true,
+        serverSide: true,
+        responsive: true,
+        "scrollX":true,
+        "destroy":true,
+        ajax: {
+            url: "/transaction/disposisi/get-data",
+            method: "post",
+            data: function (data) {
+                data._token = $('meta[name="csrf-token"]').attr('content'),
+                data.tujuan_surat = valTujuan,
+                data.from = 'bulking'
+            }
+        },
+        columns: [
+            { data:null },
+            {
+                data: 'no_agenda',
+                name: 'no_agenda',
+                responsivePriority: 0,
+                className: 'editable'
+            },
+            {
+                data: 'noSurat',
+                name: 'noSurat',
+                responsivePriority: 0
+            },
+            {
+                data: 'tgl_surat',
+                name: 'tgl_surat',
+                responsivePriority: 1
+            },
+            {
+                data: 'tgl_diterima',
+                name: 'tgl_diterima',
+                responsivePriority: 2,
+                className: 'editable'
+            },
+            {
+                data: 'surat_dari',
+                name: 'surat_dari',
+                responsivePriority: 0
+            },
+            {
+                data: 'perihal',
+                name: 'perihal',
+                responsivePriority: 0
+            },
+        ],
+        order: [[4, 'asc']],
+        fnDrawCallback: () => {
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        },
+        columnDefs: [
+            {
+                targets: 0,
+                orderable: false,
+                responsivePriority: 3,
+                searchable: false,
+                checkboxes: true,
+                render: function (data) {
+                    return `
+                        <input type="checkbox" name="txNumber[]" class="dt-checkboxes form-check-input" value="${data.tx_number}">
+                    `;
+                },
+                checkboxes: {
+                    selectAllRender: '<input type="checkbox" class="form-check-input">'
+                }
+            },
+        ],
+    });
+}
+
+function sendBulking(){
+    Swal.fire({
+        title: "Anda yakin mengirim berkas surat ini secara bundling?",
+        icon: 'question',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Ya, Kirim Bundling",
+        denyButtonText: `Tidak`,
+        showCancelButton: false,
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            kirimDisposisi('', '', '', 'bulking')
+            // postData()
+        } else {
+            return false
+        }
+    });
+
+}
+
+async function postDataBulking(){
+    let form = $('#form-bulking').serialize()
+    form += '&'+$('#form-pengiriman').serialize()
+
+    await ajaxPostJson('/transaction/disposisi/kirim-bundling', form, 'input_success', 'input_error')
+    tableBulking.ajax.reload()
+
+    $('#modal-bulking').modal('toggle')
 }
 
 function input_success(data) {
