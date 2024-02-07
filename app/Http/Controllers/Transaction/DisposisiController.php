@@ -24,7 +24,9 @@ class DisposisiController extends Controller
      */
     public function index($noAgenda = '')
     {
-        return view('content.surat_masuk.disposisi', compact('noAgenda'));
+        $data['noAgenda'] = $noAgenda;
+        $data['organization'] = Organization::orderBy('id')->get();
+        return view('content.surat_masuk.disposisi', $data);
     }
 
     public function getData(Request $request)
@@ -51,7 +53,18 @@ class DisposisiController extends Controller
                 $suratMasuk = $suratMasuk->where('no_agenda', 'like', '%' .$noAgenda. '%');
             }
         } else {
-            $suratMasuk = $suratMasuk->whereIn('status_surat', [9, 4, 12]) ;
+            $suratMasuk = $suratMasuk->whereIn('status_surat', ['110', '004', '999']) ;
+        }
+
+        if(isset($request->from) && $request->from == 'bulking'){
+            $suratMasuk = $suratMasuk
+                            ->where(function($tujuan) use ($request){
+                                $tujuan->where('tujuan_surat', $request->tujuan_surat)->where('status_surat', '111');
+                            })->orWhere(function($tujuan) use ($request){
+                                $tujuan->whereHas('disposisi', function($disposisi) use ($request){
+                                    $disposisi->where('tujuan_disposisi', $request->tujuan_surat);
+                                })->where('status_surat', '110');
+                            });
         }
 
         $suratMasuk = $suratMasuk->get();
@@ -85,23 +98,28 @@ class DisposisiController extends Controller
                     $tgl = Carbon::parse($data->tgl_diterima)->translatedFormat('d F Y');
                     return $tgl;
                 })
-                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima'])
+                ->editColumn('surat_dari', function($data){
+                    return "<span> ". $data->entityAsalSurat->entity_name ." (" . $data->entity_asal_surat_detail . ")  </span>";
+                })
+                ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima', 'surat_dari'])
                 ->make(true);
     }
 
     public function renderAction($data)
     {
         $html = '';
-        if($data->status_surat == 1 && Auth::user()->hasPermissionTo('print-blanko')){
+        if(($data->status_surat == '001') && Auth::user()->hasPermissionTo('print-blanko')){
             $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
-        } else if($data->status_surat == 9){
+        } else if($data->status_surat == '111' && $data->tujuanSurat->need_disposisi != 1) {
+            $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
+        } else if($data->status_surat == '110'){
             if (Auth::user()->hasPermissionTo('kirim-disposisi')){
                 $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
             }
             $html .= '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
-        } else if ($data->status_surat == 4) {
+        } else if ($data->status_surat == '004') {
             $html = '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
-        } else if($data->status_surat == 2){
+        } else if($data->status_surat == '002'){
             $html = '<button class="btn btn-success btn-sm rounded-pill" onclick="updateDisposisi(`'.$data->tx_number.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Update Disposisi"> <span class="mdi mdi-note-edit-outline"></span> </button>';
         }
 
@@ -134,51 +152,104 @@ class DisposisiController extends Controller
      */
     public function store(Request $request)
     {
-        $tujuan = $request->tujuan_disposisi;
-        $dataSurat = SuratMasuk::where('tx_number', $request->tx_number)
-                        ->with('klasifikasiSurat')
-                        ->with('derajatSurat')
-                        ->first();
+        DB::beginTransaction();
+        try {
+            $tujuan = $request->tujuan_disposisi;
+            $dataSurat = SuratMasuk::where('tx_number', $request->tx_number)
+                            ->with('klasifikasiSurat')
+                            ->with('derajatSurat')
+                            ->first();
 
-        if($tujuan == null){
-            SuratMasuk::where('tx_number', $request->tx_number)->update([
-                'status_surat' => 5
-            ]);
-
-            return response()->json([
-                'status' => JsonResponse::HTTP_OK,
-                'message' => 'Surat Berhasil Diarsipkan',
-            ]);
-        } else {
-            if(in_array('2', $tujuan)){
+            if($tujuan == null){
                 SuratMasuk::where('tx_number', $request->tx_number)->update([
-                    'status_surat' => 5
+                    'status_surat' => '005'
                 ]);
 
+                $logData = [
+                    'txNumber' => $request->tx_number,
+                    'status' => 'Surat '.$dataSurat->no_surat.' dilakukan pengarsipan oleh SPRI karena tidak ada tujuan disposisi yang dipilih',
+                    'user' => Auth::user()->name,
+                ];
+
+                $log = (new LogSuratMasukController)->store($logData);
+                $statusLog = $log->getData()->status->code;
+                if($statusLog != 200){
+                    throw new Exception('Gagal input Log Surat', $statusLog);
+                }
+
+                DB::commit();
                 return response()->json([
                     'status' => JsonResponse::HTTP_OK,
                     'message' => 'Surat Berhasil Diarsipkan',
                 ]);
             } else {
-                for ($i=0; $i < count($tujuan); $i++) {
-                    DisposisiSuratMasuk::create([
-                        'tx_number' => $request->tx_number,
-                        'no_agenda' => $dataSurat->no_agenda,
-                        'tujuan_disposisi' => $tujuan[$i],
-                        'isi_disposisi' => $request->isi_disposisi,
+                if(in_array('2', $tujuan)){
+                    SuratMasuk::where('tx_number', $request->tx_number)->update([
+                        'status_surat' => '005'
+                    ]);
+
+                    $logData = [
+                        'txNumber' => $request->tx_number,
+                        'status' => 'Surat '.$dataSurat->no_surat.' dilakukan pengarsipan oleh SPRI karena tujuan disposisi adalah TAUD',
+                        'user' => Auth::user()->name,
+                    ];
+
+                    $log = (new LogSuratMasukController)->store($logData);
+                    $statusLog = $log->getData()->status->code;
+                    if($statusLog != 200){
+                        throw new Exception('Gagal input Log Surat', $statusLog);
+                    }
+
+                    DB::commit();
+                    return response()->json([
+                        'status' => JsonResponse::HTTP_OK,
+                        'message' => 'Surat Berhasil Diarsipkan',
+                    ]);
+                } else {
+                    for ($i=0; $i < count($tujuan); $i++) {
+                        DisposisiSuratMasuk::create([
+                            'tx_number' => $request->tx_number,
+                            'no_agenda' => $dataSurat->no_agenda,
+                            'tujuan_disposisi' => $tujuan[$i],
+                            'isi_disposisi' => $request->isi_disposisi,
+                        ]);
+                    }
+
+                    SuratMasuk::where('tx_number', $request->tx_number)->update([
+                        'status_surat' => '003'
+                    ]);
+
+                    $logData = [
+                        'txNumber' => $request->tx_number,
+                        'status' => 'Surat '.$dataSurat->no_surat.' dilakukan update isi disposisi oleh SPRI',
+                        'user' => Auth::user()->name,
+                    ];
+
+                    $log = (new LogSuratMasukController)->store($logData);
+                    $statusLog = $log->getData()->status->code;
+                    if($statusLog != 200){
+                        throw new Exception('Gagal input Log Surat', $statusLog);
+                    }
+
+                    DB::commit();
+                    return response()->json([
+                        'status' => JsonResponse::HTTP_OK,
+                        'message' => 'Berhasil Update Isi Disposisi',
                     ]);
                 }
 
-                SuratMasuk::where('tx_number', $request->tx_number)->update([
-                    'status_surat' => 3
-                ]);
-
-                return response()->json([
-                    'status' => JsonResponse::HTTP_OK,
-                    'message' => 'Berhasil Update Isi Disposisi',
-                ]);
             }
-
+        } catch (Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Update Isi Disposisi, Harap Coba lagi!'
+            ]);
         }
 
 
@@ -316,8 +387,71 @@ class DisposisiController extends Controller
             $data = Pengiriman::create($insertedData);
 
             SuratMasuk::where('tx_number', $request->tx_number)->update([
-                'status_surat' => 4
+                'status_surat' => '004'
             ]);
+
+            $logData = [
+                'txNumber' => $request->tx_number,
+                'status' => 'Surat '.$request->no_surat.' dilakukan pengiriman ke tujuan disposisi',
+                'user' => $request->nama_pengirim,
+            ];
+
+            $log = (new LogSuratMasukController)->store($logData);
+            $statusLog = $log->getData()->status->code;
+            if($statusLog != 200){
+                throw new Exception('Gagal input Log Surat', $statusLog);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Input Data Pengiriman',
+                'data' => $data
+            ]);
+        } catch (Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' =>  $th->getCode() != '' ? $th->getCode() : 500,
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
+            ]);
+        }
+    }
+
+    public function kirimBulking(Request $request)
+    {
+        DB::beginTransaction();
+        try {
+            for ($i=0; $i < count($request->txNumber); $i++) {
+                $suratMasuk = SuratMasuk::where('tx_number', $request->txNumber[$i]);
+                $insertedData = [
+                    'no_agenda' => $suratMasuk->first()->no_agenda,
+                    'jenis_pengiriman' => $request->jenis_pengiriman,
+                    'expedisi' => $request->expedisi,
+                    'no_resi' => $request->no_resi,
+                    'nama_pengirim' => $request->nama_pengirim,
+                    'tgl_kirim' => $request->tgl_kirim,
+                ];
+
+                $logData = [
+                    'txNumber' => $suratMasuk->first()->tx_number,
+                    'status' => 'Surat '.$suratMasuk->first()->no_surat.' dilakukan pengiriman ke tujuan disposisi',
+                    'user' => $request->nama_pengirim,
+                ];
+
+                $log = (new LogSuratMasukController)->store($logData);
+                $statusLog = $log->getData()->status->code;
+                if($statusLog != 200){
+                    throw new Exception('Gagal input Log Surat', $statusLog);
+                }
+
+                $data = Pengiriman::create($insertedData);
+
+                $suratMasuk->update([
+                    'status_surat' => '004'
+                ]);
+            }
 
             DB::commit();
             return response()->json([

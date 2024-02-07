@@ -21,6 +21,10 @@ class DisposisiMasukController extends Controller
     public function getData(Request $request)
     {
         $suratMasuk = SuratMasuk::orderBy('tgl_diterima', 'asc')
+                        ->with('disposisi')
+                        ->whereHas('disposisi', function($dispo){
+                            $dispo->where('tujuan_disposisi', Auth::user()->organization);
+                        })
                         ->with('asalSurat')
                         ->with('entityAsalSurat')
                         ->With('statusSurat')
@@ -28,12 +32,7 @@ class DisposisiMasukController extends Controller
                         ->with('derajatSurat')
                         ->with('tujuanSurat')
                         ->with('createdUser')
-                        ->with('disposisi')
-                        ->whereHas('disposisi', function($dispo){
-                            $dispo->where('tujuan_disposisi', Auth::user()->organization);
-                        })
-                        ->where('status_surat', '4');
-
+                        ->where('status_surat', '004');
 
         if($request->tgl_surat != null){
             $rangeDate = explode('to', $request->tgl_surat);
@@ -52,13 +51,13 @@ class DisposisiMasukController extends Controller
                 ->addIndexColumn()
                 ->editColumn('status', function($data){
                     $bg = '';
-                    if ($data->status_surat == '1') {
+                    if ($data->status_surat == '001') {
                         $bg = 'bg-label-warning';
-                    } else if($data->status_surat == '2') {
+                    } else if($data->status_surat == '002') {
                         $bg = 'bg-label-success';
-                    } else if($data->status_surat == '3') {
+                    } else if($data->status_surat == '003') {
                         $bg = 'bg-label-primary';
-                    } else if($data->status_surat == '4') {
+                    } else if($data->status_surat == '004') {
                         $bg = 'bg-label-info';
                     }
 
@@ -90,7 +89,7 @@ class DisposisiMasukController extends Controller
         $totalSurat = SuratMasuk::where('no_surat', $data->no_surat)->count();
 
         // if($totalSurat == 1){
-            if($data->status_surat == 4 && Auth::user()->hasPermissionTo('create-surat'))
+            if($data->status_surat == '004' && Auth::user()->hasPermissionTo('create-surat'))
             {
                 $txNo = base64_encode($data->tx_number);
                 $html = '<a href="'.route('create-bukuagenda', $txNo).'" class="btn btn-primary btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Buat Agenda Surat Masuk" > <span class="mdi mdi-note-plus"></span> </button>';

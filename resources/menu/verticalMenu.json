@@ -30,6 +30,11 @@
           "url": "transaction/disposisi-masuk",
           "name": "Disposisi Masuk",
           "slug": "menu-disposisimasuk"
+        },
+        {
+          "url": "transaction/log-surat-masuk",
+          "name": "Log Surat Masuk",
+          "slug": "menu-disposisimasuk"
         }
       ]
     },

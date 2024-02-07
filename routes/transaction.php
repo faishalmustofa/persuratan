@@ -5,6 +5,7 @@ use App\Http\Controllers\Transaction\BukuAgendaSuratKeluar;
 use App\Http\Controllers\Transaction\DisposisiController;
 use App\Http\Controllers\Transaction\DisposisiMasukController;
 use App\Http\Controllers\Transaction\LaporanPenerimaanSuratController;
+use App\Http\Controllers\Transaction\LogSuratMasukController;
 use App\Http\Controllers\Transaction\PengirimanSuratKeluarController;
 use App\Http\Controllers\Transaction\PermintaanNoSuratController;
 use App\Http\Controllers\Transaction\SuratKeluarController;
@@ -20,12 +21,13 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::get('/print-blanko/{txNo}', [SuratMasukController::class, 'printBlanko']);
         Route::get('/download-blanko/{file}', [SuratMasukController::class, 'downloadBlanko']);
         Route::get('/pindah-berkas/{txNo}', [SuratMasukController::class, 'pindahBerkas']);
-        Route::get('/terima-berkas/{txNo}', [SuratMasukController::class, 'terimaBerkas']);
+        Route::post('/terima-berkas', [SuratMasukController::class, 'terimaBerkas']);
         Route::get('/show-pdf/{txNumber}', [SuratMasukController::class, 'showPdf'])->name('showPDF');
         Route::post('/edit-tgl', [SuratMasukController::class, 'editTgl']);
         Route::post('/revisi-berkas', [SuratMasukController::class, 'revisiBerkas']);
         Route::get('/view-reject/{tx_number}', [SuratMasukController::class, 'viewReject']);
         Route::get('/cek-surat/{noSurat}', [SuratMasukController::class, 'cekSurat']);
+        Route::post('/kirim-bundling', [SuratMasukController::class, 'pindahBerkasBundling']);
     });
 
     /** MENU BUKU AGENDA SURAT MASUK*/
@@ -41,6 +43,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/get-data', [DisposisiController::class, 'getData']);
         Route::get('/get-tujuan/{txNumber}', [DisposisiController::class, 'getTujuanDisposisi']);
         Route::get('/detail/{txNo}', [DisposisiController::class, 'show']);
+        Route::post('/kirim-bundling', [DisposisiController::class, 'kirimBulking']);
         Route::post('/pengiriman-surat', [DisposisiController::class, 'pengirimanSurat']);
     });
 
@@ -48,6 +51,13 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
     Route::prefix('disposisi-masuk')->group(function(){
         Route::get('/', [DisposisiMasukController::class, 'index']);
         Route::post('/get-data', [DisposisiMasukController::class, 'getData']);
+    });
+
+    /** MENU LOG SURAT MASUK */
+    Route::prefix('log-surat-masuk')->group(function(){
+        Route::get('/', [LogSuratMasukController::class, 'index']);
+        Route::post('/data', [LogSuratMasukController::class, 'data']);
+        Route::get('/show/{txNo}', [LogSuratMasukController::class, 'show']);
     });
 
     /** MENU SURAT KELUAR */
@@ -83,7 +93,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/get-data', [BukuAgendaSuratKeluar::class, 'getData']);
         Route::get('/detail/{txNo}', [BukuAgendaSuratKeluar::class, 'show']);
     });
-    
+
     /** MENU PENGIRIMAN SURAT KELUAR*/
     Route::prefix('pengiriman-surat-keluar')->group(function(){
         Route::get('/', [PengirimanSuratKeluarController::class, 'index']);
@@ -91,7 +101,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/get-data', [PengirimanSuratKeluarController::class, 'getData']);
         Route::get('/detail/{txNo}', [PengirimanSuratKeluarController::class, 'show']);
     });
-    
+
     /** MENU PENGIRIMAN SURAT KELUAR*/
     Route::prefix('laporan-penerimaan-surat')->group(function(){
         Route::get('/', [LaporanPenerimaanSuratController::class, 'index']);
