@@ -8,6 +8,11 @@
 /storage/*.key
 /vendor
 
+/public/document/surat-masuk/*
+/public/document/surat-keluar/*
+/public/document/surat-disposisi/*
+/public/document/*.pdf
+
 .env
 .env.backup
 .env.production
