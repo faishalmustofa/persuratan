@@ -100,7 +100,7 @@ function updateData(){
     console.log(form)
     let form =  $("#form-update").serialize()
     const id = $('#form-update').find('input[name="id"]').val()
-    // ajaxPostJson(`/master-data/jenis-surat/update/${id}`, form, 'input_success', 'input_error');
+    ajaxPostJson(`/master-data/jenis-surat/update/${id}`, form, 'input_success', 'input_error');
 
     // window.location.href = '/master-data/jenis-surat'
 }
