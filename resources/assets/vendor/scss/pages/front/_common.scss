@@ -1,0 +1,94 @@
+// scss
+.section-py {
+  padding: 5rem 0;
+  @include light.media-breakpoint-down(xl) {
+    padding: 4rem 0;
+  }
+  @include light.media-breakpoint-down(md) {
+    padding: 3rem 0;
+  }
+}
+
+.first-section-pt {
+  padding-top: 8.45rem;
+  @include light.media-breakpoint-down(xl) {
+    padding-top: 6.5rem;
+  }
+}
+
+.card {
+  // card hover border color
+  &[class*='card-hover-border-'] {
+    transition: light.$card-transition;
+  }
+}
+
+.bg-icon-left,
+.bg-icon-right {
+  position: relative;
+  &::before {
+    position: absolute;
+    display: block;
+    top: 0;
+  }
+}
+.bg-icon-left {
+  &::before {
+    left: 0;
+    @include light.media-breakpoint-down(sm) {
+      left: 0.625rem;
+    }
+  }
+}
+.bg-icon-right {
+  &::before {
+    right: 0;
+    @include light.media-breakpoint-down(sm) {
+      right: 0.625rem;
+    }
+  }
+}
+
+// Light style
+@if $enable-light-style {
+  .light-style {
+    body {
+      background-color: light.$card-bg;
+    }
+    .bg-icon-left {
+      &::before {
+        content: url('../../../img/front-pages/icons/bg-left-icon.png');
+      }
+    }
+    .bg-icon-right {
+      &::before {
+        content: url('../../../img/front-pages/icons/bg-right-icon.png');
+      }
+    }
+  }
+}
+
+// Dark style
+@if $enable-dark-style {
+  .dark-style {
+    body {
+      background-color: dark.$card-bg;
+    }
+    .landing-light-mode {
+      display: none;
+    }
+    .landing-dark-mode {
+      display: block;
+    }
+    .bg-icon-left {
+      &::before {
+        content: url('../../../img/front-pages/icons/bg-left-dark-icon.png');
+      }
+    }
+    .bg-icon-right {
+      &::before {
+        content: url('../../../img/front-pages/icons/bg-right-dark-icon.png');
+      }
+    }
+  }
+}
