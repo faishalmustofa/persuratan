@@ -4,7 +4,7 @@
 
 'use strict';
 
-(function () {
+$(function () {
   let labelColor, headingColor, currentTheme, bodyColor;
 
   if (isDarkStyle) {
@@ -36,369 +36,237 @@
 
   // Chart Mingguan
   // --------------------------------------------------------------------
-  const chartMingguan = document.querySelector('#chartMingguan'),
-    chartMingguanConfig = {
-      series: [
-        {
-          name: 'Surat Keluar',
-          type: 'column',
-          data: [38, 45, 33, 38, 32, 50, 48]
-        },
-        {
-          name: 'Terkirim',
-          type: 'line',
-          data: [23, 28, 23, 32, 28, 44, 32]
-        }
-      ],
-      chart: {
-        height: 270,
-        type: 'line',
-        stacked: false,
-        parentHeightOffset: 0,
-        toolbar: {
-          show: false
-        },
-        zoom: {
-          enabled: false
-        }
-      },
-      markers: {
-        size: 4,
-        colors: [config.colors.white],
-        strokeColors: chartColors.line.series2,
-        hover: {
-          size: 6
-        },
-        borderRadius: 4
-      },
-      stroke: {
-        curve: 'smooth',
-        width: [0, 3],
-        lineCap: 'round'
-      },
-      legend: {
-        show: true,
-        position: 'bottom',
-        markers: {
-          width: 8,
-          height: 8,
-          offsetX: -3
-        },
-        height: 40,
-        offsetY: 10,
-        itemMargin: {
-          horizontal: 10,
-          vertical: 0
-        },
-        fontSize: '15px',
-        fontFamily: 'Inter',
-        fontWeight: 400,
-        labels: {
-          colors: headingColor,
-          useSeriesColors: false
-        },
-        offsetY: 10
-      },
-      grid: {
-        strokeDashArray: 8
-      },
-      colors: [chartColors.line.series1, chartColors.line.series2],
-      fill: {
-        opacity: [1, 1]
-      },
-      plotOptions: {
-        bar: {
-          columnWidth: '30%',
-          startingShape: 'rounded',
-          endingShape: 'rounded',
-          borderRadius: 4
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      xaxis: {
-        tickAmount: 7 ,
-        categories: ['Senin', 'Selasa ', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
-        labels: {
-          style: {
-            colors: labelColor,
-            fontSize: '13px',
-            fontFamily: 'Inter',
-            fontWeight: 400
-          }
-        },
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        }
-      },
-      yaxis: {
-        tickAmount: 4,
-        min: 10,
-        max: 50,
-        labels: {
-          style: {
-            colors: labelColor,
-            fontSize: '13px',
-            fontFamily: 'Inter',
-            fontWeight: 400
-          },
-          formatter: function (val) {
-            return val;
-          }
-        }
-      },
-      responsive: [
-        {
-          breakpoint: 1400,
-          options: {
-            chart: {
-              height: 270
-            },
-            xaxis: {
-              labels: {
-                style: {
-                  fontSize: '10px'
-                }
-              }
-            },
-            legend: {
-              itemMargin: {
-                vertical: 0,
-                horizontal: 10
-              },
-              fontSize: '13px',
-              offsetY: 12
-            }
-          }
-        },
-        {
-          breakpoint: 1399,
-          options: {
-            chart: {
-              height: 415
-            },
-            plotOptions: {
-              bar: {
-                columnWidth: '50%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 982,
-          options: {
-            plotOptions: {
-              bar: {
-                columnWidth: '30%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 480,
-          options: {
-            chart: {
-              height: 250
-            },
-            legend: {
-              offsetY: 7
-            }
-          }
-        }
-      ]
-    };
-  if (typeof chartMingguan !== undefined && chartMingguan !== null) {
-    const mingguan = new ApexCharts(chartMingguan, chartMingguanConfig);
-    mingguan.render();
-  }
+  // var data = getDataMingguan('02')
+  // var data_dikirim = getDataMingguanTerkirim('02')
+  
+  getDataHarian('1')
+  getDataMingguan('02')
 
   // Chart Bulanan
   // --------------------------------------------------------------------
-  const chartBulanan = document.querySelector('#chartBulanan'),
-    chartBulananConfig = {
-      series: [
-        {
-          name: 'Surat Keluar',
-          type: 'column',
-          data: [38, 45, 33, 38, 32, 50, 48, 40, 42, 37]
-        },
-        {
-          name: 'Terkirim',
-          type: 'line',
-          data: [23, 28, 23, 32, 28, 44, 32, 38, 26, 34]
-        }
-      ],
-      chart: {
-        height: 270,
-        type: 'line',
-        stacked: false,
-        parentHeightOffset: 0,
-        toolbar: {
-          show: false
-        },
-        zoom: {
-          enabled: false
-        }
-      },
-      markers: {
-        size: 4,
-        colors: [config.colors.white],
-        strokeColors: chartColors.line.series2,
-        hover: {
-          size: 6
-        },
-        borderRadius: 4
-      },
-      stroke: {
-        curve: 'smooth',
-        width: [0, 3],
-        lineCap: 'round'
-      },
-      legend: {
-        show: true,
-        position: 'bottom',
-        markers: {
-          width: 8,
-          height: 8,
-          offsetX: -3
-        },
-        height: 40,
-        offsetY: 10,
-        itemMargin: {
-          horizontal: 10,
-          vertical: 0
-        },
-        fontSize: '15px',
-        fontFamily: 'Inter',
-        fontWeight: 400,
-        labels: {
-          colors: headingColor,
-          useSeriesColors: false
-        },
-        offsetY: 10
-      },
-      grid: {
-        strokeDashArray: 8
-      },
-      colors: [chartColors.line.series1, chartColors.line.series2],
-      fill: {
-        opacity: [1, 1]
-      },
-      plotOptions: {
-        bar: {
-          columnWidth: '30%',
-          startingShape: 'rounded',
-          endingShape: 'rounded',
-          borderRadius: 4
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      xaxis: {
-        tickAmount: 10,
-        categories: ['1 Jan', '2 Jan', '3 Jan', '4 Jan', '5 Jan', '6 Jan', '7 Jan', '8 Jan', '9 Jan', '10 Jan'],
-        labels: {
-          style: {
-            colors: labelColor,
-            fontSize: '13px',
-            fontFamily: 'Inter',
-            fontWeight: 400
-          }
-        },
-        axisBorder: {
-          show: false
-        },
-        axisTicks: {
-          show: false
-        }
-      },
-      yaxis: {
-        tickAmount: 4,
-        min: 10,
-        max: 50,
-        labels: {
-          style: {
-            colors: labelColor,
-            fontSize: '13px',
-            fontFamily: 'Inter',
-            fontWeight: 400
-          },
-          formatter: function (val) {
-            return val;
-          }
-        }
-      },
-      responsive: [
-        {
-          breakpoint: 1400,
-          options: {
-            chart: {
-              height: 270
-            },
-            xaxis: {
-              labels: {
-                style: {
-                  fontSize: '10px'
-                }
-              }
-            },
-            legend: {
-              itemMargin: {
-                vertical: 0,
-                horizontal: 10
-              },
-              fontSize: '13px',
-              offsetY: 12
-            }
-          }
-        },
-        {
-          breakpoint: 1399,
-          options: {
-            chart: {
-              height: 415
-            },
-            plotOptions: {
-              bar: {
-                columnWidth: '50%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 982,
-          options: {
-            plotOptions: {
-              bar: {
-                columnWidth: '30%'
-              }
-            }
-          }
-        },
-        {
-          breakpoint: 480,
-          options: {
-            chart: {
-              height: 250
-            },
-            legend: {
-              offsetY: 7
-            }
-          }
-        }
-      ]
-    };
-  if (typeof chartBulanan !== undefined && chartBulanan !== null) {
-    const bulanan = new ApexCharts(chartBulanan, chartBulananConfig);
-    bulanan.render();
+  // const chartBulanan = document.querySelector('#chartBulanan'),
+  //   chartBulananConfig = {
+  //     series: [
+  //       {
+  //         name: 'Surat Keluar',
+  //         type: 'column',
+  //         data: [38, 45, 33, 38, 32, 50, 48, 40, 42, 37]
+  //       },
+  //       {
+  //         name: 'Terkirim',
+  //         type: 'line',
+  //         data: [23, 28, 23, 32, 28, 44, 32, 38, 26, 34]
+  //       }
+  //     ],
+  //     chart: {
+  //       height: 270,
+  //       type: 'line',
+  //       stacked: false,
+  //       parentHeightOffset: 0,
+  //       toolbar: {
+  //         show: false
+  //       },
+  //       zoom: {
+  //         enabled: false
+  //       }
+  //     },
+  //     markers: {
+  //       size: 4,
+  //       colors: [config.colors.white],
+  //       strokeColors: chartColors.line.series2,
+  //       hover: {
+  //         size: 6
+  //       },
+  //       borderRadius: 4
+  //     },
+  //     stroke: {
+  //       curve: 'smooth',
+  //       width: [0, 3],
+  //       lineCap: 'round'
+  //     },
+  //     legend: {
+  //       show: true,
+  //       position: 'bottom',
+  //       markers: {
+  //         width: 8,
+  //         height: 8,
+  //         offsetX: -3
+  //       },
+  //       height: 40,
+  //       offsetY: 10,
+  //       itemMargin: {
+  //         horizontal: 10,
+  //         vertical: 0
+  //       },
+  //       fontSize: '15px',
+  //       fontFamily: 'Inter',
+  //       fontWeight: 400,
+  //       labels: {
+  //         colors: headingColor,
+  //         useSeriesColors: false
+  //       },
+  //       offsetY: 10
+  //     },
+  //     grid: {
+  //       strokeDashArray: 8
+  //     },
+  //     colors: [chartColors.line.series1, chartColors.line.series2],
+  //     fill: {
+  //       opacity: [1, 1]
+  //     },
+  //     plotOptions: {
+  //       bar: {
+  //         columnWidth: '30%',
+  //         startingShape: 'rounded',
+  //         endingShape: 'rounded',
+  //         borderRadius: 4
+  //       }
+  //     },
+  //     dataLabels: {
+  //       enabled: false
+  //     },
+  //     xaxis: {
+  //       tickAmount: 10,
+  //       categories: ['1 Jan', '2 Jan', '3 Jan', '4 Jan', '5 Jan', '6 Jan', '7 Jan', '8 Jan', '9 Jan', '10 Jan'],
+  //       labels: {
+  //         style: {
+  //           colors: labelColor,
+  //           fontSize: '13px',
+  //           fontFamily: 'Inter',
+  //           fontWeight: 400
+  //         }
+  //       },
+  //       axisBorder: {
+  //         show: false
+  //       },
+  //       axisTicks: {
+  //         show: false
+  //       }
+  //     },
+  //     yaxis: {
+  //       tickAmount: 4,
+  //       min: 10,
+  //       max: 50,
+  //       labels: {
+  //         style: {
+  //           colors: labelColor,
+  //           fontSize: '13px',
+  //           fontFamily: 'Inter',
+  //           fontWeight: 400
+  //         },
+  //         formatter: function (val) {
+  //           return val;
+  //         }
+  //       }
+  //     },
+  //     responsive: [
+  //       {
+  //         breakpoint: 1400,
+  //         options: {
+  //           chart: {
+  //             height: 270
+  //           },
+  //           xaxis: {
+  //             labels: {
+  //               style: {
+  //                 fontSize: '10px'
+  //               }
+  //             }
+  //           },
+  //           legend: {
+  //             itemMargin: {
+  //               vertical: 0,
+  //               horizontal: 10
+  //             },
+  //             fontSize: '13px',
+  //             offsetY: 12
+  //           }
+  //         }
+  //       },
+  //       {
+  //         breakpoint: 1399,
+  //         options: {
+  //           chart: {
+  //             height: 415
+  //           },
+  //           plotOptions: {
+  //             bar: {
+  //               columnWidth: '50%'
+  //             }
+  //           }
+  //         }
+  //       },
+  //       {
+  //         breakpoint: 982,
+  //         options: {
+  //           plotOptions: {
+  //             bar: {
+  //               columnWidth: '30%'
+  //             }
+  //           }
+  //         }
+  //       },
+  //       {
+  //         breakpoint: 480,
+  //         options: {
+  //           chart: {
+  //             height: 250
+  //           },
+  //           legend: {
+  //             offsetY: 7
+  //           }
+  //         }
+  //       }
+  //     ]
+  //   };
+  // if (typeof chartBulanan !== undefined && chartBulanan !== null) {
+  //   const bulanan = new ApexCharts(chartBulanan, chartBulananConfig);
+  //   bulanan.render();
+  // }
+
+  
+});
+
+function getDataHarian(waktu) {
+  ajaxGetJson(`/data-harian-keluar/${waktu}`, 'showDataMingguan', 'error_notif')  
+}
+
+function getDataMingguan(waktu) {
+  ajaxGetJson(`/data-mingguan-keluar/${waktu}`, 'showDataMingguan', 'error_notif')  
+}
+
+function showDataMingguan(res) {
+
+  if (res.status != 200) {
+    var text = res.message
+    error_notif(text)
+    return false
   }
 
-})();
+  console.log(res.data)
+}
+
+function error_notif(text){
+  Command: toastr["error"](text, "Gagal Menampilkan Data")
+
+  toastr.options = {
+  "closeButton": true,
+  "debug": false,
+  "newestOnTop": false,
+  "progressBar": true,
+  "positionClass": "toast-top-right",
+  "preventDuplicates": false,
+  "onclick": null,
+  "showDuration": "300",
+  "hideDuration": "1000",
+  "timeOut": "5000",
+  "extendedTimeOut": "1000",
+  "showEasing": "swing",
+  "hideEasing": "linear",
+  "showMethod": "fadeIn",
+  "hideMethod": "fadeOut"
+  }
+}
 
 // DataTable (jquery)
 // --------------------------------------------------------------------
