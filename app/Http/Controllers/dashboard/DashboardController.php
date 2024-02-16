@@ -4,6 +4,10 @@ namespace App\Http\Controllers\dashboard;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Transaction\SuratKeluar;
+use App\Models\Transaction\SuratMasuk;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
@@ -11,93 +15,13 @@ class DashboardController extends Controller
     {
         return view('content.dashboard.dashboards');
     }
-
-    public function suratMasukbyDay(string $month)
+    public function dashboardSuratMasuk()
     {
-        $suratMasuk = SuratMasuk::orderBy('created_at')->whereMonth('fecha', '=', $month)->get()->groupBy(function($data) {
-            return \Carbon\Carbon::parse($data->created_at)->format('Y-m-d');
-        })
-        ->map(function($entries) {
-            return $entries->count();
-        })
-        ->toArray();
+        return view('content.dashboard.dashboard-surat-masuk');
     }
-
-    public function suratMasukbyDayArsip(string $month)
+    public function dashboardSuratKeluar()
     {
-        $suratMasuk = SuratMasuk::orderBy('created_at')->where('status_surat', '=', 'Diarsipkan')->whereMonth('fecha', '=', $month)->get()->groupBy(function($data) {
-            return \Carbon\Carbon::parse($data->created_at)->format('Y-m-d');
-        })
-        ->map(function($entries) {
-            return $entries->count();
-        })
-        ->toArray();
-    }
-
-    public function suratMasukbyWeek(string $year)
-    {
-        $suratMasuk = SuratMasuk::orderBy('created_at')->whereYear('created_at', $year)->get()->groupBy(function($data) {
-            return \Carbon\Carbon::parse($data->created_at)->format('W');
-        })
-        ->map(function($entries) {
-            return $entries->count();
-        })
-        ->toArray();
-    }
-
-    public function suratMasukbyWeekArsip(string $year)
-    {
-        $suratMasuk = SuratMasuk::orderBy('created_at')->where('status_surat', '=', 'Diarsipkan')->whereYear('created_at', $year)->get()->groupBy(function($data) {
-            return \Carbon\Carbon::parse($data->created_at)->format('W');
-        })
-        ->map(function($entries) {
-            return $entries->count();
-        })
-        ->toArray();
-    }
-
-    public function suratKeluarbyDay(string $month)
-    {
-        $suratMasuk = SuratKeluar::orderBy('created_at')->whereMonth('fecha', '=', $month)->get()->groupBy(function($data) {
-            return \Carbon\Carbon::parse($data->created_at)->format('Y-m-d');
-        })
-        ->map(function($entries) {
-            return $entries->count();
-        })
-        ->toArray();
-    }
-
-    public function suratKeluarbyDayDikirim(string $month)
-    {
-        $suratMasuk = SuratKeluar::orderBy('created_at')->where('status_surat', '=', 'Dikirim')->whereMonth('fecha', '=', $month)->get()->groupBy(function($data) {
-            return \Carbon\Carbon::parse($data->created_at)->format('Y-m-d');
-        })
-        ->map(function($entries) {
-            return $entries->count();
-        })
-        ->toArray();
-    }
-
-    public function suratKeluarbyWeek(string $year)
-    {
-        $suratMasuk = SuratKeluar::orderBy('created_at')->whereYear('created_at', $year)->get()->groupBy(function($data) {
-            return \Carbon\Carbon::parse($data->created_at)->format('W');
-        })
-        ->map(function($entries) {
-            return $entries->count();
-        })
-        ->toArray();
-    }
-
-    public function suratKeluarbyWeekArsip(string $year)
-    {
-        $suratMasuk = SuratKeluar::orderBy('created_at')->where('status_surat', '=', 'Dikirim')->whereYear('created_at', $year)->get()->groupBy(function($data) {
-            return \Carbon\Carbon::parse($data->created_at)->format('W');
-        })
-        ->map(function($entries) {
-            return $entries->count();
-        })
-        ->toArray();
+        return view('content.dashboard.dashboard-surat-keluar');
     }
 
     // Controller Surat Masuk
@@ -146,17 +70,6 @@ class DashboardController extends Controller
             'data' => $data,
         ]);
     }
-
-    // public function suratMasukbyDayArsip(string $month)
-    // {
-    //     $suratMasuk = SuratMasuk::orderBy('created_at')->where('status_surat', '=', 'Diarsipkan')->whereMonth('fecha', '=', $month)->get()->groupBy(function($data) {
-    //         return \Carbon\Carbon::parse($data->created_at)->format('Y-m-d');
-    //     })
-    //     ->map(function($entries) {
-    //         return $entries->count();
-    //     })
-    //     ->toArray();
-    // }
 
     public function suratMasukperWeek(string $month)
     {
@@ -207,17 +120,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    // public function suratMasukbyWeekArsip(string $year)
-    // {
-    //     $suratMasuk = SuratMasuk::orderBy('created_at')->where('status_surat', '=', 'Diarsipkan')->whereYear('created_at', $year)->get()->groupBy(function($data) {
-    //         return \Carbon\Carbon::parse($data->created_at)->format('W');
-    //     })
-    //     ->map(function($entries) {
-    //         return $entries->count();
-    //     })
-    //     ->toArray();
-    // }
-
     // Controller Surat Keluar
     public function suratKeluarperDay(string $time)
     {
@@ -264,44 +166,6 @@ class DashboardController extends Controller
             'data' => $data,
         ]);
     }
-
-    // public function suratKeluarperDayDikirim(string $time)
-    // {
-    //     $now = Carbon::now();
-    //     $startDate;
-    //     $endDate;
-
-    //     switch ($time) {
-    //         case '1':
-    //             $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-01");
-    //             $endDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-07");
-    //             break;
-    //         case '2':
-    //             $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-08");
-    //             $endDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-14");
-    //             break;
-    //         case '3':
-    //             $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-15");
-    //             $endDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-21");
-    //             break;
-    //         default:
-    //             $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-22");
-    //             $endDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-31");
-    //     }
-
-    //     $suratKeluar = SuratKeluar::select('tgl_surat', SuratKeluar::raw('COUNT(*) as total'))->where('status_surat', '18')->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
-        
-    //     $data = array();
-    //     foreach ($suratKeluar as $x) {
-    //         array_push($data, $x->total);
-    //     }
-
-    //     return response()->json([
-    //         'status' => JsonResponse::HTTP_OK,
-    //         'message' => 'Berhasil mengambil data surat keluar',
-    //         'data' => $data,
-    //     ]);
-    // }
 
     public function suratKeluarperWeek(string $month)
     {
@@ -351,36 +215,4 @@ class DashboardController extends Controller
             'data' => $data,
         ]);
     }
-
-    // public function suratKeluarperWeekDikirim(string $month)
-    // {
-    //     $now = Carbon::now();
-    //     $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$month}-01");
-    //     $endDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$month}-31");
-
-    //     $suratKeluar = SuratKeluar::select('tgl_surat', SuratKeluar::raw('COUNT(*) as total'))->where('status_surat', '18')->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
-
-    //     $q1 = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$month}-07");
-    //     $q2 = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$month}-14");
-    //     $q3 = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$month}-21");
-    //     $data = array(0,0,0,0);
-
-    //     foreach ($suratKeluar as $x) {
-    //         if ($tgl_surat->days <= $q1 ) {
-    //             $data[0] += 1;
-    //         } elseif ($tgl_surat > $q1 && $tgl_surat <= $q2 ) {
-    //             $data[1] += 1;
-    //         } elseif ($tgl_surat > $q2 && $tgl_surat <= $q3 ) {
-    //             $data[2] += 1;
-    //         } else {
-    //             $data[3] += 1;
-    //         }
-    //     }
-
-    //     return response()->json([
-    //         'status' => JsonResponse::HTTP_OK,
-    //         'message' => 'Berhasil mengambil data surat keluar',
-    //         'data' => $data,
-    //     ]);
-    // }
 }
