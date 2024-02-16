@@ -21,7 +21,7 @@ class SuratMasuk extends Model
     public $primaryKey = 'tx_number';
     public $incrementing = false;
     public $keyType = 'string';
-
+    
     function asalSurat(){
         return $this->hasOne(AsalSurat::class, 'id', 'asal_surat');
     }
