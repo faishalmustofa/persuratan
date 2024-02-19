@@ -45,21 +45,40 @@ class DashboardController extends Controller
                 break;
             default:
                 $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-22");
-                $endDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-31");
+                $endDate = Carbon::now()->endOfMonth();
         }
         
         $suratMasuk = SuratMasuk::select('tgl_surat', SuratMasuk::raw('COUNT(*) as total'))->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
         
-        $dataMasuk = array();
-        foreach ($suratMasuk as $x) {
-            array_push($dataMasuk, $x->total);
-        }
-
         $suratDiarsip = SuratMasuk::select('tgl_surat', SuratMasuk::raw('COUNT(*) as total'))->where('status_surat', '18')->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
 
+        $interval = $startDate->diff($endDate);
+        $days = $interval->format('%a');
+
+        $dataMasuk = array();
         $dataDiarsip = array();
+
+        for ($x = 0; $x <= $days; $x++) {
+            array_push($dataMasuk, 0);
+            array_push($dataDiarsip, 0);
+        }
+
+        foreach ($suratMasuk as $x) {
+            $test = (int) date('d', strtotime($x->tgl_surat));
+            if ($test < 29) {
+                $dataMasuk[($test % 8) - 1] = $x->total;
+            } else {
+                $dataMasuk[($test % 8) + 6] = $x->total;
+            }
+        }
+
         foreach ($suratDiarsip as $x) {
-            array_push($dataDiarsip, $x->total);
+            $test = (int) date('d', strtotime($x->tgl_surat));
+            if ($test < 29) {
+                $dataDiarsip[($test % 8) - 1] = $x->total;
+            } else {
+                $dataDiarsip[($test % 8) + 6] = $x->total;
+            }
         }
 
         $data = array($dataMasuk, $dataDiarsip);
@@ -79,7 +98,7 @@ class DashboardController extends Controller
 
         $suratMasuk = SuratMasuk::select('tgl_surat', SuratMasuk::raw('COUNT(*) as total'))->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
 
-        $suratDiarsip = SuratMasuk::select('tgl_surat', SuratMasuk::raw('COUNT(*) as total'))->where('status_surat', '18')->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
+        $suratDiarsip = SuratMasuk::select('tgl_surat', SuratMasuk::raw('COUNT(*) as total'))->where('status_surat', '5')->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
 
         $q1 = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$month}-07");
         $q2 = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$month}-14");
@@ -95,11 +114,11 @@ class DashboardController extends Controller
             } elseif ($x->tgl_surat > $q2 && $x->tgl_surat <= $q3 ) {
                 $dataMasuk[2] = $dataMasuk[2] + 1;
             } else {
-                $dataMasuk[3] = $dataMasuk[3] + 1;;
+                $dataMasuk[3] = $dataMasuk[3] + 1;
             }
         }
 
-        foreach ($dataDiarsip as $x) {
+        foreach ($suratDiarsip as $x) {
             if ($x->tgl_surat <= $q1 ) {
                 $dataDiarsip[0] += 1;
             } elseif ($x->tgl_surat > $q1 && $x->tgl_surat <= $q2 ) {
@@ -111,7 +130,7 @@ class DashboardController extends Controller
             }
         }
 
-        $data = array($dataKeluar, $dataDikirim);
+        $data = array($dataMasuk, $dataDiarsip);
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
@@ -141,21 +160,40 @@ class DashboardController extends Controller
                 break;
             default:
                 $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-22");
-                $endDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-31");
+                $endDate = Carbon::now()->endOfMonth();
         }
         
         $suratKeluar = SuratKeluar::select('tgl_surat', SuratKeluar::raw('COUNT(*) as total'))->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
         
-        $dataKeluar = array();
-        foreach ($suratKeluar as $x) {
-            array_push($dataKeluar, $x->total);
-        }
-
         $suratKeluarDikirim = SuratKeluar::select('tgl_surat', SuratKeluar::raw('COUNT(*) as total'))->where('status_surat', '18')->whereDate('tgl_surat', '>=', $startDate)->whereDate('tgl_surat', '<=', $endDate)->groupBy('tgl_surat')->get();
 
+        $interval = $startDate->diff($endDate);
+        $days = $interval->format('%a');
+
+        $dataKeluar = array();
         $dataDikirim = array();
+
+        for ($x = 0; $x <= $days; $x++) {
+            array_push($dataKeluar, 0);
+            array_push($dataDikirim, 0);
+        }
+
+        foreach ($suratKeluar as $x) {
+            $test = (int) date('d', strtotime($x->tgl_surat));
+            if ($test < 29) {
+                $dataKeluar[($test % 8) - 1] = $x->total;
+            } else {
+                $dataKeluar[($test % 8) + 6] = $x->total;
+            }
+        }
+
         foreach ($suratKeluarDikirim as $x) {
-            array_push($dataDikirim, $x->total);
+            $test = (int) date('d', strtotime($x->tgl_surat));
+            if ($test < 29) {
+                $dataDikirim[($test % 8) - 1] = $x->total;
+            } else {
+                $dataDikirim[($test % 8) + 6] = $x->total;
+            }
         }
 
         $data = array($dataKeluar, $dataDikirim);

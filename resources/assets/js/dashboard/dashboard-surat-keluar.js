@@ -33,11 +33,6 @@ $(function () {
       series3: '#7367f029'
     }
   };
-
-  // Chart Mingguan
-  // --------------------------------------------------------------------
-  // var data = getDataMingguan('02')
-  // var data_dikirim = getDataMingguanTerkirim('02')
   
   getDataHarian('1')
   getDataMingguan('02')
@@ -228,11 +223,230 @@ $(function () {
 });
 
 function getDataHarian(waktu) {
-  ajaxGetJson(`/data-harian-keluar/${waktu}`, 'showDataMingguan', 'error_notif')  
+  ajaxGetJson(`/data-harian-keluar/${waktu}`, 'showDataHarian', 'error_notif')  
 }
 
 function getDataMingguan(waktu) {
   ajaxGetJson(`/data-mingguan-keluar/${waktu}`, 'showDataMingguan', 'error_notif')  
+}
+
+function showDataHarian(res) {
+
+  if (res.status != 200) {
+    var text = res.message
+    error_notif(text)
+    return false
+  }
+
+  console.log(res.data)
+  let labelColor, headingColor, currentTheme, bodyColor;
+
+  if (isDarkStyle) {
+    labelColor = config.colors_dark.textMuted;
+    headingColor = config.colors_dark.headingColor;
+    bodyColor = config.colors_dark.bodyColor;
+    currentTheme = 'dark';
+  } else {
+    labelColor = config.colors.textMuted;
+    headingColor = config.colors.headingColor;
+    bodyColor = config.colors.bodyColor;
+    currentTheme = 'light';
+  }
+
+  // Chart Colors
+  const chartColors = {
+    donut: {
+      series1: config.colors.success,
+      series2: '#43ff64e6',
+      series3: '#43ff6473',
+      series4: '#43ff6433'
+    },
+    line: {
+      series1: config.colors.warning,
+      series2: config.colors.primary,
+      series3: '#7367f029'
+    }
+  };
+
+  const chartMingguan = document.querySelector('#chartMingguan'),
+    chartMingguanConfig = {
+      series: [
+        {
+          name: 'Surat Masuk',
+          type: 'column',
+          data: res.data[0]
+        },
+        {
+          name: 'Diarsipkan',
+          type: 'line',
+          data: res.data[1]
+        }
+      ],
+      chart: {
+        height: 270,
+        type: 'line',
+        stacked: false,
+        parentHeightOffset: 0,
+        toolbar: {
+          show: false
+        },
+        zoom: {
+          enabled: false
+        }
+      },
+      markers: {
+        size: 4,
+        colors: [config.colors.white],
+        strokeColors: chartColors.line.series2,
+        hover: {
+          size: 6
+        },
+        borderRadius: 4
+      },
+      stroke: {
+        curve: 'smooth',
+        width: [0, 3],
+        lineCap: 'round'
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        markers: {
+          width: 8,
+          height: 8,
+          offsetX: -3
+        },
+        height: 40,
+        offsetY: 10,
+        itemMargin: {
+          horizontal: 10,
+          vertical: 0
+        },
+        fontSize: '15px',
+        fontFamily: 'Inter',
+        fontWeight: 400,
+        labels: {
+          colors: headingColor,
+          useSeriesColors: false
+        },
+        offsetY: 10
+      },
+      grid: {
+        strokeDashArray: 8
+      },
+      colors: [chartColors.line.series1, chartColors.line.series2],
+      fill: {
+        opacity: [1, 1]
+      },
+      plotOptions: {
+        bar: {
+          columnWidth: '30%',
+          startingShape: 'rounded',
+          endingShape: 'rounded',
+          borderRadius: 4
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      xaxis: {
+        tickAmount: 7 ,
+        categories: ['Senin', 'Selasa ', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+        labels: {
+          style: {
+            colors: labelColor,
+            fontSize: '13px',
+            fontFamily: 'Inter',
+            fontWeight: 400
+          }
+        },
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
+      },
+      yaxis: {
+        tickAmount: 4,
+        min: 10,
+        max: 50,
+        labels: {
+          style: {
+            colors: labelColor,
+            fontSize: '13px',
+            fontFamily: 'Inter',
+            fontWeight: 400
+          },
+          formatter: function (val) {
+            return val;
+          }
+        }
+      },
+      responsive: [
+        {
+          breakpoint: 1400,
+          options: {
+            chart: {
+              height: 270
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                }
+              }
+            },
+            legend: {
+              itemMargin: {
+                vertical: 0,
+                horizontal: 10
+              },
+              fontSize: '13px',
+              offsetY: 12
+            }
+          }
+        },
+        {
+          breakpoint: 1399,
+          options: {
+            chart: {
+              height: 415
+            },
+            plotOptions: {
+              bar: {
+                columnWidth: '50%'
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 982,
+          options: {
+            plotOptions: {
+              bar: {
+                columnWidth: '30%'
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 250
+            },
+            legend: {
+              offsetY: 7
+            }
+          }
+        }
+      ]
+    };
+  if (typeof chartMingguan !== undefined && chartMingguan !== null) {
+    const mingguan = new ApexCharts(chartMingguan, chartMingguanConfig);
+    mingguan.render();
+  }
 }
 
 function showDataMingguan(res) {
@@ -244,6 +458,215 @@ function showDataMingguan(res) {
   }
 
   console.log(res.data)
+  let labelColor, headingColor, currentTheme, bodyColor;
+
+  if (isDarkStyle) {
+    labelColor = config.colors_dark.textMuted;
+    headingColor = config.colors_dark.headingColor;
+    bodyColor = config.colors_dark.bodyColor;
+    currentTheme = 'dark';
+  } else {
+    labelColor = config.colors.textMuted;
+    headingColor = config.colors.headingColor;
+    bodyColor = config.colors.bodyColor;
+    currentTheme = 'light';
+  }
+
+  // Chart Colors
+  const chartColors = {
+    donut: {
+      series1: config.colors.success,
+      series2: '#43ff64e6',
+      series3: '#43ff6473',
+      series4: '#43ff6433'
+    },
+    line: {
+      series1: config.colors.warning,
+      series2: config.colors.primary,
+      series3: '#7367f029'
+    }
+  };
+
+  const chartBulanan = document.querySelector('#chartBulanan'),
+    chartBulananConfig = {
+      series: [
+        {
+          name: 'Surat Keluar',
+          type: 'column',
+          data: res.data[0]
+        },
+        {
+          name: 'Terkirim',
+          type: 'line',
+          data: res.data[1]
+        }
+      ],
+      chart: {
+        height: 270,
+        type: 'line',
+        stacked: false,
+        parentHeightOffset: 0,
+        toolbar: {
+          show: false
+        },
+        zoom: {
+          enabled: false
+        }
+      },
+      markers: {
+        size: 4,
+        colors: [config.colors.white],
+        strokeColors: chartColors.line.series2,
+        hover: {
+          size: 6
+        },
+        borderRadius: 4
+      },
+      stroke: {
+        curve: 'smooth',
+        width: [0, 3],
+        lineCap: 'round'
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        markers: {
+          width: 8,
+          height: 8,
+          offsetX: -3
+        },
+        height: 40,
+        offsetY: 10,
+        itemMargin: {
+          horizontal: 10,
+          vertical: 0
+        },
+        fontSize: '15px',
+        fontFamily: 'Inter',
+        fontWeight: 400,
+        labels: {
+          colors: headingColor,
+          useSeriesColors: false
+        },
+        offsetY: 10
+      },
+      grid: {
+        strokeDashArray: 8
+      },
+      colors: [chartColors.line.series1, chartColors.line.series2],
+      fill: {
+        opacity: [1, 1]
+      },
+      plotOptions: {
+        bar: {
+          columnWidth: '30%',
+          startingShape: 'rounded',
+          endingShape: 'rounded',
+          borderRadius: 4
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      xaxis: {
+        tickAmount: 10,
+        categories: ['Minggu 1', 'Minggu 2', 'Minggu 3', 'Minggu 4'],
+        labels: {
+          style: {
+            colors: labelColor,
+            fontSize: '13px',
+            fontFamily: 'Inter',
+            fontWeight: 400
+          }
+        },
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
+      },
+      yaxis: {
+        tickAmount: 4,
+        min: 10,
+        max: 50,
+        labels: {
+          style: {
+            colors: labelColor,
+            fontSize: '13px',
+            fontFamily: 'Inter',
+            fontWeight: 400
+          },
+          formatter: function (val) {
+            return val;
+          }
+        }
+      },
+      responsive: [
+        {
+          breakpoint: 1400,
+          options: {
+            chart: {
+              height: 270
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                }
+              }
+            },
+            legend: {
+              itemMargin: {
+                vertical: 0,
+                horizontal: 10
+              },
+              fontSize: '13px',
+              offsetY: 12
+            }
+          }
+        },
+        {
+          breakpoint: 1399,
+          options: {
+            chart: {
+              height: 415
+            },
+            plotOptions: {
+              bar: {
+                columnWidth: '50%'
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 982,
+          options: {
+            plotOptions: {
+              bar: {
+                columnWidth: '30%'
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 250
+            },
+            legend: {
+              offsetY: 7
+            }
+          }
+        }
+      ]
+    };
+  if (typeof chartBulanan !== undefined && chartBulanan !== null) {
+    const bulanan = new ApexCharts(chartBulanan, chartBulananConfig);
+    bulanan.render();
+  }
+  
 }
 
 function error_notif(text){

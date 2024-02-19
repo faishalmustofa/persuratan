@@ -117,10 +117,10 @@
         <div class="dropdown">
           <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Minggu 1</button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="javascript:void(0);">Minggu 1</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Minggu 2</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Minggu 3</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Minggu 4</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataHarian('1')">Minggu 1</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataHarian('2')">Minggu 2</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataHarian('3')">Minggu 3</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataHarian('4')">Minggu 4</a></li>
           </ul>
         </div>
       </div>
@@ -142,18 +142,18 @@
         <div class="dropdown">
           <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Januari</button>
           <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="javascript:void(0);">Januari</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Februari</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Maret</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">April</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Mei</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Juni</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Juli</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Agustus</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">September</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Oktober</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">November</a></li>
-            <li><a class="dropdown-item" href="javascript:void(0);">Desember</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('01')">Januari</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('02')">Februari</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('03')">Maret</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('04')">April</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('05')">Mei</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('06')">Juni</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('07')">Juli</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('08')">Agustus</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('09')">September</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('10')">Oktober</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('11')">November</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('12')">Desember</a></li>
           </ul>
         </div>
       </div>
