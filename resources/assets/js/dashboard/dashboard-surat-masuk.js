@@ -34,8 +34,8 @@ $(function () {
     }
   };
 
-  getDataHarian('1')
-  getDataMingguan('02')
+  getDataHarian('1');
+  getDataMingguan('01');
 
   // Chart Mingguan
   // --------------------------------------------------------------------
@@ -402,26 +402,25 @@ $(function () {
   //   const bulanan = new ApexCharts(chartBulanan, chartBulananConfig);
   //   bulanan.render();
   // }
-
 });
 
 function getDataHarian(waktu) {
-  ajaxGetJson(`/data-harian-masuk/${waktu}`, 'showDataHarian', 'error_notif')  
+  ajaxGetJson(`/data-harian-masuk/${waktu}`, 'showDataHarian', 'error_notif');
 }
 
 function getDataMingguan(waktu) {
-  ajaxGetJson(`/data-mingguan-masuk/${waktu}`, 'showDataMingguan', 'error_notif')  
+  ajaxGetJson(`/data-mingguan-masuk/${waktu}`, 'showDataMingguan', 'error_notif');
 }
 
 function showDataHarian(res) {
-
   if (res.status != 200) {
-    var text = res.message
-    error_notif(text)
-    return false
+    var text = res.message;
+    error_notif(text);
+    return false;
   }
 
-  console.log(res.data)
+  console.log(res.data);
+  $('#buttonMingguan').text(res.data.time);
   let labelColor, headingColor, currentTheme, bodyColor;
 
   if (isDarkStyle) {
@@ -457,12 +456,12 @@ function showDataHarian(res) {
         {
           name: 'Surat Masuk',
           type: 'column',
-          data: res.data[0]
+          data: res.data.suratmasuk
         },
         {
           name: 'Diarsipkan',
           type: 'line',
-          data: res.data[1]
+          data: res.data.diarsipkan
         }
       ],
       chart: {
@@ -533,8 +532,8 @@ function showDataHarian(res) {
         enabled: false
       },
       xaxis: {
-        tickAmount: 7 ,
-        categories: ['Senin', 'Selasa ', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+        tickAmount: 7,
+        categories: res.data.tanggal,
         labels: {
           style: {
             colors: labelColor,
@@ -552,8 +551,7 @@ function showDataHarian(res) {
       },
       yaxis: {
         tickAmount: 4,
-        min: 10,
-        max: 50,
+        min: 0,
         labels: {
           style: {
             colors: labelColor,
@@ -633,14 +631,14 @@ function showDataHarian(res) {
 }
 
 function showDataMingguan(res) {
-
   if (res.status != 200) {
-    var text = res.message
-    error_notif(text)
-    return false
+    var text = res.message;
+    error_notif(text);
+    return false;
   }
 
-  console.log(res.data)
+  console.log(res.data);
+  $('#buttonBulanan').text(res.data.time);
   let labelColor, headingColor, currentTheme, bodyColor;
 
   if (isDarkStyle) {
@@ -676,12 +674,12 @@ function showDataMingguan(res) {
         {
           name: 'Surat Masuk',
           type: 'column',
-          data: res.data[0]
+          data: res.data.suratmasuk
         },
         {
           name: 'Diarsipkan',
           type: 'line',
-          data: res.data[1]
+          data: res.data.diarsipkan
         }
       ],
       chart: {
@@ -771,8 +769,7 @@ function showDataMingguan(res) {
       },
       yaxis: {
         tickAmount: 4,
-        min: 10,
-        max: 50,
+        min: 0,
         labels: {
           style: {
             colors: labelColor,
@@ -849,31 +846,29 @@ function showDataMingguan(res) {
     const bulanan = new ApexCharts(chartBulanan, chartBulananConfig);
     bulanan.render();
   }
-  
 }
 
-function error_notif(text){
-  Command: toastr["error"](text, "Gagal Menampilkan Data")
+function error_notif(text) {
+  Command: toastr['error'](text, 'Gagal Menampilkan Data');
 
   toastr.options = {
-  "closeButton": true,
-  "debug": false,
-  "newestOnTop": false,
-  "progressBar": true,
-  "positionClass": "toast-top-right",
-  "preventDuplicates": false,
-  "onclick": null,
-  "showDuration": "300",
-  "hideDuration": "1000",
-  "timeOut": "5000",
-  "extendedTimeOut": "1000",
-  "showEasing": "swing",
-  "hideEasing": "linear",
-  "showMethod": "fadeIn",
-  "hideMethod": "fadeOut"
-  }
+    closeButton: true,
+    debug: false,
+    newestOnTop: false,
+    progressBar: true,
+    positionClass: 'toast-top-right',
+    preventDuplicates: false,
+    onclick: null,
+    showDuration: '300',
+    hideDuration: '1000',
+    timeOut: '5000',
+    extendedTimeOut: '1000',
+    showEasing: 'swing',
+    hideEasing: 'linear',
+    showMethod: 'fadeIn',
+    hideMethod: 'fadeOut'
+  };
 }
-
 
 // DataTable (jquery)
 // --------------------------------------------------------------------

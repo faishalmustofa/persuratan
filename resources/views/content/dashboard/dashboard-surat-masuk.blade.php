@@ -35,14 +35,12 @@
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
-            <span class="avatar-initial rounded bg-label-primary"><i class="mdi mdi-bus-school mdi-20px"></i></span>
+            <span class="avatar-initial rounded bg-label-primary"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
           </div>
-          <h4 class="ms-1 mb-0 display-6">42</h4>
+          <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
         </div>
         <p class="mb-0 text-heading">Total Surat Masuk</p>
         <p class="mb-0">
-          <span class="me-1">+18.2%</span>
-          <small class="text-muted">than last week</small>
         </p>
       </div>
     </div>
@@ -53,14 +51,12 @@
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
             <span class="avatar-initial rounded bg-label-warning">
-              <i class='mdi mdi-alert mdi-20px'></i></span>
+              <i class='mdi mdi-email-mark-as-unread mdi-20px'></i></span>
           </div>
-          <h4 class="ms-1 mb-0 display-6">8</h4>
+          <h4 class="ms-1 mb-0 display-6">{{ $totalSuratDiterima }}</h4>
         </div>
-        <p class="mb-0 text-heading">Jumlah Surat Masuk</p>
+        <p class="mb-0 text-heading">Total Surat Diterima</p>
         <p class="mb-0">
-          <span class="me-1">-8.7%</span>
-          <small class="text-muted">than last week</small>
         </p>
       </div>
     </div>
@@ -71,15 +67,13 @@
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
             <span class="avatar-initial rounded bg-label-danger">
-              <i class='mdi mdi-source-fork mdi-20px'></i>
+              <i class='mdi mdi-email-sync mdi-20px'></i>
             </span>
           </div>
-          <h4 class="ms-1 mb-0 display-6">27</h4>
+          <h4 class="ms-1 mb-0 display-6">{{ $totalSuratDidisposisi }}</h4>
         </div>
-        <p class="mb-0 text-heading">Jumlah Surat Didisposisi</p>
+        <p class="mb-0 text-heading">Total Surat Didisposisi</p>
         <p class="mb-0">
-          <span class="me-1">+4.3%</span>
-          <small class="text-muted">than last week</small>
         </p>
       </div>
     </div>
@@ -89,14 +83,12 @@
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
-            <span class="avatar-initial rounded bg-label-info"><i class='mdi mdi-timer-outline mdi-20px'></i></span>
+            <span class="avatar-initial rounded bg-label-info"><i class='mdi mdi-email-lock mdi-20px'></i></span>
           </div>
-          <h4 class="ms-1 mb-0 display-6">13</h4>
+          <h4 class="ms-1 mb-0 display-6">{{ $totalSuratDiarsipkan }}</h4>
         </div>
-        <p class="mb-0 text-heading">Jumlah Surat Diarsipkan</p>
+        <p class="mb-0 text-heading">Total Surat Diarsipkan</p>
         <p class="mb-0">
-          <span class="me-1">-2.5%</span>
-          <small class="text-muted">than last week</small>
         </p>
       </div>
     </div>
@@ -111,11 +103,11 @@
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
-          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Surat Masuk</h5>
-          <p class="text-body mb-0">Total Surat Masuk 23.8k</p>
+          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Surat Masuk Bulan Ini</h5>
+          <p class="text-body mb-0">Total Surat Masuk {{ $totalSuratMasuk }}</p>
         </div>
         <div class="dropdown">
-          <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Minggu 1</button>
+          <button type="button" class="btn btn-outline-primary dropdown-toggle" id="buttonMingguan" data-bs-toggle="dropdown" aria-expanded="false">Minggu 1</button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataHarian('1')">Minggu 1</a></li>
             <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataHarian('2')">Minggu 2</a></li>
@@ -136,11 +128,11 @@
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
-          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Surat Masuk</h5>
-          <p class="text-body mb-0">Total Surat Masuk 23.8k</p>
+          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Surat Masuk Tahun Ini</h5>
+          <p class="text-body mb-0">Total Surat Masuk {{ $totalSuratMasuk }}</p>
         </div>
         <div class="dropdown">
-          <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Januari</button>
+          <button type="button" class="btn btn-outline-primary dropdown-toggle" id="buttonBulanan" data-bs-toggle="dropdown" aria-expanded="false">Januari</button>
           <ul class="dropdown-menu">
             <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('01')">Januari</a></li>
             <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('02')">Februari</a></li>

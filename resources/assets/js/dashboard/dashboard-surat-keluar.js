@@ -33,9 +33,9 @@ $(function () {
       series3: '#7367f029'
     }
   };
-  
-  getDataHarian('1')
-  getDataMingguan('02')
+
+  getDataHarian('1');
+  getDataMingguan('01');
 
   // Chart Bulanan
   // --------------------------------------------------------------------
@@ -218,27 +218,27 @@ $(function () {
   //   const bulanan = new ApexCharts(chartBulanan, chartBulananConfig);
   //   bulanan.render();
   // }
-
-  
 });
 
 function getDataHarian(waktu) {
-  ajaxGetJson(`/data-harian-keluar/${waktu}`, 'showDataHarian', 'error_notif')  
+  ajaxGetJson(`/data-harian-keluar/${waktu}`, 'showDataHarian', 'error_notif');
 }
 
 function getDataMingguan(waktu) {
-  ajaxGetJson(`/data-mingguan-keluar/${waktu}`, 'showDataMingguan', 'error_notif')  
+  ajaxGetJson(`/data-mingguan-keluar/${waktu}`, 'showDataMingguan', 'error_notif');
 }
 
 function showDataHarian(res) {
-
   if (res.status != 200) {
-    var text = res.message
-    error_notif(text)
-    return false
+    var text = res.message;
+    error_notif(text);
+    return false;
   }
 
-  console.log(res.data)
+  console.log(res.data);
+  let data1 = res.data.suratkeluar;
+  let data2 = res.data.diarsipkan;
+  $('#buttonMingguan').text(res.data.time);
   let labelColor, headingColor, currentTheme, bodyColor;
 
   if (isDarkStyle) {
@@ -272,14 +272,14 @@ function showDataHarian(res) {
     chartMingguanConfig = {
       series: [
         {
-          name: 'Surat Masuk',
+          name: 'Surat Keluar',
           type: 'column',
-          data: res.data[0]
+          data: data1
         },
         {
-          name: 'Diarsipkan',
+          name: 'Dikirim',
           type: 'line',
-          data: res.data[1]
+          data: data2
         }
       ],
       chart: {
@@ -350,8 +350,8 @@ function showDataHarian(res) {
         enabled: false
       },
       xaxis: {
-        tickAmount: 7 ,
-        categories: ['Senin', 'Selasa ', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+        tickAmount: 7,
+        categories: res.data.tanggal,
         labels: {
           style: {
             colors: labelColor,
@@ -369,8 +369,7 @@ function showDataHarian(res) {
       },
       yaxis: {
         tickAmount: 4,
-        min: 10,
-        max: 50,
+        min: 0,
         labels: {
           style: {
             colors: labelColor,
@@ -450,14 +449,17 @@ function showDataHarian(res) {
 }
 
 function showDataMingguan(res) {
-
   if (res.status != 200) {
-    var text = res.message
-    error_notif(text)
-    return false
+    var text = res.message;
+    error_notif(text);
+    return false;
   }
 
-  console.log(res.data)
+  console.log(res.data);
+  let data1 = res.data.suratkeluar;
+  console.log(data1);
+  let data2 = res.data.diarsipkan;
+  $('#buttonBulanan').text(res.data.time);
   let labelColor, headingColor, currentTheme, bodyColor;
 
   if (isDarkStyle) {
@@ -493,12 +495,12 @@ function showDataMingguan(res) {
         {
           name: 'Surat Keluar',
           type: 'column',
-          data: res.data[0]
+          data: res.data.suratkeluar
         },
         {
-          name: 'Terkirim',
+          name: 'Dikirim',
           type: 'line',
-          data: res.data[1]
+          data: res.data.diarsipkan
         }
       ],
       chart: {
@@ -588,8 +590,7 @@ function showDataMingguan(res) {
       },
       yaxis: {
         tickAmount: 4,
-        min: 10,
-        max: 50,
+        min: 0,
         labels: {
           style: {
             colors: labelColor,
@@ -666,29 +667,28 @@ function showDataMingguan(res) {
     const bulanan = new ApexCharts(chartBulanan, chartBulananConfig);
     bulanan.render();
   }
-  
 }
 
-function error_notif(text){
-  Command: toastr["error"](text, "Gagal Menampilkan Data")
+function error_notif(text) {
+  Command: toastr['error'](text, 'Gagal Menampilkan Data');
 
   toastr.options = {
-  "closeButton": true,
-  "debug": false,
-  "newestOnTop": false,
-  "progressBar": true,
-  "positionClass": "toast-top-right",
-  "preventDuplicates": false,
-  "onclick": null,
-  "showDuration": "300",
-  "hideDuration": "1000",
-  "timeOut": "5000",
-  "extendedTimeOut": "1000",
-  "showEasing": "swing",
-  "hideEasing": "linear",
-  "showMethod": "fadeIn",
-  "hideMethod": "fadeOut"
-  }
+    closeButton: true,
+    debug: false,
+    newestOnTop: false,
+    progressBar: true,
+    positionClass: 'toast-top-right',
+    preventDuplicates: false,
+    onclick: null,
+    showDuration: '300',
+    hideDuration: '1000',
+    timeOut: '5000',
+    extendedTimeOut: '1000',
+    showEasing: 'swing',
+    hideEasing: 'linear',
+    showMethod: 'fadeIn',
+    hideMethod: 'fadeOut'
+  };
 }
 
 // DataTable (jquery)
