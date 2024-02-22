@@ -12,9 +12,6 @@
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/flatpickr/flatpickr.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-datepicker/bootstrap-datepicker.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/bootstrap-daterangepicker/bootstrap-daterangepicker.css')}}" />
-<link rel="stylesheet" href="{{asset('assets/vendor/libs/jquery-timepicker/jquery-timepicker.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/pickr/pickr-themes.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/dropzone/dropzone.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/toastr/toastr.css')}}" />
@@ -23,6 +20,7 @@
 
 @section('page-script')
     <script src="{{asset('assets/js/transaction/surat-masuk.js')}}"></script>
+    <script src="{{asset('assets/vendor/js/socket.min.js')}}"></script>
 @endsection
 
 @section('content')
@@ -177,7 +175,7 @@
 
                     <div class="col-12 col-md-6">
                         <div class="mb-4 form-floating form-floating-outline">
-                            <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD" id="tanggal-surat" name="tanggal_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->tgl_surat : '') : ''}}"/>
+                            <input type="text" class="form-control flatpickr-validation" placeholder="YYYY-MM-DD H:m" id="tanggal-surat" name="tanggal_surat" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->tgl_surat : '') : ''}}"/>
                             <label for="tanggal_surat">Pilih Tanggal Surat</label>
                             <div class="invalid-feedback"> Mohon pilih tanggal surat. </div>
                         </div>
@@ -313,7 +311,7 @@
                 @if (!isset($suratMasuk))
                     <div class="form-group mb-4">
                         <label for="formFile" class="form-label">Upload Dokumen Surat</label>
-                        <input class="form-control" type="file" id="file-surat" name="file_surat" accept=".pdf">
+                        <input class="form-control" type="file" id="file-surat" name="file_surat" accept=".pdf" required>
                     </div>
                 @endif
 
@@ -341,8 +339,12 @@
                     <div class="col-12 col-md-6 order-md-2 order-first">
                         @if (strtolower($user->org->nama) == 'taud' || strtolower($user->org->nama) == 'spri')
                             <div class="float-start float-lg-end">
-                                <button class="btn btn-sm btn-outline-primary" onclick="bulkingSurat()">Kirim Berkas (Bundle)</button>
+                                @if (strtolower($user->org->nama) == 'taud')
+                                    <button class="btn btn-sm btn-outline-info" onclick="bulkingSurat('disposisi')">Kirim Disposisi (Bundle)</button>
+                                @endif
+                                <button class="btn btn-sm btn-outline-primary" onclick="bulkingSurat('pindah-berkas')">Pindah Berkas (Bundle)</button>
                             </div>
+
                         @endif
                     </div>
                 </div>

@@ -10,6 +10,7 @@
 /public/document/surat-keluar/*
 /public/document/surat-disposisi/*
 /public/document/*.pdf
+/notification/node_modules
 
 /storage/*.key
 /vendor

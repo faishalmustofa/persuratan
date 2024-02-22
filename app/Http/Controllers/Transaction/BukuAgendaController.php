@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Master\AsalSurat;
 use App\Models\Master\EntityAsalSurat;
 use App\Models\Master\Organization;
+use App\Models\Reference\JenisSuratMasuk;
 use App\Models\Transaction\SuratKeluar;
 use App\Models\Transaction\SuratMasuk;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PhpOffice\PhpWord\TemplateProcessor;
 use Yajra\DataTables\DataTables;
 
 class BukuAgendaController extends Controller
@@ -25,6 +28,7 @@ class BukuAgendaController extends Controller
         $data['entityAsal'] = EntityAsalSurat::get();
         $data['organization'] = Organization::orderBy('id')->get();
         $data['user'] = User::with('org')->find(Auth::user()->id);
+        $data['jenis_surat'] = JenisSuratMasuk::get();
 
         return view('content.surat_masuk.buku-agenda', $data);
     }
@@ -109,7 +113,7 @@ class BukuAgendaController extends Controller
                     $tgl = Carbon::parse($data->tgl_diterima)->translatedFormat('d F Y');
                     $loggedInOrg = User::with('org')->find(Auth::user()->id);
                     if(strtolower($loggedInOrg->org->nama) == 'spri'){
-                        if($data->status_surat == 6 || $data->status_surat == 8){
+                        if($data->status_surat == '100' || $data->status_surat == '102'){
                             return $tgl.'<button class="btn btn-warning btn-sm rounded-pill ms-2" onclick="editTglDiterima(`'.$data->tx_number.'`, `'.$data->tgl_diterima.'`)"> <span class="mdi mdi-square-edit-outline"></span> </button>';
                         } else {
                             return $tgl;
@@ -124,6 +128,89 @@ class BukuAgendaController extends Controller
                 })
                 ->rawColumns(['status', 'action', 'noSurat', 'tgl_surat', 'tgl_diterima', 'surat_dari'])
                 ->make(true);
+    }
+
+    public function printLaporan(Request $request)
+    {
+        $rangeDate = explode(' - ', $request->tgl_surat);
+        $tglAwal = trim($rangeDate[0], ' ');
+        $tglAkhir = trim($rangeDate[1], ' ');
+
+        $loggedInOrg = User::with('org')->find(Auth::user()->id);
+        $suratMasuk = SuratMasuk::orderBy('tx_number')->whereBetween('tgl_diterima', [$tglAwal, $tglAkhir])->whereIn('jenis_surat', $request->jenis_laporan);
+
+        if(strtolower($loggedInOrg->org->nama) != 'taud'){
+            $suratMasuk = $suratMasuk->whereHas('tujuanSurat', function($user){
+                $user->Where('tujuan_surat', Auth::user()->organization);
+            });
+        }
+
+        $template_document = new TemplateProcessor(public_path().'/document/template_laporan_surat_masuk.docx');
+        $template_document->setValues(array(
+            'tgl_bulan_cetak' => Carbon::now()->translatedFormat('l, d F Y'),
+            'waktu_cetak' => Carbon::now()->format('H:i'),
+            'org_cetak' => $loggedInOrg->org->nama,
+            'total_surat' => $suratMasuk->count(),
+            'user' => Auth::user()->name,
+            'leader' => $loggedInOrg->org->leader_alias
+        ));
+
+        $jenisSurat = JenisSuratMasuk::whereIn('id', $request->jenis_laporan)->get();
+        $template_document->cloneBlock('jenis_section', count($jenisSurat),true,true);
+        foreach ($jenisSurat as $i => $val) {
+            $suratMasukByJenis = SuratMasuk::where('jenis_surat', $val->id)->whereBetween('tgl_diterima', [$tglAwal, $tglAkhir])
+                                            ->with('entityAsalSurat')
+                                            ->With('statusSurat')
+                                            ->with('tujuanSurat')
+                                            ->get();
+
+            $new_line = new \PhpOffice\PhpWord\Element\PreserveText('</w:t><w:br/><w:t>');
+
+            // Value Header
+            $template_document->setValues(array(
+                "jenis_surat#".$i+1 => strtoupper($val->jenis_surat),
+                'jenis_code#'.$i+1 => strtoupper($val->kd_jenis),
+                "jumlah_jenis#".$i+1 => count($suratMasukByJenis)
+            ));
+
+            $template_document->setComplexValue('new_line#'.$i+1, $new_line);
+
+            // Value Isi Data
+            $template_document->cloneRow('no_surat#'.$i+1, count($suratMasukByJenis),true,true);
+            foreach ($suratMasukByJenis as $x => $val_) {
+                $template_document->setValues(array(
+                    'no_surat#'. ($i+1) .'#'.$x+1 => $val_->no_surat,
+                    'tgl_surat#'. ($i+1) .'#'.$x+1 => Carbon::parse($val_->tgl_surat)->translatedFormat('d F Y'),
+                    'asal#'. ($i+1) .'#'.$x+1 => $val_->entityAsalSurat->entity_name ." (" . $val_->entity_asal_surat_detail . ")",
+                    'perihal#'. ($i+1) .'#'.$x+1 => $val_->perihal,
+                    'tujuan_surat#'. ($i+1) .'#'.$x+1 => $val_->tujuanSurat->nama,
+                    'status#'. ($i+1) .'#'.$x+1 => $val_->statusSurat->name,
+                ));
+            }
+        }
+
+        $filename = "Laporan Surat Masuk Periode $tglAwal - $tglAkhir";
+        $path = public_path().'/document/surat-masuk/laporan/'. $filename .'.docx';
+        $template_document->saveAs($path);
+
+        $pdfPath = public_path().'/document/';
+        $convert='"C:/Program Files/LibreOffice/program/soffice" --headless --convert-to pdf "'.$path.'" --outdir "'.$pdfPath.'"';
+        if(!exec($convert)){
+            return response()->json([
+                'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Gagal Memproses laporan surat masuk, harap coba lagi',
+            ]);
+        }
+
+        $pdfFile = $filename.'.pdf';
+        unlink($path);
+
+        return response()->json([
+            'status' => JsonResponse::HTTP_OK,
+            'message' => 'Berhasil Cetak Blanko Disposisi',
+            'file' => $filename,
+            'filePath' => asset('document/'.$pdfFile)
+        ]);
     }
 
     /**

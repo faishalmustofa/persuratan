@@ -4,8 +4,12 @@ namespace App\Helpers;
 
 use App\Models\Master\Organization;
 use App\Models\Master\StatusSurat;
+use App\Models\Reference\Notification;
+use App\Models\User;
 use Carbon\Carbon;
 use Config;
+use DateTime;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -311,7 +315,7 @@ class Helpers
       while (!is_null($child->parent_id)) {
         array_unshift($orgs,$parent);
         // array_push($orgs,$parent);
-  
+
         $child = $parent;
         $parent = Organization::where('id',$child->parent_id)->first();
       }
@@ -375,4 +379,46 @@ class Helpers
   {
     return StatusSurat::where('kode_status',$kode_surat)->first();
   }
+
+  public static function renderNotification(){
+    $loggedInOrg = User::with('org')->find(Auth::user()->id);
+
+    if(strtolower($loggedInOrg->org->nama) != 'taud' && strtolower($loggedInOrg->org->nama) != 'spri'){
+        $data['totalNewNotif'] = Notification::where('is_read', 0)->where('to_org', Auth::user()->organization)->count();
+        $data['notifikasi'] = Notification::with('suratMasuk')->where('is_read', 0)->where('to_org', Auth::user()->organization)->get();
+    } else {
+        $data['totalNewNotif'] = Notification::where('is_read', 0)->where('to_org', $loggedInOrg->org->parent_id)->count();
+        $data['notifikasi'] = Notification::with('suratMasuk')->where('is_read', 0)->where('to_org', $loggedInOrg->org->parent_id)->get();
+    }
+
+    return view('layouts.sections.navbar.notification', $data)->render();
+  }
+
+  public static function time_elapsed_string($datetime, $full = false) {
+    $now = new DateTime();
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+
+    $string = array(
+        'y' => 'tahun',
+        'm' => 'bulan',
+        'w' => 'minggu',
+        'd' => 'hari',
+        'h' => 'jam',
+        'i' => 'menit',
+        's' => 'detik',
+    );
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? '' : '');
+        } else {
+            unset($string[$k]);
+        }
+    }
+
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ', $string) . ' lalu' : 'baru saja';
+}
 }
