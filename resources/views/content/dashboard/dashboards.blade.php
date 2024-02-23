@@ -20,7 +20,7 @@
 @endsection
 
 @section('page-script')
-<script src="{{asset('assets/js/dashboard/dashboard-surat-masuk.js')}}"></script>
+<script src="{{asset('assets/js/dashboard/dashboards.js')}}"></script>
 @endsection
 
 @section('content')
@@ -35,15 +35,11 @@
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
-            <span class="avatar-initial rounded bg-label-primary"><i class="mdi mdi-bus-school mdi-20px"></i></span>
+            <span class="avatar-initial rounded bg-label-primary"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
           </div>
-          <h4 class="ms-1 mb-0 display-6">42</h4>
+          <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
         </div>
         <p class="mb-0 text-heading">Total Surat Masuk</p>
-        <p class="mb-0">
-          <span class="me-1">+18.2%</span>
-          <small class="text-muted">than last week</small>
-        </p>
       </div>
     </div>
   </div>
@@ -53,15 +49,11 @@
         <div class="d-flex align-items-center mb-2 pb-1">
           <div class="avatar me-2">
             <span class="avatar-initial rounded bg-label-warning">
-              <i class='mdi mdi-alert mdi-20px'></i></span>
+              <i class='mdi mdi-email-arrow-right mdi-20px'></i></span>
           </div>
-          <h4 class="ms-1 mb-0 display-6">8</h4>
+          <h4 class="ms-1 mb-0 display-6">{{ $totalSuratKeluar }}</h4>
         </div>
         <p class="mb-0 text-heading">Total Surat Keluar</p>
-        <p class="mb-0">
-          <span class="me-1">-8.7%</span>
-          <small class="text-muted">than last week</small>
-        </p>
       </div>
     </div>
   </div>
@@ -112,8 +104,8 @@
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
-          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Surat Masuk</h5>
-          <p class="text-body mb-0">Total Surat Masuk 23.8k</p>
+          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Surat Masuk Bulan Ini</h5>
+          <p class="text-body mb-0">Total Surat Masuk {{ $totalSuratMasuk }}</p>
         </div>
         <div class="dropdown">
           <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Minggu 1</button>
@@ -126,7 +118,7 @@
         </div>
       </div>
       <div class="card-body">
-        <div id="chartMingguan"></div>
+        <div id="chartMingguanMasuk"></div>
       </div>
     </div>
   </div>
@@ -137,8 +129,8 @@
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
-          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Surat Masuk</h5>
-          <p class="text-body mb-0">Total Surat Masuk 23.8k</p>
+          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Surat Masuk Tahun Ini</h5>
+          <p class="text-body mb-0">Total Surat Masuk {{ $totalSuratMasuk }}</p>
         </div>
         <div class="dropdown">
           <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Januari</button>
@@ -159,7 +151,65 @@
         </div>
       </div>
       <div class="card-body">
-        <div id="chartBulanan"></div>
+        <div id="chartBulananMasuk"></div>
+      </div>
+    </div>
+  </div>
+  <!--/ Chart Perbulan -->
+
+  <!-- Chart Perbulan-->
+  <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Surat Keluar Bulan Ini</h5>
+          <p class="text-body mb-0">Total Surat Keluar {{ $totalSuratKeluar }}</p>
+        </div>
+        <div class="dropdown">
+          <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Minggu 1</button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="javascript:void(0);">Minggu 1</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Minggu 2</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Minggu 3</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Minggu 4</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="chartMingguanKeluar"></div>
+      </div>
+    </div>
+  </div>
+  <!--/ Chart Perbulan -->
+
+  <!-- Chart Perbulan-->
+  <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Surat Keluar Tahun Ini</h5>
+          <p class="text-body mb-0">Total Surat Keluar {{ $totalSuratKeluar }}</p>
+        </div>
+        <div class="dropdown">
+          <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Januari</button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="javascript:void(0);">Januari</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Februari</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Maret</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">April</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Mei</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Juni</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Juli</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Agustus</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">September</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Oktober</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">November</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);">Desember</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="chartBulananKeluar"></div>
       </div>
     </div>
   </div>
