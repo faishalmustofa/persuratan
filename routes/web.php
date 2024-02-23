@@ -18,6 +18,11 @@ Route::middleware(['auth'])->group(function() {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboards');
     Route::get('/dashboard-surat-masuk', [DashboardController::class, 'dashboardSuratMasuk'])->name('dashboard-surat-masuk');
     Route::get('/dashboard-surat-keluar', [DashboardController::class, 'dashboardSuratKeluar'])->name('dashboard-surat-keluar');
+    Route::get('/data-harian-keluar/{time}', [DashboardController::class, 'suratKeluarperDay'])->name('data-harian-keluar');
+    Route::get('/data-mingguan-keluar/{time}', [DashboardController::class, 'suratKeluarperWeek'])->name('data-mingguan-keluar');
+    Route::get('/data-harian-masuk/{time}', [DashboardController::class, 'suratMasukperDay'])->name('data-harian-masuk');
+    Route::get('/data-mingguan-masuk/{time}', [DashboardController::class, 'suratMasukperWeek'])->name('data-mingguan-masuk');
+
     // locale
     Route::get('lang/{locale}', [LanguageController::class, 'swap']);
 
