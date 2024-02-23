@@ -45,7 +45,7 @@
         </div>
       </div>
       <div class="d-grid gap-2 col-lg-12 mx-auto">
-        <a class="btn btn-primary" type="button" style="color: #ffffff">
+        <a class="btn btn-primary" type="button" onclick="printLaporan()" style="color: #ffffff">
             <span class="mdi mdi-printer"></span> CETAK LAPORAN
         </a>
       </div>

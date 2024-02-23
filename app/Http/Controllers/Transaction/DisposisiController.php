@@ -116,6 +116,7 @@ class DisposisiController extends Controller
             if (Auth::user()->hasPermissionTo('kirim-disposisi')){
                 $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
             }
+            $html .= '<button class="btn btn-danger btn-sm rounded-pill mt-2" onclick="revisiDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Revisi Disposisi" > <span class="mdi mdi-book-cancel"></span> </button>';
             $html .= '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
         } else if ($data->status_surat == '004') {
             $html = '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
@@ -306,8 +307,8 @@ class DisposisiController extends Controller
                         $header = [
                             'no_surat' => $dd->suratMasuk->no_surat,
                             'no_agenda' => $dd->suratMasuk->no_agenda,
-                            'tgl_surat' => $dd->suratMasuk->tgl_surat,
-                            'tgl_diterima' => $dd->suratMasuk->tgl_diterima,
+                            'tgl_surat' => Carbon::parse($dd->suratMasuk->tgl_surat)->translatedFormat('d F Y'),
+                            'tgl_diterima' => Carbon::parse($dd->suratMasuk->tgl_diterima)->translatedFormat('d F Y H:i').' WIB',
                             'tujuan_surat' => $dd->suratMasuk->tujuanSurat->nama,
                             'perihal' => $dd->suratMasuk->perihal,
                         ];
@@ -381,7 +382,7 @@ class DisposisiController extends Controller
                 'expedisi' => $request->expedisi,
                 'no_resi' => $request->no_resi,
                 'nama_pengirim' => $request->nama_pengirim,
-                'tgl_kirim' => $request->tgl_kirim,
+                'tgl_kirim' => Carbon::parseFromLocale($request->tgl_kirim, 'id')->format('Y-m-d H:i'),
             ];
 
             $data = Pengiriman::create($insertedData);
@@ -431,7 +432,7 @@ class DisposisiController extends Controller
                     'expedisi' => $request->expedisi,
                     'no_resi' => $request->no_resi,
                     'nama_pengirim' => $request->nama_pengirim,
-                    'tgl_kirim' => $request->tgl_kirim,
+                    'tgl_kirim' => Carbon::parseFromLocale($request->tgl_kirim, 'id')->format('Y-m-d H:i'),
                 ];
 
                 $logData = [
@@ -467,6 +468,49 @@ class DisposisiController extends Controller
                 'err_detail' => $th,
                 'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Input Data, Harap Coba lagi!'
             ]);
+        }
+    }
+
+    public function revisiDisposisi($txNo)
+    {
+        $txNo = base64_decode($txNo);
+        DB::beginTransaction();
+        try {
+            $suratMasuk = SuratMasuk::where('tx_number', $txNo);
+            $suratMasuk->update([
+                'status_surat' => '111',
+            ]);
+
+            $logData = [
+                'txNumber' => $suratMasuk->first()->tx_number,
+                'status' => 'Surat '.$suratMasuk->first()->no_surat.' dilakukan revisi disposisi oleh TAUD',
+                'user' => Auth::user()->name,
+            ];
+
+            $log = (new LogSuratMasukController)->store($logData);
+            $statusLog = $log->getData()->status->code;
+            if($statusLog != 200){
+                throw new Exception('Gagal input Log Surat', $statusLog);
+            }
+
+            DB::commit();
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Revisi Disposisi',
+                'txNo' => $txNo,
+                'do_next' => 'print_blanko'
+            ], 200);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Gagal Submit Revisi Disposisi'
+            ], 500);
         }
     }
 }

@@ -49,7 +49,7 @@
         },
         {
           "url": "transaction/log-surat-masuk",
-          "name": "Log Surat Masuk",
+          "name": "Ekspedisi Surat Masuk",
           "slug": "menu-disposisimasuk"
         }
       ]
