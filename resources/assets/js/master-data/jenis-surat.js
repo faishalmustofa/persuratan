@@ -97,10 +97,9 @@ function insertData(){
 }
 
 function updateData(){
-    console.log(form)
     let form =  $("#form-update").serialize()
     const id = $('#form-update').find('input[name="id"]').val()
-    ajaxPostJson(`/master-data/jenis-surat/update/${id}`, form, 'input_success', 'input_error');
+    ajaxPostJson(`/master-data/jenis-surat/update/${id}`, form, 'update_success', 'input_error');
 
     // window.location.href = '/master-data/jenis-surat'
 }
@@ -117,9 +116,99 @@ function deleteData(id){
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
-            ajaxGetJson(`/master-data/jenis-surat/destroy/${id}`, 'input_success', 'input_error');
+            ajaxGetJson(`/master-data/jenis-surat/destroy/${id}`, 'delete_success', 'input_error');
         }
     })
+}
+
+function delete_success(data) {
+    Swal.close()
+
+    if (data.status != 200) {
+        var text = data.message
+        error_notif(text)
+        return false
+    }
+
+    Command: toastr["success"]("Data Berhasil Dihapus", "Berhasil Hapus Data")
+
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+
+    Swal.fire({
+        title: 'Berhasil!',
+        text: 'Hapus Data Berhasil!',
+        type: 'success',
+        timer: 1500,
+        customClass: {
+          confirmButton: 'btn btn-primary waves-effect waves-light'
+        },
+        buttonsStyling: false,
+        showConfirmButton: false,
+    })
+
+    // table.ajax.reload()
+    window.location.replace(data.redirect)
+}
+
+function update_success(data) {
+    Swal.close()
+
+    if (data.status != 200) {
+        var text = data.message
+        error_notif(text)
+        return false
+    }
+
+    Command: toastr["success"]("Data Berhasil Diupdate", "Berhasil Update Data")
+
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+
+    Swal.fire({
+        title: 'Berhasil!',
+        text: 'Update Data Berhasil!',
+        type: 'success',
+        timer: 1500,
+        customClass: {
+          confirmButton: 'btn btn-primary waves-effect waves-light'
+        },
+        buttonsStyling: false,
+        showConfirmButton: false,
+    })
+
+    // table.ajax.reload()
+    window.location.replace(data.redirect)
 }
 
 function input_success(data) {

@@ -37,7 +37,7 @@ Route::middleware(['auth'])->group(function() {
             Route::get('/create', [JenisSuratController::class, 'create'])->name('jenis-surat.create');
             Route::post('/store', [JenisSuratController::class, 'store']);
             Route::get('/edit/{id}', [JenisSuratController::class, 'edit'])->name('jenis-surat.edit');
-            Route::post('/update/{id}', [JenisSuratController::class, 'update']);
+            Route::post('/update/{id}', [JenisSuratController::class, 'update'])->name('jenis-surat.update');
             Route::get('/destroy/{id}', [JenisSuratController::class, 'destroy'])->name('jenis-surat.destroy');
         });
 
