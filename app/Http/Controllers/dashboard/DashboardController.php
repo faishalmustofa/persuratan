@@ -110,8 +110,10 @@ class DashboardController extends Controller
 
     foreach ($suratMasuk as $x) {
       $test = (int) date('d', strtotime($x->tgl_surat));
-      if ($test < 29) {
-        $dataMasuk[($test % 8) - 1] = $x->total;
+      if ($test % 7 == 0) {
+        $dataMasuk[6] = $x->total;
+      } elseif ($test < 29 && $test % 7 != 0) {
+        $dataMasuk[($test % 7) - 1] = $x->total;
       } else {
         $dataMasuk[($test % 8) + 6] = $x->total;
       }
@@ -119,8 +121,10 @@ class DashboardController extends Controller
 
     foreach ($suratDiarsip as $x) {
       $test = (int) date('d', strtotime($x->tgl_surat));
-      if ($test < 29) {
-        $dataDiarsip[($test % 8) - 1] = $x->total;
+      if ($test % 7 == 0) {
+        $dataDiarsip[6] = $x->total;
+      } elseif ($test < 29 && $test % 7 != 0) {
+        $dataDiarsip[($test % 7) - 1] = $x->total;
       } else {
         $dataDiarsip[($test % 8) + 6] = $x->total;
       }
@@ -264,8 +268,10 @@ class DashboardController extends Controller
 
     foreach ($suratKeluar as $x) {
       $test = (int) date('d', strtotime($x->tgl_surat));
-      if ($test < 29) {
-        $dataKeluar[($test % 8) - 1] = $x->total;
+      if ($test % 7 == 0) {
+        $dataKeluar[6] = $x->total;
+      } elseif ($test < 29 && $test % 7 != 0) {
+        $dataKeluar[($test % 7) - 1] = $x->total;
       } else {
         $dataKeluar[($test % 8) + 6] = $x->total;
       }
@@ -273,8 +279,10 @@ class DashboardController extends Controller
 
     foreach ($suratKeluarDikirim as $x) {
       $test = (int) date('d', strtotime($x->tgl_surat));
-      if ($test < 29) {
-        $dataDikirim[($test % 8) - 1] = $x->total;
+      if ($test % 7 == 0) {
+        $dataDikirim[6] = $x->total;
+      } elseif ($test < 29 && $test % 7 != 0) {
+        $dataDikirim[($test % 7) - 1] = $x->total;
       } else {
         $dataDikirim[($test % 8) + 6] = $x->total;
       }
@@ -332,25 +340,25 @@ class DashboardController extends Controller
 
     foreach ($suratKeluar as $x) {
       if ($x->tgl_surat <= $q1) {
-        $dataKeluar[0] = $dataKeluar[0] + 1;
+        $dataKeluar[0] = $dataKeluar[0] + $x->total;
       } elseif ($x->tgl_surat > $q1 && $x->tgl_surat <= $q2) {
-        $dataKeluar[1] = $dataKeluar[1] + 1;
+        $dataKeluar[1] = $dataKeluar[1] + $x->total;
       } elseif ($x->tgl_surat > $q2 && $x->tgl_surat <= $q3) {
-        $dataKeluar[2] = $dataKeluar[2] + 1;
+        $dataKeluar[2] = $dataKeluar[2] + $x->total;
       } else {
-        $dataKeluar[3] = $dataKeluar[3] + 1;
+        $dataKeluar[3] = $dataKeluar[3] + $x->total;
       }
     }
 
     foreach ($suratKeluarDikirim as $x) {
       if ($x->tgl_surat <= $q1) {
-        $dataDikirim[0] += 1;
+        $dataDikirim[0] += $x->total;
       } elseif ($x->tgl_surat > $q1 && $x->tgl_surat <= $q2) {
-        $dataDikirim[1] += 1;
+        $dataDikirim[1] += $x->total;
       } elseif ($x->tgl_surat > $q2 && $x->tgl_surat <= $q3) {
-        $dataDikirim[2] += 1;
+        $dataDikirim[2] += $x->total;
       } else {
-        $dataDikirim[3] += 1;
+        $dataDikirim[3] += $x->total;
       }
     }
 
