@@ -1,10 +1,10 @@
 <?php
 // Variables
 return [
-  "creatorName" => "Pixinvent",
-  "creatorUrl" => "https://pixinvent.com",
-  "templateName" => "Materialize",
-  "templateSuffix" => "Materialize - Bootstrap 5 HTML Laravel Admin Template",
+  "creatorName" => "PROPAM POLRI",
+  "creatorUrl" => "",
+  "templateName" => "E-OFFICE",
+  "templateSuffix" => "E-OFFICE - PROPAM POLRI",
   "templateVersion" => "1.3.0",
   "templateFree" => false,
   "templateDescription" => "Materialize – is the most developer friendly & highly customizable Admin Dashboard Template.",

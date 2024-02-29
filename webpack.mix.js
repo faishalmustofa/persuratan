@@ -15,6 +15,9 @@ mix.options({
   postCss: [require('autoprefixer')]
 });
 
+mix.js('resources/assets/js/transaction/*.js', 'public/assets/js/transaction')
+  .js('resources/assets/js/base.js','public/assets/js');
+
 /*
  |--------------------------------------------------------------------------
  | Configure Webpack

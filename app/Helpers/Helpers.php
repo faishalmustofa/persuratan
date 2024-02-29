@@ -2,7 +2,15 @@
 
 namespace App\Helpers;
 
+use App\Models\Master\Organization;
+use App\Models\Master\StatusSurat;
+use App\Models\Reference\Notification;
+use App\Models\User;
+use Carbon\Carbon;
 use Config;
+use DateTime;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class Helpers
@@ -33,15 +41,15 @@ class Helpers
       // 'menuOffcanvas' => false,
       'customizerControls' => [
         'rtl',
-      'style',
-      'headerType',
-      'contentLayout',
-      'layoutCollapsed',
-      'showDropdownOnHover',
-      'layoutNavbarOptions',
-      'themes',
+        'style',
+        'headerType',
+        'contentLayout',
+        'layoutCollapsed',
+        'showDropdownOnHover',
+        'layoutNavbarOptions',
+        'themes',
       ],
-      //   'defaultLanguage'=>'en',
+        'defaultLanguage'=>'en',
     ];
 
     // if any key missing of array from custom.php file it will be merge and set a default value from dataDefault array and store in data variable
@@ -202,4 +210,215 @@ class Helpers
       }
     }
   }
+
+  public static function generateTxNumber($jenis_surat = null)
+  {
+        $currentYear = Carbon::now()->translatedFormat('Y');
+
+        if (!is_null($jenis_surat)) {
+          if ($jenis_surat == 'masuk') {
+            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
+            $number = '0000';
+          } else {
+            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
+            $number = '0000';
+          }
+        } else {
+          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
+          $number = '0000';
+        }
+
+        if($totalData != null){
+            $lastId = explode('-', $totalData->tx_number);
+            $nextId = (int)$lastId[count($lastId)-1] + 1;
+            $nextId = sprintf("%04d", $nextId);
+        } else {
+            $nextId = '0001';
+        }
+
+        if (!is_null($jenis_surat)) {
+          if ($jenis_surat == 'masuk') {
+            $transNumber = "TX-SM-$currentYear-$nextId";
+          } else {
+            $transNumber = "TX-SK-$currentYear-$nextId";
+          }
+        } else {
+          $transNumber = "TX-SM-$currentYear-$nextId";
+        }
+
+
+        return $transNumber;
+  }
+
+  public static function generateNoAgenda($org = 'DIVPROPAM',$jenis_surat=null)
+  {
+        $currentYear = Carbon::now()->translatedFormat('Y');
+        $currentMonth = (int)Carbon::now()->translatedFormat('m');
+        $currentMonth = self::numberToRomanRepresentation($currentMonth);
+
+        if (!is_null($jenis_surat)) {
+          if ($jenis_surat == 'masuk') {
+            $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
+          } else {
+            $totalData = DB::table('surat_keluar')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
+          }
+        } else {
+          $totalData = DB::table('surat_masuk')->select('*')->whereYear('created_at', $currentYear)->orderBy('tx_number', 'DESC')->first();
+        }
+
+        if($totalData != null){
+            $lastId = explode('-', $totalData->tx_number);
+            $nextId = (int)$lastId[count($lastId)-1] + 1;
+            $nextId = sprintf("%04d", $nextId);
+        } else {
+            $nextId = '0001';
+        }
+
+        $noAgenda = "$nextId/$currentMonth/$currentYear/$org";
+
+        return $noAgenda;
+  }
+
+  public static function numberToRomanRepresentation($number) {
+    $map = array('X' => 10, 'IX' => 9, 'V' => 5, 'IV' => 4, 'I' => 1);
+    $returnValue = '';
+    while ($number > 0) {
+        foreach ($map as $roman => $int) {
+            if($number >= $int) {
+                $number -= $int;
+                $returnValue .= $roman;
+                break;
+            }
+        }
+    }
+    return $returnValue;
+}
+
+  public static function generateRandomString($length = 10)
+  {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
+        return $randomString;
+  }
+
+  public static function getAllParentOrg($org)
+  {
+    $orgs = [];
+    $child = clone ($org);
+    $parent = Organization::where('id',$child->parent_id)->first();
+
+    if (!is_null($parent)) {
+      while (!is_null($child->parent_id)) {
+        array_unshift($orgs,$parent);
+        // array_push($orgs,$parent);
+
+        $child = $parent;
+        $parent = Organization::where('id',$child->parent_id)->first();
+      }
+    }
+
+    return $orgs;
+  }
+
+  public static function getAllChildOrg($org,$current_org)
+  {
+    $orgs = [];
+
+    $orgs = $org->where('parent_id',$current_org->id);
+
+    return $orgs;
+  }
+
+  public static function getBulanRomawi($bulan)
+  {
+    switch ($bulan) {
+        case 1:
+            return "I";
+            break;
+        case 2:
+            return "II";
+            break;
+        case 3:
+            return "III";
+            break;
+        case 4:
+            return "IV";
+            break;
+        case 5:
+            return "V";
+            break;
+        case 6:
+            return "VI";
+            break;
+        case 7:
+            return "VII";
+            break;
+        case 8:
+            return "VIII";
+            break;
+        case 9:
+            return "IX";
+            break;
+        case 10:
+            return "X";
+            break;
+        case 11:
+            return "XI";
+            break;
+        case 12:
+            return "XII";
+            break;
+    }
+  }
+
+  public static function getStatusSurat($kode_surat)
+  {
+    return StatusSurat::where('kode_status',$kode_surat)->first();
+  }
+
+  public static function renderNotification(){
+    $loggedInOrg = User::with('org')->find(Auth::user()->id);
+
+    if(strtolower($loggedInOrg->org->nama) != 'taud' && strtolower($loggedInOrg->org->nama) != 'spri'){
+        $data['totalNewNotif'] = Notification::where('is_read', 0)->where('to_org', Auth::user()->organization)->count();
+        $data['notifikasi'] = Notification::with('suratMasuk')->where('is_read', 0)->where('to_org', Auth::user()->organization)->get();
+    } else {
+        $data['totalNewNotif'] = Notification::where('is_read', 0)->where('to_org', $loggedInOrg->org->parent_id)->count();
+        $data['notifikasi'] = Notification::with('suratMasuk')->where('is_read', 0)->where('to_org', $loggedInOrg->org->parent_id)->get();
+    }
+
+    return view('layouts.sections.navbar.notification', $data)->render();
+  }
+
+  public static function time_elapsed_string($datetime, $full = false) {
+    $now = new DateTime();
+    $ago = new DateTime($datetime);
+    $diff = $now->diff($ago);
+    $diff->w = floor($diff->d / 7);
+    $diff->d -= $diff->w * 7;
+
+    $string = array(
+        'y' => 'tahun',
+        'm' => 'bulan',
+        'w' => 'minggu',
+        'd' => 'hari',
+        'h' => 'jam',
+        'i' => 'menit',
+        's' => 'detik',
+    );
+    foreach ($string as $k => &$v) {
+        if ($diff->$k) {
+            $v = $diff->$k . ' ' . $v . ($diff->$k > 1 ? '' : '');
+        } else {
+            unset($string[$k]);
+        }
+    }
+
+    if (!$full) $string = array_slice($string, 0, 1);
+    return $string ? implode(', ', $string) . ' lalu' : 'baru saja';
+}
 }

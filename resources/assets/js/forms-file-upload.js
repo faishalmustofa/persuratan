@@ -32,6 +32,7 @@
   if (dropzoneBasic) {
     const myDropzone = new Dropzone(dropzoneBasic, {
       previewTemplate: previewTemplate,
+      url: '/surat-masuk/store',
       parallelUploads: 1,
       maxFilesize: 5,
       addRemoveLinks: true,
