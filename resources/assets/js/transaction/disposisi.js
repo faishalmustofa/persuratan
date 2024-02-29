@@ -1,12 +1,13 @@
 var table, valTujuan
-
 $( function(){
     var forms = document.querySelectorAll('.needs-validation')
     var flatpickrMulti = document.querySelector("#tgl_kirim");
 
     flatpickrMulti.flatpickr({
         enableTime: true,
-        dateFormat: "Y-m-d H:i"
+        dateFormat: "d-F-Y H:i",
+        "locale": "id",
+        defaultDate: new Date(),
     });
 
     Array.prototype.slice.call(forms).forEach(function (form) {
@@ -406,6 +407,53 @@ async function postDataBulking(){
     $('#modal-bulking').modal('toggle')
 }
 
+function revisiDisposisi(txNo){
+    Swal.fire({
+        title: "Anda yakin ingin melakukan revisi disposisi berkas ini?",
+        text: "Jika anda melakukan revisi disposisi, maka proses surat harus diulang dari awal (print blanko disposisi)",
+        icon: 'warning',
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Ya, Revisi Disposisi",
+        denyButtonText: `Tidak`,
+        showCancelButton: false,
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            txNo = btoa(txNo)
+            ajaxGetJson(`/transaction/disposisi/revisi/${txNo}`, 'input_success', 'input_error')
+        } else {
+            return false
+        }
+    });
+}
+
+
+function pindahBerkas(txNo, status) {
+    let text = ''
+    if(status.includes("TAUD")){
+        text = 'Kirimkan Berkas ke SPRI KADIV?'
+    } else {
+        text = 'Kirimkan Berkas ke TAUD?'
+    }
+
+    Swal.fire({
+        icon: 'question',
+        showDenyButton: false,
+        title: text,
+        showCancelButton: true,
+        confirmButtonText: "Ya!"
+      }).then((result) => {
+        /* Read more about isConfirmed, isDenied below */
+        if(result.isConfirmed){
+            ajaxGetJson(`/transaction/surat-masuk/pindah-berkas/${txNo}`, 'input_success', 'input_error')
+        } else {
+            return false
+        }
+    });
+}
+
+
 function input_success(data) {
     Swal.close()
     table.destroy()
@@ -414,6 +462,12 @@ function input_success(data) {
         var text = data.message
         error_notif(text)
         return false
+    }
+
+    if(data.do_next == 'print_blanko'){
+        // actionPrintBlanko(data.txNo)
+        window.location.href = '/transaction/surat-masuk'
+        // pindahBerkas(data.txNo, 'TAUD')
     }
 
     Command: toastr["success"](data.message, "Berhasil Simpan Data")

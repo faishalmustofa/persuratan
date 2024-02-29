@@ -5,6 +5,13 @@
 /public/hot
 /public/storage
 /public/upload/*
+
+/public/document/surat-masuk/*
+/public/document/surat-keluar/*
+/public/document/surat-disposisi/*
+/public/document/*.pdf
+/notification/node_modules
+
 /storage/*.key
 /vendor
 

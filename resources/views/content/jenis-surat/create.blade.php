@@ -18,13 +18,13 @@
                 {{ isset($jenis_surat) ? 'Edit' : 'Tambah' }} Jenis Surat
             </div>
             <div class="card-body">
-                @if ($jenis_surat)
+                @if (isset($jenis_surat))
                 <form action="javascript:void(0)" id="form-update" class="needs-validation" novalidate>
                 @else
                 <form action="javascript:void(0)" id="form-add" class="needs-validation" novalidate>
                 @endif
                     @csrf
-                    @if ($jenis_surat)
+                    @if (isset($jenis_surat))
                         <input type="hidden" name="id" value="{{ $jenis_surat->id }}">
                     @endif
                     <div class="row justify-content-center align-items-center">
@@ -51,7 +51,7 @@
                         </div>
 
                         <div class="col-12 d-flex justify-content-end">
-                            @if ($jenis_surat)
+                            @if (isset($jenis_surat))
                                 <button type="submit" id="btn-save" class="btn btn-outline-warning"> Update Data</button>
                             @else
                                 <button type="submit" id="btn-save" class="btn btn-outline-primary"> Simpan Data</button>

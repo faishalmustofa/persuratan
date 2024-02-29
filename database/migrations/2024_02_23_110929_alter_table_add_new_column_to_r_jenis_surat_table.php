@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('surat_masuk', function(Blueprint $table){
-            $table->string('status_surat')->change();
-            // $table->dropForeign('surat_masuk_status_surat_foreign');
+        Schema::table('r_jenis_surat', function (Blueprint $table) {
+            $table->string('jenis_surat')->after('deskripsi');
         });
     }
 
@@ -22,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('r_jenis_surat', function (Blueprint $table) {
+            //
+        });
     }
 };

@@ -1,11 +1,31 @@
 var table, tableBulking, valTujuan = 0
 const tglSurat = document.querySelector('#tgl-surat')
-const asal_surat = $('#asal_surat');
 const tujuan_surat = $('#tujuan_surat');
+const tanggalSurat = $('#tanggal-surat'),
+    tanggalDiterima = $('#tanggal-diterima'),
+    tglTerima = $('#tgl_terima'),
+    klasifikasi = $('#klasifikasi'),
+    derajat = $('#derajat'),
+    tglKirimDispo = $('#tgl_kirim'),
+    asal_surat = $('#asal_surat');
 
 $( function(){
     tglSurat.flatpickr({
-        mode: "range"
+        mode: "range",
+        "locale": "id"
+    });
+
+    tanggalDiterima.flatpickr({
+        enableTime: true,
+        dateFormat: "d-F-Y H:i",
+        defaultDate: new Date(),
+        "locale": "id",
+    });
+
+    tglTerima.flatpickr({
+        enableTime: true,
+        dateFormat: "d-F-Y H:i",
+        "locale": "id"
     });
 
     $("#tujuan_surat_bulking").select2();
@@ -64,6 +84,20 @@ $( function(){
             sendBulking()
         }
     });
+
+    $('#form-terima').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postTerimaSurat()
+        }
+    });
+
+    $('#form-laporan').on('submit', function(e){
+        if (this.checkValidity()) {
+            e.preventDefault();
+            processPrintLaporan()
+        }
+    })
 })
 
 function searchData(){
@@ -282,7 +316,7 @@ function pindahBerkas(txNo, status) {
     });
 }
 
-function terimaBerkas(txNo, status){
+function terimaBerkas(txNo, noAgenda, noSurat, status){
     let text = ''
     if(status.includes("TAUD")){
         text = 'Terima Berkas dari SPRI KADIV?'
@@ -299,11 +333,20 @@ function terimaBerkas(txNo, status){
       }).then((result) => {
         /* Read more about isConfirmed, isDenied below */
         if(result.isConfirmed){
-            ajaxGetJson(`/transaction/surat-masuk/terima-berkas/${txNo}`, 'input_success', 'input_error')
+            $('#modal-terima').modal('toggle')
+            $('#form-terima').find('input[name="tx_number"]').val(txNo)
+            $('#form-terima').find('input[name="nomor_agenda"]').val(noAgenda)
+            $('#form-terima').find('input[name="no_surat"]').val(noSurat)
         } else {
             return false
         }
     });
+}
+
+async function postTerimaSurat(){
+    let form = $('#form-terima').serialize()
+    await ajaxPostJson('/transaction/surat-masuk/terima-berkas', form, 'input_success', 'input_error')
+    $('#modal-terima').modal('toggle')
 }
 
 async function postRevisiBerkas(){
@@ -474,6 +517,25 @@ function sendBulking(){
     }
 }
 
+function printLaporan(){
+    $('#modal-print-laporan').modal('toggle')
+    $('#modal-print-laporan').find('#form-laporan').find('#tgl-surat').flatpickr({
+        mode: "range",
+        "locale": "id"
+    })
+}
+
+function processPrintLaporan(){
+    let form = $('#form-laporan').serialize()
+    ajaxPostJson('/transaction/buku-agenda/cetak-laporan', form, 'success_print', 'error_insert')
+}
+
+function success_print(data){
+    Swal.close()
+    window.open(data.filePath, '_blank')
+    $('#modal-print-laporan').modal('toggle')
+}
+
 function input_success(data){
     Swal.close()
     table.ajax.reload()
@@ -526,5 +588,27 @@ function error_insert(err){
         "hideEasing": "linear",
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
+    }
+}
+
+function error_notif(text){
+    Command: toastr["error"](text, "Gagal Simpan Data")
+
+    toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": false,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
     }
 }

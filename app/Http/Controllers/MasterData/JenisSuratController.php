@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData;
 
 use App\Http\Controllers\Controller;
 use App\Models\Reference\JenisSurat;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +28,7 @@ class JenisSuratController extends Controller
                 ->addIndexColumn()
                 ->editColumn('action', function($data){
                     $html = '<a href="'.route('jenis-surat.edit', base64_encode($data->id)).'" class="btn btn-outline-warning btn-sm rounded-pill px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-square-edit-outline"></span> </a>
-                    <button onclick="deleteData(`'.$data->id.')" class="btn btn-outline-danger btn-sm rounded-pill px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-delete"></span> </button>';
+                    <button onclick="deleteData(`'.$data->id.'`)" class="btn btn-outline-danger btn-sm rounded-pill px-2" data-bs-toggle="tooltip" data-bs-placement="top" title="Hapus Data" > <span class="mdi mdi-delete"></span> </button>';
 
                     return $html;
                 })
@@ -75,33 +76,33 @@ class JenisSuratController extends Controller
      */
     public function update(Request $request, $id)
     {
-        dd($request->all());
-        // DB::beginTransaction();
-        // try {
-        //     dd($request->all());
-        //     $org = JenisSurat::where('id', $id);
+        // dd($request->all());
+        DB::beginTransaction();
+        try {
+            $jenis_surat = JenisSurat::where('id', $id);
 
-        //     $data = [
-        //         'nama' => $request->nama,
-        //         'format' => $request->format,
-        //         'deskripsi' => $request->deskripsi
-        //     ];
+            $data = [
+                'nama' => $request->nama,
+                'format' => $request->format,
+                'deskripsi' => $request->deskripsi
+            ];
 
-        //     $org->update($data);
+            $jenis_surat->update($data);
 
-        //     DB::commit();
-        //     return response()->json([
-        //         'status' => JsonResponse::HTTP_OK,
-        //         'message' => 'Berhasil Update Data Jenis Surat'
-        //     ]);
-        // } catch (\Throwable $th) {
-        //     DB::rollBack();
-        //     return response()->json([
-        //         'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
-        //         'message' => 'Terjadi Kesalahan Pada Sistem, Harap Coba Lagi',
-        //         'detail' => $th
-        //     ]);
-        // }
+            DB::commit();
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Update Data Jenis Surat',
+                'redirect' => route('masterdata.jenis-surat'),
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Terjadi Kesalahan Pada Sistem, Harap Coba Lagi',
+                'detail' => $th
+            ]);
+        }
     }
 
     /**
@@ -109,6 +110,28 @@ class JenisSuratController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        DB::beginTransaction();
+        try {
+
+            JenisSurat::find($id)->delete();
+
+            DB::commit();
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'Berhasil Hapus Data',
+                'redirect' => route('masterdata.jenis-surat'),
+            ]);
+        } catch (Exception $th) {
+            DB::rollBack();
+            return response()->json([
+                'status' => [
+                    'msg' => $th->getMessage() != '' ? $th->getMessage() : 'Err',
+                    'code' => $th->getCode() != '' ? $th->getCode() : JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                ],
+                'data' => null,
+                'err_detail' => $th,
+                'message' => $th->getMessage() != '' ? $th->getMessage() : 'Terjadi Kesalahan Saat Hapus Data, Harap Coba lagi!'
+            ]);
+        }
     }
 }

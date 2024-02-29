@@ -138,7 +138,7 @@ class SuratMasukController extends Controller
                 $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
             } else if($data->status_surat == '110'){
                 if (Auth::user()->hasPermissionTo('kirim-disposisi')){
-                    $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
+                    $html .= '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
                 }
                 $html .= '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
             } else if ($data->status_surat == '004') {
@@ -249,32 +249,33 @@ class SuratMasukController extends Controller
 
             $insertedData = [
                 'tx_number' => $txNumber,
-                'no_agenda' => $noAgenda,
-                'no_surat' => $request->nomor_surat,
-                'tgl_surat' => $request->tanggal_surat,
+                'no_agenda' => Str::upper($noAgenda),
+                'no_surat' => Str::upper($request->nomor_surat),
+                'tgl_surat' => Carbon::parseFromLocale($request->tanggal_surat, 'id')->format('Y-m-d'),
                 'asal_surat' => $asalSurat->id,
-                'tujuan_surat' => $request->tujuan_surat,
-                'perihal' => $request->perihal,
-                'tgl_diterima' => $request->tanggal_diterima,
-                'lampiran' => $request->judul_lampiran,
-                'tembusan' => $request->tembusan,
+                'tujuan_surat' => (int)$request->tujuan_surat,
+                'perihal' => Str::upper($request->perihal),
+                'tgl_diterima' => Carbon::parseFromLocale($request->tanggal_diterima, 'id')->format('Y-m-d H:i:s'),
+                'lampiran' => Str::upper($request->judul_lampiran),
+                'tembusan' => Str::upper($request->tembusan),
                 'status_surat' => $statusNext,
                 'entity_asal_surat' => $entityAsalSurat->id,
-                'entity_asal_surat_detail' => $request->entity_asal_surat_detail,
-                'lampiran_type' => $request->lampiran_type,
+                'entity_asal_surat_detail' => Str::upper($request->entity_asal_surat_detail),
+                'lampiran_type' => $request->lampiran_type != null ? Str::upper($request->lampiran_type) : null,
                 'jml_lampiran' => $request->jumlah_lampiran,
-                'catatan' => $request->catatan,
-                'klasifikasi' => $request->klasifikasi,
-                'derajat' => $request->derajat,
+                'catatan' => Str::upper($request->catatan),
+                'klasifikasi' => (int)$request->klasifikasi,
+                'derajat' => (int)$request->derajat,
                 'created_by' => Auth::user()->id,
                 'file_path' => $file_path,
-                'no_surat_asal' => $request->nomor_surat_asal,
-                'jenis_surat' => $request->jenis_surat
+                'no_surat_asal' => Str::upper($request->nomor_surat_asal),
+                'jenis_surat' => (int)$request->jenis_surat
             ];
 
             if($request->nomor_surat_asal != null){
                 SuratMasuk::where('no_surat', $request->nomor_surat_asal)->update(['status_surat' => '001']);
             }
+
             SuratMasuk::create($insertedData);
 
             $logData = [
@@ -290,13 +291,18 @@ class SuratMasukController extends Controller
                 throw new Exception($msgLog, $statusLog);
             }
 
-            DB::commit();
+            // DB::commit();
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Buat Agenda Surat',
                 'txNumber' => $txNumber,
                 'noAgenda' => $noAgenda,
-                'printBlanko' => $org->need_disposisi
+                'printBlanko' => $org->need_disposisi,
+                'notif' => [
+                    'send' => true,
+                    'act' => 'new_surat',
+                    'user_except' => Auth::user()->id
+                ]
             ]);
         } catch (Exception $th) {
             DB::rollBack();
@@ -329,7 +335,7 @@ class SuratMasukController extends Controller
                 'derajat' => strtoupper($dataSurat->derajatSurat->nama),
                 'no_agenda' => $dataSurat->no_agenda,
                 'asal_surat' => strtoupper($dataSurat->entity_asal_surat_detail),
-                'no_surat' => $dataSurat->no_surat,
+                'no_surat' => strtoupper($dataSurat->no_surat),
                 'tgl_surat' => Carbon::parse($dataSurat->tgl_surat)->translatedFormat('d F Y'),
                 'tgl_diterima' => Carbon::parse($dataSurat->tgl_diterima)->translatedFormat('d F Y'),
                 'perihal' => strtoupper($dataSurat->perihal),
@@ -357,11 +363,12 @@ class SuratMasukController extends Controller
                     'message' => 'Gagal Memproses file blanko disposisi, harap coba lagi',
                 ]);
             }
+
             $pdfFile = $filename.'.pdf';
             unlink($path);
 
             $statusNext = 0;
-            if($dataSurat->status_surat == '111'){
+            if($dataSurat->status_surat == '111' || $dataSurat->status_surat == '000'){
                 $statusNext = '112';
             } else if ($dataSurat->status_surat == '001') {
                 $statusNext = '002';
@@ -517,7 +524,7 @@ class SuratMasukController extends Controller
                 'pangkat_penerima' => strtoupper($request->pangkat_penerima),
                 'nama_penerima' => strtoupper($request->nama_penerima),
                 'jabatan_penerima' => strtoupper($request->jabatan_penerima),
-                'tgl_diterima' => $request->tgl_diterima
+                'tgl_diterima' => Carbon::parseFromLocale($request->tgl_diterima, 'id')->format('Y-m-d H:i:s')
             ];
 
             PenerimaanPindahBerkasmasuk::create($dataPenerimaanSurat);
@@ -548,17 +555,18 @@ class SuratMasukController extends Controller
             $suratMasuk = SuratMasuk::where('tx_number', $request->tx_number);
 
             $suratMasuk->update([
-                'tgl_diterima' => $request->tanggal_diterima
+                'tgl_diterima' => Carbon::parseFromLocale($request->tanggal_diterima, 'id')->translatedFormat('Y-m-d H:i:s')
             ]);
 
             $logData = [
                 'txNumber' => $request->tx_number,
-                'status' => 'Surat '.$suratMasuk->no_surat.' dilakukan perubahan tanggal diterima',
+                'status' => 'Surat '.$suratMasuk->first()->no_surat.' dilakukan perubahan tanggal diterima',
                 'user' => Auth::user()->name,
             ];
 
             $log = (new LogSuratMasukController)->store($logData);
             $statusLog = $log->getData()->status->code;
+            $msgLog = $log->getData()->status->msg;
 
             if($statusLog != 200){
                 throw new Exception($msgLog, $statusLog);

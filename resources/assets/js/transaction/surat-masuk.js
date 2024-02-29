@@ -6,46 +6,35 @@ const tanggalSurat = $('#tanggal-surat'),
     tglTerima = $('#tgl_terima'),
     klasifikasi = $('#klasifikasi'),
     derajat = $('#derajat'),
+    tglKirimDispo = $('#tgl_kirim'),
     asal_surat = $('#asal_surat');
 var table, tableBulking, valTujuan = 0
 
 $(function () {
     tanggalSurat.flatpickr({
-        dateFormat: 'Y-m-d'
+        dateFormat: 'd-F-Y',
+        "locale": "id"
     });
     tanggalDiterima.flatpickr({
-        dateFormat: 'Y-m-d'
+        enableTime: true,
+        dateFormat: "d-F-Y H:i",
+        "locale": "id",
+        defaultDate: new Date(),
+    });
+    tglKirimDispo.flatpickr({
+        enableTime: true,
+        dateFormat: "d-F-Y H:i",
+        "locale": "id",
+        defaultDate: new Date(),
     });
     tglTerima.flatpickr({
         enableTime: true,
-        dateFormat: "Y-m-d H:i"
+        dateFormat: "d-F-Y H:i",
+        "locale": "id"
     });
 
     // Init custom option check
-  window.Helpers.initCustomOptionCheck();
-
-  // Bootstrap validation example
-  //------------------------------------------------------------------------------------------
-  // const flatPickrEL = $('.flatpickr-validation');
-  const flatPickrList = [].slice.call(document.querySelectorAll('.flatpickr-validation')),
-    selectPicker = $('.selectpicker');
-
-  // Bootstrap Select
-  // --------------------------------------------------------------------
-  if (selectPicker.length) {
-    selectPicker.selectpicker();
-    handleBootstrapSelectEvents();
-  }
-
-  // Flat pickr
-  if (flatPickrList) {
-    flatPickrList.forEach(flatPickr => {
-      flatPickr.flatpickr({
-        allowInput: true,
-        monthSelectorType: 'static'
-      });
-    });
-  }
+    window.Helpers.initCustomOptionCheck();
 
     var forms = document.querySelectorAll('.needs-validation')
 
@@ -105,6 +94,14 @@ $(function () {
         }
     });
 
+    $('#form-pengiriman').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postPengiriman()
+            $(this).addClass('was-validated');
+        }
+    });
+
     // custom template to render icons
     function renderIcons(option) {
         if (!option.id) {
@@ -113,24 +110,6 @@ $(function () {
         var $icon = "<i class='" + $(option.element).data("icon") + " me-2'></i>" + option.text;
         return $icon
     }
-
-    const previewTemplate = `<div class="dz-preview dz-file-preview">
-        <div class="dz-details">
-        <div class="dz-thumbnail">
-            <img data-dz-thumbnail>
-            <span class="dz-nopreview">No preview</span>
-            <div class="dz-success-mark"></div>
-            <div class="dz-error-mark"></div>
-            <div class="dz-error-message"><span data-dz-errormessage></span></div>
-            <div class="progress">
-            <div class="progress-bar progress-bar-primary" role="progressbar" aria-valuemin="0" aria-valuemax="100" data-dz-uploadprogress></div>
-            </div>
-        </div>
-        <div class="dz-filename" data-dz-name></div>
-        <div class="dz-size" data-dz-size></div>
-        </div>
-        </div>`;
-
 
     // Init select2
     $("#klasifikasi").wrap('<div class="position-relative"></div>').select2({
@@ -305,10 +284,10 @@ async function postForm() {
         history.pushState({}, null, newURL)
     }
 
-    $('#form-surat-masuk').removeClass('was-validated')
-    $('#form-surat-masuk').find('.form-control').val('')
-    $('#form-surat-masuk').find('textarea').val('')
-    $('#form-surat-masuk').find('select').val('').trigger('change')
+    // $('#form-surat-masuk').removeClass('was-validated')
+    // $('#form-surat-masuk').find('.form-control').val('')
+    // $('#form-surat-masuk').find('textarea').val('')
+    // $('#form-surat-masuk').find('select').val('').trigger('change')
 }
 
 function actionPrintBlanko(txNumber){
@@ -316,16 +295,6 @@ function actionPrintBlanko(txNumber){
 }
 
 function printBlanko(data){
-    // var tempDownload = document.createElement("a");
-    // tempDownload.style.display = 'none';
-
-    // document.body.appendChild( tempDownload );
-
-    // var download = data.file;
-    // tempDownload.setAttribute( 'href', `/transaction/surat-masuk/download-blanko/${download}` );
-    // tempDownload.setAttribute( 'download', download );
-
-    // tempDownload.click();
     window.open(data.filePath, '_blank')
     table.ajax.reload()
 }
@@ -532,14 +501,15 @@ function notif_used(res){
     }
 }
 
-function bulkingSurat(){
+function bulkingSurat(type){
     $('#modal-bulking').modal('toggle')
 
     if($('#data-container').css('display') == 'none'){
         $('#data-container').slideDown()
     }
+    $('#modal-bulking').find('#form-bulking').find('input[name="type-bulking"]').val(type)
 
-    getDataBulking()
+    getDataBulking(type)
 }
 
 $('#tujuan_surat_bulking').on('select2:select', function(){
@@ -547,7 +517,8 @@ $('#tujuan_surat_bulking').on('select2:select', function(){
     tableBulking.ajax.reload()
 })
 
-function getDataBulking(){
+function getDataBulking(type){
+    var url = type == 'disposisi' ? "/transaction/disposisi/get-data" : "/transaction/surat-masuk/data" ;
     tableBulking = $('#bulking-list').DataTable({
         processing: true,
         serverSide: true,
@@ -555,7 +526,7 @@ function getDataBulking(){
         "scrollX":true,
         "destroy":true,
         ajax: {
-            url: "/transaction/surat-masuk/data",
+            url: url,
             method: "post",
             data: function (data) {
                 data._token = $('meta[name="csrf-token"]').attr('content'),
@@ -633,7 +604,11 @@ function sendBulking(){
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
-            postData()
+            if($('#modal-bulking').find('#form-bulking').find('input[name="type-bulking"]').val() == 'pindah-berkas'){
+                postData()
+            } else {
+                kirimDisposisi()
+            }
         } else {
             return false
         }
@@ -647,6 +622,29 @@ function sendBulking(){
 
         $('#modal-bulking').modal('toggle')
     }
+
+    async function kirimDisposisi() {
+        $('#form-pengiriman').find('input[name="type_kirim"]').val('bulking')
+        $('#form-pengiriman').find('#data-surat').fadeOut()
+        $('#form-pengiriman').find('input[name="_token"]').remove()
+
+        $('#modal-kirim').modal('toggle')
+    }
+}
+
+async function postPengiriman(type){
+    await postDataBulking()
+    $('#modal-kirim').modal('toggle')
+}
+
+async function postDataBulking(){
+    let form = $('#form-bulking').serialize()
+    form += '&'+$('#form-pengiriman').serialize()
+
+    await ajaxPostJson('/transaction/disposisi/kirim-bundling', form, 'input_success', 'input_error')
+    tableBulking.ajax.reload()
+
+    $('#modal-bulking').modal('toggle')
 }
 
 function input_success_(data){
@@ -679,6 +677,9 @@ function input_success_(data){
     }
 
     table.ajax.reload()
+    $('.form-control').each((k, el) => {
+        $(el).css('text-transform', 'uppercase')
+    })
 }
 
 function input_success(data) {
@@ -726,10 +727,22 @@ function input_success(data) {
             }
         });
     } else {
-        window.location.href = '/transaction/disposisi'
+        // window.location.href = '/transaction/disposisi'
+    }
+
+    if(data.notif.send == true){
+        socket.emit(data.notif.act, {
+            tujuan_surat: $('#form-surat-masuk').find('select[name="tujuan_surat"]').val(),
+            no_surat: $('#form-surat-masuk').find('input[name="nomor_surat"]').val(),
+            tx_number: data.txNumber,
+            user_except: data.notif.user_except
+        })
     }
 
     table.ajax.reload()
+    $('.form-control').each((k, el) => {
+        $(el).css('text-transform', 'uppercase')
+    })
 }
 
 function success_pindah(data){
