@@ -245,24 +245,34 @@ class PermintaanNoSuratController extends Controller
     
     public function logPermintaanSurat()
     {
-        $user = Auth::getUser();
-        $dataSurat = LogSuratKeluar::where('posisi_surat',$user->organization)
-            ->distinct('tx_number')
-            ->with('statusSurat')
+        $dataSurat = LogSuratKeluar::with('statusSurat')
+            ->with('tujuanSurat')
+            ->with('posisiSurat')
             ->with('suratKeluar')
+            ->distinct('tx_number')
+            ->whereHas('posisiSurat',function($surat){
+                $user = Auth::getUser();
+                $surat->where('posisi_surat',$user->organization);
+            })
             ->get();
+
 
         return DataTables::of($dataSurat)
                 ->addIndexColumn()
                 ->editColumn('no_draft_surat', function($data){
                     return $data->tx_number;
                 })
+                ->editColumn('tgl_surat', function($data){
+                    return $data->suratKeluar->tgl_surat;
+                })
+                ->editColumn('perihal', function($data){
+                    return $data->suratKeluar->perihal;
+                })
                 ->editColumn('tujuan_surat', function($data){
-                    $tujuan_surat = $data->suratKeluar->tujuanSurat;
-                    return $tujuan_surat->entity_name;
+                    return $data->suratKeluar->tujuanSurat->entity_name;
                 })
                 ->editColumn('status', function($data){
-                    $surat = $data->suratKeluar;
+                    $data = $data->suratKeluar;
                     $bg = '';
                     if ($data->status_surat == '1') {
                         $bg = 'bg-label-warning';
@@ -289,7 +299,7 @@ class PermintaanNoSuratController extends Controller
 
                     return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
                 })
-                ->rawColumns(['no_draft_surat','tujuan_surat','status'])
+                ->rawColumns(['no_draft_surat','tgl_surat','perihal','status'])
                 ->make(true);
     }
     

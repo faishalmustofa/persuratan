@@ -2,6 +2,8 @@
 
 namespace App\Models\Transaction;
 
+use App\Models\Master\EntityTujuanSurat;
+use App\Models\Master\Organization;
 use App\Models\Master\StatusSurat;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -23,5 +25,13 @@ class LogSuratKeluar extends Model
     
     function updatedBy(){
         return $this->hasOne(User::class, 'id', 'updated_by');
+    }
+
+    function posisiSurat(){
+        return $this->hasOne(Organization::class, 'id', 'posisi_surat');
+    }
+
+    function tujuanSurat(){
+        return $this->hasOne(EntityTujuanSurat::class, 'id', 'entity_tujuan_surat');
     }
 }

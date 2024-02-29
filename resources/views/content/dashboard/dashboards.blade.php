@@ -76,8 +76,8 @@
         </p>
       </div>
     </div>
-  </div>
-  <div class="col-sm-6 col-lg-3 mb-4">
+    </div>
+    <div class="col-sm-6 col-lg-3 mb-4">
     <div class="card card-border-shadow-info h-100">
       <div class="card-body">
         <div class="d-flex align-items-center mb-2 pb-1">
@@ -117,12 +117,7 @@
           </ul>
         </div>
       </div>
-      <div class="card-body">
-        <div id="chartMingguanMasuk"></div>
-      </div>
-    </div>
-  </div>
-  <!--/ Chart Perbulan -->
+      <!--/ Chart Perbulan -->
 
   <!-- Chart Perbulan-->
   <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
@@ -150,12 +145,10 @@
           </ul>
         </div>
       </div>
-      <div class="card-body">
-        <div id="chartBulananMasuk"></div>
-      </div>
+      <!--/ Chart Perbulan -->
     </div>
   </div>
-  <!--/ Chart Perbulan -->
+</div>
 
   <!-- Chart Perbulan-->
   <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
@@ -175,12 +168,7 @@
           </ul>
         </div>
       </div>
-      <div class="card-body">
-        <div id="chartMingguanKeluar"></div>
-      </div>
-    </div>
-  </div>
-  <!--/ Chart Perbulan -->
+      <!--/ Chart Perbulan -->
 
   <!-- Chart Perbulan-->
   <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
@@ -208,15 +196,14 @@
           </ul>
         </div>
       </div>
-      <div class="card-body">
-        <div id="chartBulananKeluar"></div>
-      </div>
+      <!--/ Chart Perbulan -->
     </div>
   </div>
-  <!--/ Chart Perbulan -->
+</div>
 
+{{-- <div class="row">
   <!-- On route vehicles Table -->
-  {{-- <div class="col-12 order-5">
+  <div class="col-12 order-5">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
@@ -249,7 +236,7 @@
         </table>
       </div>
     </div>
-  </div> --}}
-</div>
+  </div>
+</div> --}}
 <!--/ On route vehicles Table -->
 @endsection
