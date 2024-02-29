@@ -153,7 +153,7 @@
     </div>
 </div>
 
-<!-- Daftar permintaan penomoran surat -->
+<!-- Daftar log permintaan penomoran surat -->
 <div class="row mb-4">
     <div class="col-md">
         <div class="card">
@@ -165,13 +165,14 @@
                 <table class="datatables-basic table table-bordered" id="table-log-permintaan-surat">
                   <thead>
                     <tr>
-                        <th></th>
-                        <th>#</th>
-                        <th>No. Draft Surat</th>
-                        <th>Tanggal Surat</th>
-                        <th>Tujuan Surat</th>
-                        <th>Perihal</th>
-                        <th>Status</th>
+                      <th></th>
+                      <th>#</th>
+                      <th>No. Draft Surat</th>
+                      <th>Tanggal Surat</th>
+                      <th>Tujuan Surat</th>
+                      <th>Perihal</th>
+                      <th>Status</th>
+                      {{-- <th>Action</th> --}}
                     </tr>
                   </thead>
                 </table>

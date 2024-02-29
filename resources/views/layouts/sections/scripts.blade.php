@@ -20,6 +20,7 @@
 <script src="{{asset('assets/vendor/libs/toastr/toastr.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/sweetalert2/sweetalert2.js')}}"></script>
 <script src="{{asset('assets/vendor/libs/animate-on-scroll/animate-on-scroll.js')}}"></script>
+<script src="{{asset('assets/vendor/js/socket.min.js')}}"></script>
 
 @yield('vendor-script')
 <!-- END: Page Vendor JS-->

@@ -1,5 +1,5 @@
 @extends('layouts/layoutMaster')
-@section('title', 'Log Surat Masuk - Timeline')
+@section('title', 'Ekspedisi Surat Masuk - Data Ekspedisi')
 
 @section('page-script')
     <script src="{{ asset('assets/js/transaction/log-surat-masuk.js') }}"></script>
@@ -7,7 +7,7 @@
 
 @section('content')
     <h4 class="py-3 mb-4">
-        <span class="text-muted fw-light">Log Surat Masuk /</span> Timeline
+        <span class="text-muted fw-light">Ekspedisi Surat Masuk /</span> Data Ekspedisi
     </h4>
 
     <div class="row mt-4">

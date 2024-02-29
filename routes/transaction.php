@@ -34,6 +34,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
     Route::prefix('buku-agenda')->group(function(){
         Route::get('/', [BukuAgendaController::class, 'index']);
         Route::post('/get-data', [BukuAgendaController::class, 'getData']);
+        Route::post('/cetak-laporan', [BukuAgendaController::class, 'printLaporan']);
     });
 
     /** MENU DISPOSISI KELUAR */
@@ -45,6 +46,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::get('/detail/{txNo}', [DisposisiController::class, 'show']);
         Route::post('/kirim-bundling', [DisposisiController::class, 'kirimBulking']);
         Route::post('/pengiriman-surat', [DisposisiController::class, 'pengirimanSurat']);
+        Route::get('/revisi/{txNo}', [DisposisiController::class, 'revisiDisposisi']);
     });
 
     /** MENU DISPOSISI MASUK */
@@ -84,7 +86,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/tindak-surat', [PermintaanNoSuratController::class, 'tindakSurat']);
         Route::get('/ttd-surat/{txNo}', [PermintaanNoSuratController::class, 'tandaTanganSurat']);
     });
-    
+
     /** MENU BUKU AGENDA SURAT KELUAR*/
     Route::prefix('buku-agenda-surat-keluar')->group(function(){
         Route::get('/', [BukuAgendaSuratKeluar::class, 'index']);

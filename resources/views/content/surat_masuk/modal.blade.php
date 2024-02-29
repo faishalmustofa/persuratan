@@ -176,11 +176,12 @@
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalCenterTitle">Bulking Surat</h5>
+                <h5 class="modal-title" id="modalCenterTitle">Kirim Surat Bundling</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="javacript:void(0)" id="form-bulking">
                 @csrf
+                <input type="hidden" name="type-bulking">
                 <div class="modal-body" id="modal-body-bulking">
                     <div class="row justify-content-center align-items-center" id="select-tujuan-cont">
                         <div class="col-4 col-md-4">
@@ -440,6 +441,50 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-primary">Terima Surat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Print Laporan -->
+<div class="modal fade" id="modal-print-laporan" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCenterTitle">Cetak Laporan Surat Masuk</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="javascript:void(0)" id="form-laporan" class="needs-validation" novalidate>
+                <div class="modal-body">
+                    @csrf
+                    <div class="form-floating form-floating-outline mb-4">
+                        <div class="form-floating form-floating-outline mb-4">
+                            <input type="text" class="form-control" name="tgl_surat" placeholder="YYYY-MM-DD to YYYY-MM-DD" id="tgl-surat" required />
+                            <label for="tgl-surat">Tanggal Surat Diterima</label>
+                            <div class="invalid-feedback"> Mohon pilih tanggal surat diterima. </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <label class="mb-3">Pilih Jenis Surat</label>
+                        @if (isset($jenis_surat))
+                            @foreach ($jenis_surat as $jns_surat)
+                                <div class="col-md-4 col-12 mb-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="{{$jns_surat->id}}" id="{{$jns_surat->kd_jenis}}" name="jenis_laporan[]"/>
+                                        <label class="form-check-label" for="{{$jns_surat->kd_jenis}}">
+                                            {{$jns_surat->jenis_surat}} ({{$jns_surat->kd_jenis}})
+                                        </label>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Cetak Laporan</button>
                 </div>
             </form>
         </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Transaction\LogSuratKeluar;
 use Illuminate\Http\Request;
 use App\Models\Transaction\SuratKeluar;
 use App\Models\Transaction\SuratMasuk;
@@ -50,13 +51,36 @@ class DashboardController extends Controller
   {
     $totalSuratKeluar = SuratKeluar::select(SuratKeluar::raw('COUNT(*) as total'))->get();
     $totalSuratTerkirim = SuratKeluar::select(SuratKeluar::raw('COUNT(*) as total'))
-      ->where('status_surat', '18')
+      ->with('statusSurat')
+      ->whereHas('statusSurat', function($query){
+          $query->where('kode_status', '207');
+      })
       ->get();
+    $totalAgendaSurat = SuratKeluar::select(SuratKeluar::raw('COUNT(*) as total'))
+      ->with('statusSurat')
+      ->whereHas('statusSurat', function($query){
+          $query->where('kode_status', '207');
+      })
+      ->get();
+
+    $totalDraftSurat = SuratKeluar::select(SuratKeluar::raw('COUNT(*) as total'))
+    ->with('statusSurat')
+    ->whereHas('statusSurat', function($query){
+        $query->where('kode_status', '<>', '207')
+        ->orWhere('kode_status', '<>', '208')
+        ->orWhere('kode_status', '<>', '209')
+        ->orWhere('kode_status', '<>', '210')
+        ->orWhere('kode_status', '<>', '211');
+    })
+    ->get();
 
     $data = [
       'jumlahSuratKeluar' => $totalSuratKeluar[0]->total,
+      'jumlahDraftSurat' => $totalDraftSurat[0]->total,
+      'jumlahAgendaSurat' => $totalAgendaSurat[0]->total,
       'totalSuratTerkirim' => $totalSuratTerkirim[0]->total,
     ];
+
     return view('content.dashboard.dashboard-surat-keluar', $data);
   }
 
@@ -64,8 +88,6 @@ class DashboardController extends Controller
   public function suratMasukperDay(string $time)
   {
     $now = Carbon::now();
-    $startDate;
-    $endDate;
     switch ($time) {
       case '1':
         $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-01");
@@ -222,8 +244,6 @@ class DashboardController extends Controller
   public function suratKeluarperDay(string $time)
   {
     $now = Carbon::now();
-    $startDate;
-    $endDate;
     switch ($time) {
       case '1':
         $startDate = Carbon::createFromFormat('Y-m-d', "{$now->year}-{$now->month}-01");

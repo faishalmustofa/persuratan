@@ -157,16 +157,16 @@ function getLogPermintaanSurat(){
                 name: 'no_draft_surat',
             },
             {
-                data: 'surat_keluar.tgl_surat',
-                name: 'surat_keluar.tgl_surat',
+                data: 'tgl_surat',
+                name: 'tgl_surat',
             },
             {
                 data: 'tujuan_surat',
                 name: 'tujuan_surat',
             },
             {
-                data: 'surat_keluar.perihal',
-                name: 'surat_keluar.perihal',
+                data: 'perihal',
+                name: 'perihal',
                 responsivePriority: 0
             },
             {

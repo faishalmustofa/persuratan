@@ -51,7 +51,7 @@
             <span class="avatar-initial rounded bg-label-warning">
               <i class='mdi mdi-email-outline mdi-20px'></i></span>
           </div>
-          <h4 class="ms-1 mb-0 display-6">8</h4>
+          <h4 class="ms-1 mb-0 display-6">{{ $jumlahDraftSurat }}</h4>
         </div>
         <p class="mb-0 text-heading">Total Draft Surat</p>
       </div>
@@ -66,7 +66,7 @@
               <i class='mdi mdi-email-plus-outline mdi-20px'></i>
             </span>
           </div>
-          <h4 class="ms-1 mb-0 display-6">27</h4>
+          <h4 class="ms-1 mb-0 display-6">{{ $jumlahAgendaSurat }}</h4>
         </div>
         <p class="mb-0 text-heading">Total Agenda Surat Keluar</p>
       </div>

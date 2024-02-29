@@ -1,5 +1,5 @@
 @extends('layouts/layoutMaster')
-@section('title', 'Surat Masuk - Log Surat Masuk')
+@section('title', 'Surat Masuk - Ekspedisi Surat Masuk')
 
 @section('page-script')
     <script src="{{ asset('assets/js/transaction/log-surat-masuk.js') }}"></script>
@@ -8,7 +8,7 @@
 
 @section('content')
     <h4 class="py-3 mb-4">
-        <span class="text-muted fw-light">Surat Masuk /</span> Log Surat Masuk
+        <span class="text-muted fw-light">Surat Masuk /</span> Ekspedisi Surat Masuk
     </h4>
 
     <!-- Card Border Shadow -->
