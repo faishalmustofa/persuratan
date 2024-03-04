@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Reference\JenisSurat;
+use App\Models\Reference\JenisSuratMasuk;
 use App\Models\Transaction\LogSuratKeluar;
 use Illuminate\Http\Request;
 use App\Models\Transaction\SuratKeluar;
@@ -37,12 +39,14 @@ class DashboardController extends Controller
     $totalSuratDidisposisi = SuratMasuk::select(SuratMasuk::raw('COUNT(*) as total'))
       ->where('status_surat', '3')
       ->get();
-
-    $data = [
+    $jenisSurat = JenisSuratMasuk::all();
+    
+      $data = [
       'totalSuratMasuk' => $totalSuratMasuk[0]->total,
       'totalSuratDiarsipkan' => $totalSuratDiarsipkan[0]->total,
       'totalSuratDiterima' => $totalSuratDiterima[0]->total,
       'totalSuratDidisposisi' => $totalSuratDidisposisi[0]->total,
+      'jenisSurat' => $jenisSurat,
     ];
 
     return view('content.dashboard.dashboard-surat-masuk', $data);
@@ -53,7 +57,7 @@ class DashboardController extends Controller
     $totalSuratTerkirim = SuratKeluar::select(SuratKeluar::raw('COUNT(*) as total'))
       ->with('statusSurat')
       ->whereHas('statusSurat', function($query){
-          $query->where('kode_status', '207');
+          $query->where('kode_status', '207')->orWhere('kode_status', '208');
       })
       ->get();
     $totalAgendaSurat = SuratKeluar::select(SuratKeluar::raw('COUNT(*) as total'))
@@ -63,22 +67,26 @@ class DashboardController extends Controller
       })
       ->get();
 
-    $totalDraftSurat = SuratKeluar::select(SuratKeluar::raw('COUNT(*) as total'))
-    ->with('statusSurat')
+    $totalDraftSurat = SuratKeluar::with('statusSurat')
     ->whereHas('statusSurat', function($query){
-        $query->where('kode_status', '<>', '207')
-        ->orWhere('kode_status', '<>', '208')
-        ->orWhere('kode_status', '<>', '209')
-        ->orWhere('kode_status', '<>', '210')
-        ->orWhere('kode_status', '<>', '211');
+      $query->where('kode_status', '=', '201')
+        ->orWhere('kode_status', '=', '202')
+        ->orWhere('kode_status', '=', '203')
+        ->orWhere('kode_status', '=', '204')
+        ->orWhere('kode_status', '=', '205')
+        ->orWhere('kode_status', '=', '210')
+        ->orWhere('kode_status', '=', '211');
     })
-    ->get();
+    ->count();
+
+    $jenisSurat = JenisSurat::all();
 
     $data = [
       'jumlahSuratKeluar' => $totalSuratKeluar[0]->total,
-      'jumlahDraftSurat' => $totalDraftSurat[0]->total,
+      'jumlahDraftSurat' => $totalDraftSurat,
       'jumlahAgendaSurat' => $totalAgendaSurat[0]->total,
       'totalSuratTerkirim' => $totalSuratTerkirim[0]->total,
+      'jenisSurat' => $jenisSurat,
     ];
 
     return view('content.dashboard.dashboard-surat-keluar', $data);
@@ -269,7 +277,10 @@ class DashboardController extends Controller
       ->get();
 
     $suratKeluarDikirim = SuratKeluar::select('tgl_surat', SuratKeluar::raw('COUNT(*) as total'))
-      ->where('status_surat', '18')
+      ->with('statusSurat')
+      ->whereHas('statusSurat', function($query){
+          $query->where('kode_status', '207')->orWhere('kode_status', '208');
+      })
       ->whereDate('tgl_surat', '>=', $startDate)
       ->whereDate('tgl_surat', '<=', $endDate)
       ->groupBy('tgl_surat')
@@ -346,7 +357,10 @@ class DashboardController extends Controller
       ->get();
 
     $suratKeluarDikirim = SuratKeluar::select('tgl_surat', SuratKeluar::raw('COUNT(*) as total'))
-      ->where('status_surat', '18')
+      ->with('statusSurat')
+      ->whereHas('statusSurat', function($query){
+          $query->where('kode_status', '207')->orWhere('kode_status', '208');
+      })
       ->whereDate('tgl_surat', '>=', $startDate)
       ->whereDate('tgl_surat', '<=', $endDate)
       ->groupBy('tgl_surat')

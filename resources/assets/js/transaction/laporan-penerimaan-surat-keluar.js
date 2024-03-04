@@ -89,6 +89,10 @@ function getDataSuratMasuk(){
                 name: 'no_draft_surat',
             },
             {
+                data: 'no_surat',
+                name: 'no_surat',
+            },
+            {
                 data: 'tgl_surat',
                 name: 'tgl_surat',
             },
@@ -99,6 +103,18 @@ function getDataSuratMasuk(){
             {
                 data: 'perihal',
                 name: 'perihal',
+                responsivePriority: 0
+            },
+            {
+                data: 'updated_at',
+                name: 'updated_at',
+                orderable: false,
+                responsivePriority: 0
+            },
+            {
+                data: 'posisi_surat',
+                name: 'posisi_surat',
+                orderable: false,
                 responsivePriority: 0
             },
             {
@@ -182,6 +198,7 @@ function input_success(data) {
     // });
 
     table.ajax.reload()
+    table_log.ajax.reload()
     // $('#form-surat-keluar').removeClass('was-validated')
     // $('#form-surat-keluar').find('input').val('')
     // $('#form-surat-keluar').find('textarea').val('')
@@ -190,7 +207,7 @@ function input_success(data) {
 
 function detailSurat(txNo) {
     txNo = btoa(txNo)
-    ajaxGetJson(`/transaction/pengiriman-surat-keluar/detail/${txNo}`, 'showModalDetail', 'error_get')
+    ajaxGetJson(`/transaction/laporan-penerimaan-surat/detail/${txNo}`, 'showModalDetail', 'error_get')
 }
 
 function showModalDetail(res){
@@ -278,6 +295,7 @@ function buat_laporan_success(data) {
 
     $('#modal-detail').modal('toggle')
     table.ajax.reload()
+    table_log.ajax.reload()
     
 }
 

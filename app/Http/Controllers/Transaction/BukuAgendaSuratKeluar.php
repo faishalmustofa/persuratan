@@ -58,7 +58,7 @@ class BukuAgendaSuratKeluar extends Controller
         $status_surat = Helpers::getStatusSurat('206')->id;
         $posisi = $surat->konseptorSurat->organization;
         $bulan_romawi = Helpers::getBulanRomawi(Carbon::now()->format('m'));
-        $nomor_surat = $surat->jenisSurat->nama .'/'.$request->nomor_surat.'/'. $bulan_romawi .'/'. Carbon::now()->year; //input data
+        $nomor_surat = $request->nomor_surat; //input data
         
         $file = '';
         if ($request->hasFile('file_surat')) {
@@ -120,6 +120,15 @@ class BukuAgendaSuratKeluar extends Controller
                 ->editColumn('no_draft_surat', function($data){
                     return $data->tx_number;
                 })
+                ->editColumn('updated_at', function($data){
+                    $tgl_diperbarui = Carbon::parse($data->updated_at)->translatedFormat('d F Y H:i T');
+                    return $tgl_diperbarui;
+                })
+                ->editColumn('posisi_surat', function($data){
+                    $status_surat = StatusSurat::find($data->status_surat)->kode_status;
+                    $posisi = $status_surat == '208' ? $data->entity_tujuan_surat_detail :  $data->posisiSurat->leader_alias;
+                    return $posisi;
+                })
                 ->editColumn('status', function($data){
                     $bg = '';
                     if ($data->status_surat == '1') {
@@ -139,30 +148,51 @@ class BukuAgendaSuratKeluar extends Controller
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
                 })
-                ->rawColumns(['no_draft_surat','status','action'])
+                ->rawColumns(['no_draft_surat','posisi_surat','status','action'])
                 ->make(true);
     }
 
     public function logAgenda()
     {
-        $user = Auth::getUser();
-        $dataSurat = LogSuratKeluar::where('posisi_surat',$user->organization)
-            ->distinct('tx_number')
-            ->with('statusSurat')
+        $dataSurat = LogSuratKeluar::with('statusSurat')
+            ->with('tujuanSurat')
+            ->with('posisiSurat')
             ->with('suratKeluar')
+            ->distinct('tx_number')
+            ->whereHas('posisiSurat',function($surat){
+                $user = Auth::getUser();
+                $surat->where('posisi_surat',$user->organization);
+            })
             ->get();
+
 
         return DataTables::of($dataSurat)
                 ->addIndexColumn()
                 ->editColumn('no_draft_surat', function($data){
-                    return $data->tx_number;
+                    $status_surat = StatusSurat::find($data->suratKeluar->status_surat)->kode_status;
+                    $nomor = ($status_surat == '206' || $status_surat == '207' || $status_surat == '208') ? $data->suratKeluar->no_surat : $data->tx_number;
+                    return $nomor;
+                })
+                ->editColumn('tgl_surat', function($data){
+                    return $data->suratKeluar->tgl_surat;
+                })
+                ->editColumn('perihal', function($data){
+                    return $data->suratKeluar->perihal;
                 })
                 ->editColumn('tujuan_surat', function($data){
-                    $tujuan_surat = $data->suratKeluar->tujuanSurat;
-                    return $tujuan_surat->entity_name;
+                    return $data->suratKeluar->tujuanSurat->entity_name;
+                })
+                ->editColumn('updated_at', function($data){
+                    $tgl_diperbarui = Carbon::parse($data->suratKeluar->updated_at)->translatedFormat('d F Y H:i T');
+                    return $tgl_diperbarui;
+                })
+                ->editColumn('posisi_surat', function($data){
+                    $status_surat = StatusSurat::find($data->suratKeluar->status_surat)->kode_status;
+                    $posisi = $status_surat == '208' ? $data->suratKeluar->entity_tujuan_surat_detail :  $data->posisiSurat->leader_alias;
+                    return $posisi;
                 })
                 ->editColumn('status', function($data){
-                    $surat = $data->suratKeluar;
+                    $data = $data->suratKeluar;
                     $bg = '';
                     if ($data->status_surat == '1') {
                         $bg = 'bg-label-warning';
@@ -188,9 +218,8 @@ class BukuAgendaSuratKeluar extends Controller
                     }
 
                     return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
-
                 })
-                ->rawColumns(['no_draft_surat','tujuan_surat','status'])
+                ->rawColumns(['no_draft_surat','tgl_surat','perihal','posisi_surat','status'])
                 ->make(true);
     }
 
@@ -241,17 +270,18 @@ class BukuAgendaSuratKeluar extends Controller
                 throw new Exception('Data Disposisi tidak ditemukan atau operator belum melakukan update disposisi', 404);
             } else {
                 $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="kirimSurat(`'.$surat->tx_number.'`)">KIRIM SURAT</button>';
-                
+                $agenda_surat = LogSuratKeluar::where('status',Helpers::getStatusSurat('206')->id)->where('tx_number',$surat->tx_number)->first();
                 $header = [
                     'konseptor' => $konseptor->name,
-                    'tgl_surat' => Carbon::parse($surat->tgl_surat)->translatedFormat('d F Y'),
+                    'tgl_surat' => Carbon::parse($surat->tgl_surat)->translatedFormat('d F Y H:i T'),
+                    'tgl_agenda_surat' => Carbon::parse($agenda_surat->created_at)->translatedFormat('d F Y H:i T'),
                     'penandatangan' => $penandatangan->leader_alias,
                     'perihal' => $surat->perihal,
                     'catatan_surat' => $surat->catatan ?? 'TIDAK ADA',
-                    'status_surat' => $status_surat->description.' oleh ',
+                    'status_surat' => $status_surat->description.' oleh '.$agenda_surat->updatedBy->name,
                     'tujuan_surat' => $entity_tujuan_surat->entity_name.' - '.$surat->entity_tujuan_surat_detail,
-                    // 'btn_action' => $btn_action ?? '',
-                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->tx_number.')" title="Download File">'.$surat->tx_number.'</a>',
+                    // 'updated_by' => $agenda_surat->updated_by,
+                    'file_surat' => '<a href="'.route('download-surat-keluar',['txNo'=> base64_encode($surat->tx_number)]).'" type="button" class="badge rounded-pill bg-label-info" data-bs-toggle="tooltip" data-bs-placement="bottom" onclick="downloadFile('.$surat->no_surat.')" title="Download File">'.$surat->no_surat.'</a>',
                 ];
                 $detail = [
                     'tx_number' => $surat->tx_number

@@ -89,7 +89,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
 
     /** MENU BUKU AGENDA SURAT KELUAR*/
     Route::prefix('buku-agenda-surat-keluar')->group(function(){
-        Route::get('/', [BukuAgendaSuratKeluar::class, 'index']);
+        Route::get('/', [BukuAgendaSuratKeluar::class, 'index'])->name('agenda-surat-keluar');
         Route::post('/buat-agenda-surat', [BukuAgendaSuratKeluar::class, 'buatAgenda']);
         Route::post('/log-data', [BukuAgendaSuratKeluar::class, 'logAgenda']);
         Route::get('/get-form-kirim-surat/{txNo}', [BukuAgendaSuratKeluar::class, 'getFormKirimSurat']);
@@ -105,12 +105,13 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/get-data', [PengirimanSuratKeluarController::class, 'getData']);
         Route::get('/detail/{txNo}', [PengirimanSuratKeluarController::class, 'show']);
     });
-
+    
     /** MENU PENGIRIMAN SURAT KELUAR*/
     Route::prefix('laporan-penerimaan-surat')->group(function(){
         Route::get('/', [LaporanPenerimaanSuratController::class, 'index']);
         Route::get('/buat-laporan-penerimaan/{txNo}', [LaporanPenerimaanSuratController::class, 'buatPenerimaansurat']);
         Route::post('/get-data', [LaporanPenerimaanSuratController::class, 'getData']);
+        Route::get('/detail/{txNo}', [LaporanPenerimaanSuratController::class, 'show']);
     });
 });
 

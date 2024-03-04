@@ -34,6 +34,7 @@ $(function () {
     }
   };
 
+  //start chart minguan
   const chartMingguan = document.querySelector('#chartMingguan'),
     chartMingguanConfig = {
       series: [
@@ -213,7 +214,9 @@ $(function () {
     const mingguan = new ApexCharts(chartMingguan, chartMingguanConfig);
     mingguan.render();
   }
+  //end chart minguan
 
+  //start chart bulanan
   const chartBulanan = document.querySelector('#chartBulanan'),
     chartBulananConfig = {
       series: [
@@ -393,6 +396,189 @@ $(function () {
     const bulanan = new ApexCharts(chartBulanan, chartBulananConfig);
     bulanan.render();
   }
+  //end chart bulanan
+
+  //start chart jenis surat
+  const chartJenisSurat = document.querySelector('#chartJenisSurat'),
+  chartJenisSuratConfig = {
+      series: [
+        {
+          name: 'Surat Keluar',
+          type: 'column',
+          data: []
+        },
+        {
+          name: 'Dikirim',
+          type: 'line',
+          data: []
+        }
+      ],
+      chart: {
+        id: 'chartBulanan',
+        height: 270,
+        type: 'line',
+        stacked: false,
+        parentHeightOffset: 0,
+        toolbar: {
+          show: false
+        },
+        zoom: {
+          enabled: false
+        }
+      },
+      markers: {
+        size: 4,
+        colors: [config.colors.white],
+        strokeColors: chartColors.line.series2,
+        hover: {
+          size: 6
+        },
+        borderRadius: 4
+      },
+      stroke: {
+        curve: 'smooth',
+        width: [0, 3],
+        lineCap: 'round'
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        markers: {
+          width: 8,
+          height: 8,
+          offsetX: -3
+        },
+        height: 40,
+        offsetY: 10,
+        itemMargin: {
+          horizontal: 10,
+          vertical: 0
+        },
+        fontSize: '15px',
+        fontFamily: 'Inter',
+        fontWeight: 400,
+        labels: {
+          colors: headingColor,
+          useSeriesColors: false
+        },
+        offsetY: 10
+      },
+      grid: {
+        strokeDashArray: 8
+      },
+      colors: [chartColors.line.series1, chartColors.line.series2],
+      fill: {
+        opacity: [1, 1]
+      },
+      plotOptions: {
+        bar: {
+          columnWidth: '30%',
+          startingShape: 'rounded',
+          endingShape: 'rounded',
+          borderRadius: 4
+        }
+      },
+      dataLabels: {
+        enabled: false
+      },
+      xaxis: {
+        tickAmount: 10,
+        categories: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','November','Desember'],
+        labels: {
+          style: {
+            colors: labelColor,
+            fontSize: '13px',
+            fontFamily: 'Inter',
+            fontWeight: 400
+          }
+        },
+        axisBorder: {
+          show: false
+        },
+        axisTicks: {
+          show: false
+        }
+      },
+      yaxis: {
+        tickAmount: 4,
+        min: 0,
+        labels: {
+          style: {
+            colors: labelColor,
+            fontSize: '13px',
+            fontFamily: 'Inter',
+            fontWeight: 400
+          },
+          formatter: function (val) {
+            return val;
+          }
+        }
+      },
+      responsive: [
+        {
+          breakpoint: 1400,
+          options: {
+            chart: {
+              height: 270
+            },
+            xaxis: {
+              labels: {
+                style: {
+                  fontSize: '10px'
+                }
+              }
+            },
+            legend: {
+              itemMargin: {
+                vertical: 0,
+                horizontal: 10
+              },
+              fontSize: '13px',
+              offsetY: 12
+            }
+          }
+        },
+        {
+          breakpoint: 1399,
+          options: {
+            chart: {
+              height: 415
+            },
+            plotOptions: {
+              bar: {
+                columnWidth: '50%'
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 982,
+          options: {
+            plotOptions: {
+              bar: {
+                columnWidth: '30%'
+              }
+            }
+          }
+        },
+        {
+          breakpoint: 480,
+          options: {
+            chart: {
+              height: 250
+            },
+            legend: {
+              offsetY: 7
+            }
+          }
+        }
+      ]
+    };
+  if (typeof chartJenisSurat !== undefined && chartJenisSurat !== null) {
+    const jenisSurat = new ApexCharts(chartJenisSurat, chartJenisSuratConfig);
+    jenisSurat.render();
+  }
+  //end chart jenis surat
 
   getDataHarian('1');
   getDataMingguan('01');
@@ -595,9 +781,6 @@ function showDataHarian(res) {
     return false;
   }
 
-  console.log(res.data);
-  // let data1 = res.data.suratkeluar;
-  // let data2 = res.data.diarsipkan;
   $('#buttonMingguan').text(res.data.time);
   ApexCharts.exec('chartMingguan', 'updateOptions', {
     series: [
@@ -848,7 +1031,7 @@ function showDataMingguan(res) {
     error_notif(text);
     return false;
   }
-  console.log(res.data);
+  
   $('#buttonBulanan').text(res.data.time);
 
   ApexCharts.exec(
@@ -1098,6 +1281,7 @@ function error_notif(text) {
     hideMethod: 'fadeOut'
   };
 }
+
 // DataTable (jquery)
 // --------------------------------------------------------------------
 // $(function () {

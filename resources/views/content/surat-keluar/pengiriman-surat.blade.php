@@ -155,13 +155,15 @@
               <table class="datatables-basic table table-bordered" id="table-log-pengiriman-surat">
                 <thead>
                   <tr>
-                      <th></th>
-                      <th>#</th>
-                      <th>No. Draft Surat</th>
-                      <th>Tanggal Surat</th>
-                      <th>Tujuan Surat</th>
-                      <th>Perihal</th>
-                      <th>Status</th>
+                    <th></th>
+                    <th>#</th>
+                    <th>No. Surat</th>
+                    <th>Tanggal Surat</th>
+                    <th>Tujuan Surat</th>
+                    <th>Perihal</th>
+                    <th>Tanggal Diperbarui</th>
+                    <th>Posisi Surat</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
               </table>
@@ -177,20 +179,20 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="modalCenterTitle">Detail Permintaan Nomor Surat</h5>
+          <h5 class="modal-title" id="modalCenterTitle">Detail Pengiriman Nomor Surat</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <div class="card text-white bg-primary rounded-pills mb-4">
                 <div class="card-body">
-                    <h5 class="card-title text-white">Informasi Surat Keluar</h5>
+                    <h5 class="card-title text-white">Informasi Pengiriman Surat</h5>
                     <div class="row justify-content-center align-items-center" id="header-data">
                         {{-- <div class="col-md-4 col-12 mb-2">No. Surat</div>
                         <div class="col-md-1 col-12 mb-2"> : </div>
                         <div class="col-md-7 col-12 mb-2">
                             <span class='badge rounded-pill bg-label-info' id="no_surat"></span>
                         </div> --}}
-                        <div class="col-md-4 col-12 mb-2">Draft File</div>
+                        <div class="col-md-4 col-12 mb-2">File Surat</div>
                         <div class="col-md-1 col-12 mb-2"> : </div>
                         <div class="col-md-7 col-12 mb-2">
                             <span id="file_surat"></span>
@@ -208,6 +210,14 @@
                         <div class="col-md-1 col-12 mb-2"> : </div>
                         <div class="col-md-7 col-12 mb-2">
                             <span id="tgl_surat"></span>
+                        </div>
+                        
+                        <div class="col-md-4 col-12 mb-2">
+                            Tanggal Pengiriman Surat
+                        </div>
+                        <div class="col-md-1 col-12 mb-2"> : </div>
+                        <div class="col-md-7 col-12 mb-2">
+                            <span id="tgl_pengiriman_surat"></span>
                         </div>
                         
                         <div class="col-md-4 col-12 mb-2"> Penandatangan Surat </div>

@@ -90,6 +90,10 @@ function getDataSuratMasuk(){
                 name: 'no_draft_surat',
             },
             {
+                data: 'no_surat',
+                name: 'no_surat',
+            },
+            {
                 data: 'tgl_surat',
                 name: 'tgl_surat',
             },
@@ -100,6 +104,18 @@ function getDataSuratMasuk(){
             {
                 data: 'perihal',
                 name: 'perihal',
+                responsivePriority: 0
+            },
+            {
+                data: 'updated_at',
+                name: 'updated_at',
+                orderable: false,
+                responsivePriority: 0
+            },
+            {
+                data: 'posisi_surat',
+                name: 'posisi_surat',
+                orderable: false,
                 responsivePriority: 0
             },
             {
@@ -160,16 +176,28 @@ function getLogPengirimanSurat(){
                 name: 'no_draft_surat',
             },
             {
-                data: 'surat_keluar.tgl_surat',
-                name: 'surat_keluar.tgl_surat',
+                data: 'tgl_surat',
+                name: 'tgl_surat',
             },
             {
                 data: 'tujuan_surat',
                 name: 'tujuan_surat',
             },
             {
-                data: 'surat_keluar.perihal',
-                name: 'surat_keluar.perihal',
+                data: 'perihal',
+                name: 'perihal',
+                responsivePriority: 0
+            },
+            {
+                data: 'updated_at',
+                name: 'updated_at',
+                orderable: false,
+                responsivePriority: 0
+            },
+            {
+                data: 'posisi_surat',
+                name: 'posisi_surat',
+                orderable: false,
                 responsivePriority: 0
             },
             {
@@ -253,6 +281,7 @@ function input_success(data) {
     // });
 
     table.ajax.reload()
+    table_log.ajax.reload()
     // $('#form-surat-keluar').removeClass('was-validated')
     // $('#form-surat-keluar').find('input').val('')
     // $('#form-surat-keluar').find('textarea').val('')
@@ -349,6 +378,7 @@ function get_form_success(data) {
 
     $('#modal-detail').modal('toggle')
     table.ajax.reload()
+    table_log.ajax.reload()
     
 }
 
@@ -379,6 +409,7 @@ function buat_laporan_success(data) {
 
     // $('#modal-detail').modal('toggle')
     table.ajax.reload()
+    table_log.ajax.reload()
     
 }
 

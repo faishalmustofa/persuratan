@@ -138,9 +138,12 @@
                         <th></th>
                         <th>#</th>
                         <th>No. Draft Surat</th>
+                        <th>No. Surat</th>
                         <th>Tanggal Surat</th>
                         <th>Tujuan Surat</th>
                         <th>Perihal</th>
+                        <th>Tanggal Diperbarui</th>
+                        <th>Posisi Surat</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -202,7 +205,7 @@
                                     <div class="col-md-7 col-12 mb-2">
                                         <span class='badge rounded-pill bg-label-info' id="no_surat"></span>
                                     </div> --}}
-                                    <div class="col-md-4 col-12 mb-2">File</div>
+                                    <div class="col-md-4 col-12 mb-2">File Surat</div>
                                     <div class="col-md-1 col-12 mb-2"> : </div>
                                     <div class="col-md-7 col-12 mb-2">
                                         <span id="file_surat"></span>
@@ -218,6 +221,12 @@
                                     <div class="col-md-1 col-12 mb-2"> : </div>
                                     <div class="col-md-7 col-12 mb-2">
                                         <span id="tgl_surat"></span>
+                                    </div>
+                                    
+                                    <div class="col-md-4 col-12 mb-2">Tanggal Penerimaan Surat</div>
+                                    <div class="col-md-1 col-12 mb-2"> : </div>
+                                    <div class="col-md-7 col-12 mb-2">
+                                        <span id="tgl_penerimaan_surat"></span>
                                     </div>
                                     
                                     <div class="col-md-4 col-12 mb-2"> Penandatangan Surat </div>

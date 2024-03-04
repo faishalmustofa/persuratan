@@ -105,6 +105,16 @@ class SuratKeluarController extends Controller
 
                     return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
                 })
+                ->editColumn('updated_at', function($data){
+                    // $log_surat = LogSuratKeluar::where('tx_number',$data->tx_number)->latest()->first();
+                    $tgl_diperbarui = Carbon::parse($data->updated_at)->translatedFormat('d F Y H:i T');
+                    return $tgl_diperbarui;
+                })
+                ->editColumn('posisi_surat', function($data){
+                    $status_surat = StatusSurat::find($data->status_surat)->kode_status;
+                    $posisi = $status_surat == '208' ? $data->entity_tujuan_surat_detail :  $data->posisiSurat->leader_alias;
+                    return $posisi;
+                })
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
                 })
@@ -206,6 +216,9 @@ class SuratKeluarController extends Controller
                         ->where('posisi_surat',Auth::user()->organization)
                         ->get();
 
+        // $tgl_diperbarui = Carbon::parse($dataSurat[0]->updated_at)->translatedFormat('d F Y H:i');
+        // dd($tgl_diperbarui);
+
         return DataTables::of($dataSurat)
                 ->addIndexColumn()
                 ->editColumn('no_draft_surat', function($data){
@@ -222,13 +235,14 @@ class SuratKeluarController extends Controller
                     } else if($data->status_surat == '4') {
                         $bg = 'bg-label-info';
                     }
-
+                    
                     return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$data->statusSurat->description."'>" .$data->statusSurat->name. "</span>";
                 })
+                
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
                 })
-                ->rawColumns(['no_draft_surat','status','action'])
+                ->rawColumns(['no_draft_surat','status','updated_at','action'])
                 ->make(true);
     }
 
@@ -280,7 +294,7 @@ class SuratKeluarController extends Controller
                 'no_surat' => 'BELUM DIBERI NOMOR',
                 'posisi_surat' => $asalSurat->id,
                 'jenis_surat' => $request->jenis_surat,
-                'tgl_surat' => Carbon::createFromFormat('Y-m-d',$request->tanggal_surat)->format('Y-m-d H:i:s'),
+                'tgl_surat' => Carbon::createFromFormat('Y-m-d H:i',$request->tanggal_surat)->format('Y-m-d H:i:s'),
                 'perihal' => $request->perihal,
                 'lampiran' => $request->judul_lampiran,
                 'lampiran_type' => $request->lampiran_type,
@@ -364,7 +378,8 @@ class SuratKeluarController extends Controller
                 }
                 
                 if ($surat->statusSurat->id == Helpers::getStatusSurat('206')->id) { 
-                    $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionAgendakanSurat(`'.$surat->tx_number.'`)">Agendakan</button>';
+                    // $btn_action = '<button type="button" class="btn btn-outline-warning" onclick="actionKirimSurat(`'.$surat->tx_number.'`)">Kirim Surat</button>';
+                    $btn_action = '<a href="'.route('agenda-surat-keluar').'" type="button" class="btn btn-outline-warning">Kirim Surat</a>';
                 }
                 $header = [
                     'konseptor' => $konseptor->name,
@@ -549,7 +564,10 @@ class SuratKeluarController extends Controller
         //     // $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="View Data" > <span class="mdi mdi-eye-outline"></span> </button>
         //     // <button class="btn btn-warning btn-sm rounded-pill" onclick="actionMintaNomorSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Data" > <span class="mdi mdi-file-edit-outline"></span> </button>';
         // }
-        $html = '<button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>';
+        $html = '
+        <button class="btn btn-info btn-sm rounded-pill px-2" onclick="detailSurat(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat detail" ><span class="mdi mdi-briefcase-eye-outline"></span></button>
+        <button class="btn btn-outline-primary btn-sm rounded-pill px-2" onclick="showTimeline()" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat timeline surat" > <span class="mdi mdi-timeline-text-outline"></span> </button>
+        ';
 
         return $html;
     }

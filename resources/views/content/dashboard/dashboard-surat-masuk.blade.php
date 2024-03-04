@@ -98,12 +98,54 @@
 
 <div class="row">
   
-  <!-- Chart Perbulan-->
+  <!-- Chart Jenis Surat-->
   <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
-          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Surat Masuk Bulan Ini</h5>
+          <h5 class="m-0 me-2 mb-1">Statistik Jenis Surat Tahun Ini
+          <p class="text-body mb-0">Total Surat Masuk {{ $totalSuratMasuk }}</p>
+        </div>
+        <div class="dropdown">
+          <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" id="buttonJenisSurat" aria-expanded="false">Biasa</button>
+          <ul class="dropdown-menu">
+            @if ($jenisSurat)
+              @foreach ($jenisSurat as $js)
+                <li>
+                  <a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan({{$js->jenis_surat}})">
+                    {{ $js->deskripsi }}
+                  </a>
+                </li>
+              @endforeach
+            @endif
+          </ul>
+
+          <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" id="buttonTahun" aria-expanded="false">2024</button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('2025')">2025</a></li>
+            <li><a class="dropdown-item" href="javascript:void(0);" onclick="getDataMingguan('2026')">2026</a></li>
+          </ul>
+          
+          <button type="button" class="btn btn-outline-warning" id="filterJenisSurat">Filter</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="chartJenisSurat"></div>
+      </div>
+    </div>
+  </div>
+  <!--/ Chart Jenis Surat -->
+  
+</div>
+
+<div class="row">
+  
+  <!-- Chart Perbulan-->
+  <div class="col-lg-6 col-xxl-6 mb-4 order-3 order-xxl-1">
+    <div class="card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="card-title mb-0">
+          <h5 class="m-0 me-2 mb-1">Statistik Mingguan Bulan Ini</h5>
           <p class="text-body mb-0">Total Surat Masuk {{ $totalSuratMasuk }}</p>
         </div>
         <div class="dropdown">
@@ -124,11 +166,11 @@
   <!--/ Chart Perbulan -->
 
   <!-- Chart Perbulan-->
-  <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
+  <div class="col-lg-6 col-xxl-6 mb-4 order-3 order-xxl-1">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
-          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Surat Masuk Tahun Ini</h5>
+          <h5 class="m-0 me-2 mb-1">Statistik Bulanan Tahun Ini</h5>
           <p class="text-body mb-0">Total Surat Masuk {{ $totalSuratMasuk }}</p>
         </div>
         <div class="dropdown">
