@@ -100,7 +100,7 @@
 <div class="row">
   
   <!-- Chart Perbulan-->
-  <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
+  <div class="col-lg-6 col-xxl-6 mb-4 order-3 order-xxl-1">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
@@ -117,10 +117,12 @@
           </ul>
         </div>
       </div>
-      <!--/ Chart Perbulan -->
+    </div>
+  </div>
+  <!--/ Chart Perbulan -->
 
   <!-- Chart Perbulan-->
-  <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
+  <div class="col-lg-6 col-xxl-6 mb-4 order-3 order-xxl-1">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
@@ -145,13 +147,15 @@
           </ul>
         </div>
       </div>
-      <!--/ Chart Perbulan -->
     </div>
+    <!--/ Chart Perbulan -->
   </div>
+
 </div>
 
+<div class="row">
   <!-- Chart Perbulan-->
-  <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
+  <div class="col-lg-6 col-xxl-6 mb-4 order-3 order-xxl-1">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
@@ -168,10 +172,12 @@
           </ul>
         </div>
       </div>
-      <!--/ Chart Perbulan -->
+    </div>
+  </div>
+  <!--/ Chart Perbulan -->
 
   <!-- Chart Perbulan-->
-  <div class="col-lg-12 col-xxl-12 mb-4 order-3 order-xxl-1">
+  <div class="col-lg-6 col-xxl-6 mb-4 order-3 order-xxl-1">
     <div class="card">
       <div class="card-header d-flex align-items-center justify-content-between">
         <div class="card-title mb-0">
@@ -196,9 +202,9 @@
           </ul>
         </div>
       </div>
-      <!--/ Chart Perbulan -->
     </div>
   </div>
+  <!--/ Chart Perbulan -->
 </div>
 
 {{-- <div class="row">

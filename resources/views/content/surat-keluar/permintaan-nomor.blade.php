@@ -138,9 +138,12 @@
                         <th></th>
                         <th>#</th>
                         <th>No. Draft Surat</th>
+                        <th>No. Surat</th>
                         <th>Tanggal Surat</th>
                         <th>Tujuan Surat</th>
                         <th>Perihal</th>
+                        <th>Tanggal Diperbarui</th>
+                        <th>Posisi Surat</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
@@ -171,6 +174,8 @@
                       <th>Tanggal Surat</th>
                       <th>Tujuan Surat</th>
                       <th>Perihal</th>
+                      <th>Tanggal Diperbarui</th>
+                      <th>Posisi Surat</th>
                       <th>Status</th>
                       {{-- <th>Action</th> --}}
                     </tr>

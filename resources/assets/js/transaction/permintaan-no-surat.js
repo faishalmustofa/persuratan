@@ -87,6 +87,10 @@ function getDataPermintaanSurat(){
                 name: 'no_draft_surat',
             },
             {
+                data: 'no_surat',
+                name: 'no_surat',
+            },
+            {
                 data: 'tgl_surat',
                 name: 'tgl_surat',
             },
@@ -97,6 +101,18 @@ function getDataPermintaanSurat(){
             {
                 data: 'perihal',
                 name: 'perihal',
+                responsivePriority: 0
+            },
+            {
+                data: 'updated_at',
+                name: 'updated_at',
+                orderable: false,
+                responsivePriority: 0
+            },
+            {
+                data: 'posisi_surat',
+                name: 'posisi_surat',
+                orderable: false,
                 responsivePriority: 0
             },
             {
@@ -167,6 +183,18 @@ function getLogPermintaanSurat(){
             {
                 data: 'perihal',
                 name: 'perihal',
+                responsivePriority: 0
+            },
+            {
+                data: 'updated_at',
+                name: 'updated_at',
+                orderable: false,
+                responsivePriority: 0
+            },
+            {
+                data: 'posisi_surat',
+                name: 'posisi_surat',
+                orderable: false,
                 responsivePriority: 0
             },
             {
@@ -260,6 +288,7 @@ function input_success(data) {
     });
 
     table.ajax.reload()
+    table_log.ajax.reload()
     $('#form-surat-keluar').removeClass('was-validated')
     $('#form-surat-keluar').find('input').val('')
     $('#form-surat-keluar').find('textarea').val('')
@@ -314,7 +343,7 @@ function showModalDetail(res){
     $('#section-action').html(header.btn_action)
     $('#detail-data').find('#tx_number').val(detail.tx_number)
     $('#detail-data').find('#catatan').val(detail.catatan)
-    console.log(detail)
+
     if (detail['status_surat'] == '209' & detail['user'].organization == 2) {
         $('#btn-belum-sesuai').attr("hidden",true)
     }
@@ -367,6 +396,7 @@ function agendakan_surat_success(data) {
 
     $('#modal-detail').modal('hide')
     table.ajax.reload()
+    table_log.ajax.reload()
     
 }
 
@@ -391,6 +421,7 @@ function penomoran_surat_success(data) {
     })
 
     table.ajax.reload()
+    table_log.ajax.reload()
 }
 
 function ttd_surat_success(data) {
@@ -414,6 +445,7 @@ function ttd_surat_success(data) {
     })
 
     table.ajax.reload()
+    table_log.ajax.reload()
     $('#modal-detail').modal('hide')
 }
 
@@ -438,6 +470,7 @@ function tindak_surat_success(data) {
     })
 
     table.ajax.reload()
+    table_log.ajax.reload()
     $('#modal-detail').modal('hide')
 }
 
@@ -462,6 +495,7 @@ function terima_surat_success(data) {
     })
 
     table.ajax.reload()
+    table_log.ajax.reload()
 }
 
 function minta_surat_success(data) {
@@ -485,6 +519,7 @@ function minta_surat_success(data) {
     })
 
     table.ajax.reload()
+    table_log.ajax.reload()
     $('#modal-detail').modal('hide')
 }
 

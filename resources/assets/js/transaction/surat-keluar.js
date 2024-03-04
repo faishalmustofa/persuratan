@@ -1,8 +1,7 @@
 
 'use strict';
 
-const tanggalSurat = $('#tanggal-surat'),
-    tanggalDiterima = $('#tanggal-diterima'),
+const tanggalDiterima = $('#tanggal-diterima'),
     jenis_surat = $('#jenis_surat'),
     tujuan_surat = $('#tujuan_surat'),
     unit_kerja_pemohon = $('#unit_kerja_pemohon'),
@@ -10,28 +9,40 @@ const tanggalSurat = $('#tanggal-surat'),
 var table
 
 $(function () {
-    $('#with-document').change(function() {
+    $('#with-document').on('change', function() {
         $('#without-document').prop('checked', false);
         $("#file-surat").attr('required',true);
         $("#without-document").removeAttr('required');
     })
       
-    $('#without-document').change(function() {
+    $('#without-document').on('change', function() {
         $('#with-document').prop('checked', false);
         $("#file-surat").removeAttr('required');
         $("#with-document").removeAttr('required');
     })
 
+    var tanggalSurat = $('#tanggal-surat')
+
     tanggalSurat.flatpickr({
-        altInput: true,
-        altFormat: 'F j, Y',
-        dateFormat: 'Y-m-d'
+        // altInput: true,
+        enableTime: true,
+        allowInput: true,
+        // altFormat: 'Y-m-d H:i',
+        dateFormat: 'Y-m-d H:i'
     });
-    tanggalDiterima.flatpickr({
-        altInput: true,
-        altFormat: 'F j, Y',
-        dateFormat: 'Y-m-d'
-    });
+
+    // tanggalDiterima.flatpickr({
+    //     altInput: true,
+    //     altFormat: 'F j, Y',
+    //     dateFormat: 'Y-m-d'
+    // });
+
+    var waktuSurat = document.querySelector("#waktu_surat");
+
+    // waktuSurat.flatpickr({
+    //     enableTime: true,
+    //     noCalendar: true
+    // });
 
     // Init custom option check
   window.Helpers.initCustomOptionCheck();
@@ -59,17 +70,17 @@ $(function () {
     });
   }
 
-    var forms = document.querySelectorAll('.needs-validation')
+    // var forms = document.querySelectorAll('.needs-validation')
 
-    Array.prototype.slice.call(forms).forEach(function (form) {
-        form.addEventListener('submit', function (event) {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
-            form.classList.add('was-validated')
-        }, false)
-    })
+    // Array.prototype.slice.call(forms).forEach(function (form) {
+    //     form.addEventListener('submit', function (event) {
+    //         if (!form.checkValidity()) {
+    //             event.preventDefault()
+    //             event.stopPropagation()
+    //         }
+    //         form.classList.add('was-validated')
+    //     }, false)
+    // })
 
     $('#form-surat-keluar').on('submit', function (e) {
         if (this.checkValidity()) {
@@ -183,6 +194,10 @@ function getDataSuratMasuk(){
                 name: 'no_draft_surat',
             },
             {
+                data: 'no_surat',
+                name: 'no_surat',
+            },
+            {
                 data: 'tgl_surat',
                 name: 'tgl_surat',
             },
@@ -193,16 +208,31 @@ function getDataSuratMasuk(){
             {
                 data: 'perihal',
                 name: 'perihal',
+                orderable: false,
+                responsivePriority: 0
+            },
+            {
+                data: 'updated_at',
+                name: 'updated_at',
+                orderable: false,
+                responsivePriority: 0
+            },
+            {
+                data: 'posisi_surat',
+                name: 'posisi_surat',
+                orderable: false,
                 responsivePriority: 0
             },
             {
                 data: 'status',
                 name: 'status',
+                orderable: false,
                 responsivePriority: 0
             },
             {
                 data: 'action',
                 name: 'action',
+                orderable: false,
                 responsivePriority: 0
             }
         ],

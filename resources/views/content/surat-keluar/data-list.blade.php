@@ -5,10 +5,13 @@
             <th></th>
             <th>#</th>
             <th>No. Draft Surat</th>
+            <th>No. Surat</th>
             <th>Tanggal Surat</th>
             <th>Tujuan Surat</th>
             <th>Perihal</th>
-            <th>Status</th>
+            <th>Tanggal Diperbarui</th>
+            <th>Posisi Surat</th>
+            <th>Status Surat</th>
             <th>Action</th>
         </tr>
       </thead>

@@ -202,11 +202,21 @@ class PermintaanNoSuratController extends Controller
                             ->where('asal_surat','<>',Auth::user()->organization);
                         })
                         ->get();
+                        
 
         return DataTables::of($dataSurat)
                 ->addIndexColumn()
                 ->editColumn('no_draft_surat', function($data){
                     return $data->tx_number;
+                })
+                ->editColumn('updated_at', function($data){
+                    $tgl_diperbarui = Carbon::parse($data->updated_at)->translatedFormat('d F Y H:i T');
+                    return $tgl_diperbarui;
+                })
+                ->editColumn('posisi_surat', function($data){
+                    $status_surat = StatusSurat::find($data->status_surat)->kode_status;
+                    $posisi = $status_surat == '208' ? $data->entity_tujuan_surat_detail :  $data->posisiSurat->leader_alias;
+                    return $posisi;
                 })
                 ->editColumn('status', function($data){
                     $bg = '';
@@ -239,7 +249,7 @@ class PermintaanNoSuratController extends Controller
                 ->editColumn('action', function($data){
                     return self::renderAction($data);
                 })
-                ->rawColumns(['no_draft_surat','status','action'])
+                ->rawColumns(['no_draft_surat','posisi_surat','status','action'])
                 ->make(true);
     }
     
@@ -271,6 +281,15 @@ class PermintaanNoSuratController extends Controller
                 ->editColumn('tujuan_surat', function($data){
                     return $data->suratKeluar->tujuanSurat->entity_name;
                 })
+                ->editColumn('updated_at', function($data){
+                    $tgl_diperbarui = Carbon::parse($data->suratKeluar->updated_at)->translatedFormat('d F Y H:i T');
+                    return $tgl_diperbarui;
+                })
+                ->editColumn('posisi_surat', function($data){
+                    $status_surat = StatusSurat::find($data->suratKeluar->status_surat)->kode_status;
+                    $posisi = $status_surat == '208' ? $data->suratKeluar->entity_tujuan_surat_detail :  $data->posisiSurat->leader_alias;
+                    return $posisi;
+                })
                 ->editColumn('status', function($data){
                     $data = $data->suratKeluar;
                     $bg = '';
@@ -299,7 +318,7 @@ class PermintaanNoSuratController extends Controller
 
                     return "<span class='badge rounded-pill $bg' data-bs-toggle='tooltip' data-bs-placement='top' title='".$desc."'>" .$desc. "</span>";
                 })
-                ->rawColumns(['no_draft_surat','tgl_surat','perihal','status'])
+                ->rawColumns(['no_draft_surat','tgl_surat','perihal','posisi_surat','status'])
                 ->make(true);
     }
     

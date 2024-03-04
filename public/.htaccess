@@ -17,8 +17,6 @@
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^(?!persuratan/)(.*)$ persuratan/$1 [L,NC]
-    RewriteRule ^(.*)$ public/$1 [L]
     RewriteRule ^ index.php [L]
 
 </IfModule>
