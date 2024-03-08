@@ -291,7 +291,7 @@ class SuratMasukController extends Controller
                 throw new Exception($msgLog, $statusLog);
             }
 
-            // DB::commit();
+            DB::commit();
             return response()->json([
                 'status' => JsonResponse::HTTP_OK,
                 'message' => 'Berhasil Buat Agenda Surat',
@@ -356,7 +356,8 @@ class SuratMasukController extends Controller
             $template_document->saveAs($path);
 
             $pdfPath = public_path().'/document/';
-            $convert='"C:/Program Files/LibreOffice/program/soffice" --headless --convert-to pdf "'.$path.'" --outdir "'.$pdfPath.'"';
+            $convert='"C:/LibreOfficePortablePrevious/App/libreoffice/program/soffice" --headless --convert-to pdf "'.$path.'" --outdir "'.$pdfPath.'"';
+            // $convert='"C:/Program Files/LibreOffice/program/soffice" --headless --convert-to pdf "'.$path.'" --outdir "'.$pdfPath.'"';
             if(!exec($convert)){
                 return response()->json([
                     'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,

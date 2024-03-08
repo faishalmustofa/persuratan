@@ -12,17 +12,17 @@ use Illuminate\Database\Eloquent\Model;
 class LogSuratKeluar extends Model
 {
     use HasFactory;
-    protected $table = 'log_surat_keluar';
+    protected $table = 'log_surat_keluars';
     protected $guarded = [];
 
     function statusSurat(){
         return $this->hasOne(StatusSurat::class, 'id', 'status');
     }
-    
+
     function suratKeluar(){
         return $this->hasOne(SuratKeluar::class, 'tx_number', 'tx_number');
     }
-    
+
     function updatedBy(){
         return $this->hasOne(User::class, 'id', 'updated_by');
     }

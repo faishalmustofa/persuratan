@@ -1,7 +1,17 @@
 <!DOCTYPE html>
 @php
-    $menuFixed = $configData['layout'] === 'vertical' ? $menuFixed ?? '' : ($configData['layout'] === 'front' ? '' : $configData['headerType']);
-    $navbarType = $configData['layout'] === 'vertical' ? $configData['navbarType'] : ($configData['layout'] === 'front' ? 'layout-navbar-fixed' : '');
+    $menuFixed =
+        $configData['layout'] === 'vertical'
+            ? $menuFixed ?? ''
+            : ($configData['layout'] === 'front'
+                ? ''
+                : $configData['headerType']);
+    $navbarType =
+        $configData['layout'] === 'vertical'
+            ? $configData['navbarType']
+            : ($configData['layout'] === 'front'
+                ? 'layout-navbar-fixed'
+                : '');
     $isFront = ($isFront ?? '') == true ? 'Front' : '';
     $contentLayout = isset($container) ? ($container === 'container-xxl' ? 'layout-compact' : 'layout-wide') : '';
 @endphp
@@ -53,14 +63,16 @@
     <!-- $isFront is used to append the front layout scripts only on the front layout otherwise the variable will be blank -->
     @include('layouts/sections/scripts' . $isFront)
     <script src="{{ asset('assets/js/base.js') }}"></script>
-    <script>
-        var socket = io.connect(`http://{{ $_SERVER['SERVER_ADDR'] }}:3000`)
+    {{-- <script>
+        var socket = io.connect(`http://{{ $_SERVER['SERVER_ADDR'] }}:9211`)
     </script>
     <script>
         @if (Auth::check())
             var user = {!! App\Models\User::with('org')->find(Auth::user()->id) !!};
             socket.on('new_surat', (data) => {
-                if (user.id != data.user_except && ((user.org.nama).toLowerCase() != 'taud' && (user.org.nama).toLowerCase() != 'spri' ? (data.tujuan_surat == user.org.id) : (data.tujuan_surat == user.org.parent_id))) {
+                if (user.id != data.user_except && ((user.org.nama).toLowerCase() != 'taud' && (user.org.nama)
+                        .toLowerCase() != 'spri' ? (data.tujuan_surat == user.org.id) : (data.tujuan_surat == user
+                            .org.parent_id))) {
                     Command: toastr["info"](`Nomor Surat : ${data.no_surat}`, "Terdapat Surat Masuk Baru")
 
                     toastr.options = {
@@ -85,7 +97,7 @@
 
             })
         @endif
-    </script>
+    </script> --}}
 </body>
 
 </html>
