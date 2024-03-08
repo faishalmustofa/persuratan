@@ -32,7 +32,7 @@
             <li class="dropdown-notifications-list scrollable-container">
                 <ul class="list-group list-group-flush">
                     @forelse ($notifikasi as $nt)
-                    <a href="{{url('transaction/buku-agenda')}}">
+                    <a href="{{url('transaction/buku-agenda/'.base64_encode($nt->tx_number))}}">
                         <li class="list-group-item list-group-item-action dropdown-notifications-item">
                             <div class="d-flex gap-2 align-items-center">
                                 <div class="flex-shrink-0">

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth'])->prefix('transaction')->group(function(){
     /** MENU SURAT MASUK */
     Route::prefix('surat-masuk')->group(function(){
-        Route::get('/{txNo?}', [SuratMasukController::class, 'index'])->name('create-bukuagenda');
+        Route::get('/', [SuratMasukController::class, 'index'])->name('create-bukuagenda');
         Route::post('/store', [SuratMasukController::class, 'store']);
         Route::post('/data', [SuratMasukController::class, 'data']);
         Route::get('/print-blanko/{txNo}', [SuratMasukController::class, 'printBlanko']);
@@ -32,7 +32,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
 
     /** MENU BUKU AGENDA SURAT MASUK*/
     Route::prefix('buku-agenda')->group(function(){
-        Route::get('/', [BukuAgendaController::class, 'index']);
+        Route::get('/{txNo?}', [BukuAgendaController::class, 'index']);
         Route::post('/get-data', [BukuAgendaController::class, 'getData']);
         Route::post('/cetak-laporan', [BukuAgendaController::class, 'printLaporan']);
     });
