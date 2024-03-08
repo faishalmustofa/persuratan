@@ -114,7 +114,7 @@
                 </div>
                 <div class="col-md-4 col-12 mb-4">
                     <div class="form-floating form-floating-outline">
-                        <input type="text" class="form-control" id="nomor_agenda" name="nomor_agenda" placeholder="Nomor Agenda" />
+                        <input type="text" class="form-control" id="nomor_agenda" name="nomor_agenda" placeholder="Nomor Agenda" value="{{$noAgenda}}" />
                         <label for="nomor_agenda">Nomor Agenda</label>
                     </div>
                 </div>

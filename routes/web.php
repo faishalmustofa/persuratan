@@ -12,6 +12,9 @@ use App\Http\Controllers\UserRole\UserController;
 Route::get('/login', [AuthController::class, 'loginPage'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::post('/login-process', [AuthController::class, 'loginProcess']);
+Route::get('/phpinfo', function(){
+    return phpinfo();
+});
 
 Route::middleware(['auth'])->group(function() {
     // Main Page Route

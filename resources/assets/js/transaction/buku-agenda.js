@@ -98,6 +98,17 @@ $( function(){
             processPrintLaporan()
         }
     })
+
+    if($('#nomor_agenda').val() != ''){
+        searchData()
+
+        var currentUrl = window.location.href
+        var newURL = currentUrl.split('/');
+        if(newURL.length > 5){
+            newURL = currentUrl.replace('/'+newURL[newURL.length-1], '')
+            history.pushState({}, null, newURL)
+        }
+    }
 })
 
 function searchData(){

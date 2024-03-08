@@ -11,6 +11,7 @@ class Notification extends Model
     use HasFactory;
     protected $table = 'notification';
     protected $guarded = [];
+    public $timestamps = false;
 
     function suratMasuk()
     {

@@ -7,6 +7,7 @@ use App\Models\Master\AsalSurat;
 use App\Models\Master\EntityAsalSurat;
 use App\Models\Master\Organization;
 use App\Models\Reference\JenisSuratMasuk;
+use App\Models\Reference\Notification;
 use App\Models\Transaction\SuratKeluar;
 use App\Models\Transaction\SuratMasuk;
 use App\Models\User;
@@ -22,13 +23,26 @@ class BukuAgendaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index($txNo = '')
     {
         $data['asalSurat'] = AsalSurat::all();
         $data['entityAsal'] = EntityAsalSurat::get();
         $data['organization'] = Organization::orderBy('id')->get();
         $data['user'] = User::with('org')->find(Auth::user()->id);
         $data['jenis_surat'] = JenisSuratMasuk::get();
+        $data['noAgenda'] = '';
+
+        if($txNo != ''){
+            $txNo = base64_decode($txNo);
+            $noAgenda = SuratMasuk::select('no_agenda')->where('tx_number', $txNo)->first();
+            $data['noAgenda'] = $noAgenda->no_agenda;
+
+            // Update Notification
+            Notification::where('tx_number', $txNo)->update([
+                'is_read' => 1,
+                'read_at' => Carbon::now(),
+            ]);
+        }
 
         return view('content.surat_masuk.buku-agenda', $data);
     }
