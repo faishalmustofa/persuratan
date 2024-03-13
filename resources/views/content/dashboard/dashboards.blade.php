@@ -3,6 +3,7 @@
 @section('title', 'Dashboard - Persuratan')
 
 @section('vendor-style')
+<link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/apex-charts/apex-charts.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css')}}" />
@@ -57,7 +58,6 @@
       </div>
     </div>
   </div>
-
   {{-- <div class="col-sm-6 col-lg-3 mb-4">
     <div class="card card-border-shadow-danger h-100">
       <div class="card-body">
@@ -93,9 +93,163 @@
         </p>
       </div>
     </div>
-  </div> --}}
+  </div>
+  --}}
 </div>
 <!--/ Card Border Shadow -->
+
+<div class="card mb-4">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <div class="card-title">
+      <h4 class="m-0 me-2 mb-1">Statistik Surat Divpropam Polri</h4>
+    </div>
+    <div class="form-floating form-floating-outline">
+      <select id="bag-biro" class="select2 form-select form-select-lg">
+        <option value="">PILIH BAG/BIRO</option>
+        @foreach ($penandatangan as $p)
+          <option value="{{$p->id}}">{{$p->leader_alias}}</option>
+        @endforeach
+      </select>
+      <label for="bag-biro">BAG/BIRO</label>
+    </div>
+  </div>
+  <div class="card-body">
+    
+    <div class="card mb-4 shadow-none bg-transparent border border-secondary">
+      <div class="card-body text-secondary">
+        <div class="card-title">Surat Masuk</div>
+
+        <div class="row">
+          <div class="col-lg-3">
+            <div class="card card-border-shadow-primary h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                  <div class="avatar me-2">
+                    <span class="avatar-initial rounded bg-label-primary"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
+                  </div>
+                  <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
+                </div>
+                <p class="mb-0 text-heading">Total Surat Masuk</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="card card-border-shadow-warning h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                  <div class="avatar me-2">
+                    <span class="avatar-initial rounded bg-label-warning"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
+                  </div>
+                  <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
+                </div>
+                <p class="mb-0 text-heading">Surat Diterima</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="card card-border-shadow-danger h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                  <div class="avatar me-2">
+                    <span class="avatar-initial rounded bg-label-danger"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
+                  </div>
+                  <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
+                </div>
+                <p class="mb-0 text-heading">Surat Disposisi</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="card card-border-shadow-info h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                  <div class="avatar me-2">
+                    <span class="avatar-initial rounded bg-label-info"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
+                  </div>
+                  <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
+                </div>
+                <p class="mb-0 text-heading">Surat Diarsipkan</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-none bg-transparent border border-secondary">
+      <div class="card-body text-secondary">
+        <div class="card-title">Surat Keluar</div>
+        <div class="row">
+          <div class="col-lg-3">
+            <div class="card card-border-shadow-primary h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                  <div class="avatar me-2">
+                    <span class="avatar-initial rounded bg-label-primary"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
+                  </div>
+                  <h4 class="ms-1 mb-0 display-6">{{ $totalSuratKeluar }}</h4>
+                </div>
+                <p class="mb-0 text-heading">Total Surat Keluar</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="card card-border-shadow-warning h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                  <div class="avatar me-2">
+                    <span class="avatar-initial rounded bg-label-warning"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
+                  </div>
+                  <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
+                </div>
+                <p class="mb-0 text-heading">Surat Draft</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="card card-border-shadow-danger h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                  <div class="avatar me-2">
+                    <span class="avatar-initial rounded bg-label-danger"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
+                  </div>
+                  <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
+                </div>
+                <p class="mb-0 text-heading">Surat Diagendakan</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3">
+            <div class="card card-border-shadow-info h-100">
+              <div class="card-body">
+                <div class="d-flex align-items-center mb-2 pb-1">
+                  <div class="avatar me-2">
+                    <span class="avatar-initial rounded bg-label-info"><i class="mdi mdi-email-arrow-left mdi-20px"></i></span>
+                  </div>
+                  <h4 class="ms-1 mb-0 display-6">{{ $totalSuratMasuk }}</h4>
+                </div>
+                <p class="mb-0 text-heading">Surat Terkirim</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{-- <div class="row">
+      <div class="col-md">
+      </div>
+      <div class="col-md">
+      </div>
+    </div> --}}
+
+  </div>
+</div>
 
 <div class="row">
   

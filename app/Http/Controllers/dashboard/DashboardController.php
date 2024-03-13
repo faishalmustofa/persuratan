@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Models\Master\Organization;
 use App\Models\Reference\JenisSurat;
 use App\Models\Reference\JenisSuratMasuk;
 use App\Models\Transaction\LogSuratKeluar;
@@ -24,6 +25,7 @@ class DashboardController extends Controller
     $data = [
       'totalSuratMasuk' => $totalSuratMasuk[0]->total,
       'totalSuratKeluar' => $totalSuratKeluar[0]->total,
+      'penandatangan' => Organization::all(),
     ];
     return view('content.dashboard.dashboards', $data);
   }

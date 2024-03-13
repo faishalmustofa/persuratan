@@ -758,6 +758,7 @@ $(function () {
   getDataMingguanMasuk('01');
   getDataHarianKeluar('1');
   getDataMingguanKeluar('01');
+  $("#bag-biro").select2();
 });
 
 function getDataHarianMasuk(waktu) {
