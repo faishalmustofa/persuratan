@@ -88,7 +88,7 @@
     <div class="card">
         <h5 class="card-header">Pencarian Disposisi Masuk</h5>
         <div class="card-body">
-            <form action="javascript:void(0)" id="form-pencarian" class="needs-validation" novalidate>
+            <form action="javascript:void(0)" id="form-pencarian">
                 @csrf
 
                 <div class="row mb-4 align-items-center">

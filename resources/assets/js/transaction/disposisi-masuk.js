@@ -21,6 +21,8 @@ $( function(){
     $('#form-pencarian').on('submit', function (e) {
         searchData()
     });
+
+    $('#form-pencarian').trigger('submit')
 })
 
 function searchData(){

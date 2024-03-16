@@ -48,11 +48,10 @@ $( function(){
         })
 
     $('#form-pencarian').on('submit', function (e) {
-        if (this.checkValidity()) {
-            e.preventDefault();
-            searchData()
-        }
+        searchData()
     });
+
+    $('#form-pencarian').trigger('submit')
 
     $('#form-disposisi').on('submit', function (e) {
         if (this.checkValidity()) {

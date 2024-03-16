@@ -69,7 +69,7 @@ class BukuAgendaController extends Controller
         } else if (strtolower($loggedInOrg->org->nama) != 'taud') {
             $suratMasuk = $suratMasuk->whereHas('tujuanSurat', function($user){
                 $user->Where('tujuan_surat', Auth::user()->organization);
-            })->where('status_surat', '004');
+            })->whereIn('status_surat', ['001', '002', '003']);
 
             // $suratMasuk = $suratMasuk->whereHas('createdUser', function($user){
             //     $user->where('organization', Auth::user()->organization);

@@ -117,7 +117,7 @@
 </div>
   <!--/ Card Border Shadow -->
 
-@can('create-surat')
+{{-- @can('create-surat') --}}
     <div class="row mb-4">
         <!-- Bootstrap Validation -->
         <div class="col-md">
@@ -145,8 +145,8 @@
                     <div class="col-12 {{isset($suratMasuk) ? 'col-md-4' : 'col-md-5'}}">
                         <div class="form-floating form-floating-outline mb-4">
                             @if (isset($suratMasuk))
-                                <input type="text" class="form-control" id="nomor_surat_asal" placeholder="Nomor Surat" name="nomor_surat_asal" onkeydown="replaceSpace(this)" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->no_surat : '') : ''}}" />
-                                <label for="nomor_surat_asal">Nomor Surat Asal</label>
+                                <input type="text" class="form-control" id="nomor_surat_asal" placeholder="Nomor Surat" name="nomor_surat_asal" onkeydown="replaceSpace(this)" required {{isset($suratMasuk) ? ($suratMasuk != null ? 'readonly' : '') : ''}} value="{{isset($suratMasuk) ? ($suratMasuk != null ? $suratMasuk->tujuanDisposisi[0]->no_agenda : '') : ''}}" />
+                                <label for="nomor_surat_asal">Nomor Agenda Asal</label>
                                 <div class="invalid-feedback"> Mohon masukan nomor surat. </div>
                             @else
                                 <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" onchange="cekNoSurat()" onkeydown="replaceSpace(this)" required />
@@ -159,7 +159,7 @@
                     @if (isset($suratMasuk))
                         <div class="col-12 col-md-4">
                             <div class="form-floating form-floating-outline mb-4">
-                                <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" onchange="cekNoSurat()" onkeydown="replaceSpace(this)" required value="{{$suratMasuk->tujuanDisposisi[0]->no_agenda}}" />
+                                <input type="text" class="form-control" id="nomor_surat" placeholder="Nomor Surat" name="nomor_surat" onchange="cekNoSurat()" onkeydown="replaceSpace(this)" required value="{{$suratMasuk->no_surat}}" readonly />
                                 <label for="nomor_surat">Nomor Surat</label>
                                 <div class="invalid-feedback"> Mohon masukan nomor surat</div>
                             </div>
@@ -326,7 +326,7 @@
         </div>
         <!-- /Bootstrap Validation -->
     </div>
-@endcan
+{{-- @endcan --}}
 
 <div class="row mb-4">
     <div class="col-md">

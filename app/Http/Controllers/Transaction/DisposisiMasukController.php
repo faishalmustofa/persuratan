@@ -86,15 +86,14 @@ class DisposisiMasukController extends Controller
     public function renderAction($data)
     {
         $html = '';
-        $totalSurat = SuratMasuk::where('no_surat', $data->no_surat)->count();
-
-        // if($totalSurat == 1){
-            if($data->status_surat == '004' && Auth::user()->hasPermissionTo('create-surat'))
+        $totalSurat = SuratMasuk::where('no_surat_asal', strtoupper($data->no_surat))->count();
+        if($totalSurat == 0){
+            if($data->status_surat == '004')// && Auth::user()->hasPermissionTo('create-surat'))
             {
                 $txNo = base64_encode($data->tx_number);
                 $html = '<a href="'.route('create-bukuagenda', $txNo).'" class="btn btn-primary btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Buat Agenda Surat Masuk" > <span class="mdi mdi-note-plus"></span> </button>';
             }
-        // }
+        }
 
         return $html;
     }

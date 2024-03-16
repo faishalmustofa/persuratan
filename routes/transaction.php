@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['auth'])->prefix('transaction')->group(function(){
     /** MENU SURAT MASUK */
     Route::prefix('surat-masuk')->group(function(){
-        Route::get('/', [SuratMasukController::class, 'index'])->name('create-bukuagenda');
+        Route::get('/{txNo?}', [SuratMasukController::class, 'index'])->name('create-bukuagenda');
         Route::post('/store', [SuratMasukController::class, 'store']);
         Route::post('/data', [SuratMasukController::class, 'data']);
         Route::get('/print-blanko/{txNo}', [SuratMasukController::class, 'printBlanko']);
@@ -105,7 +105,7 @@ Route::middleware(['auth'])->prefix('transaction')->group(function(){
         Route::post('/get-data', [PengirimanSuratKeluarController::class, 'getData']);
         Route::get('/detail/{txNo}', [PengirimanSuratKeluarController::class, 'show']);
     });
-    
+
     /** MENU PENGIRIMAN SURAT KELUAR*/
     Route::prefix('laporan-penerimaan-surat')->group(function(){
         Route::get('/', [LaporanPenerimaanSuratController::class, 'index']);

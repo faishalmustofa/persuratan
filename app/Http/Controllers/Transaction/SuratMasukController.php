@@ -73,7 +73,7 @@ class SuratMasukController extends Controller
         } else if (strtolower($loggedInOrg->org->nama) != 'taud') {
             $dataSurat = $dataSurat->whereHas('tujuanSurat', function($user){
                 $user->Where('tujuan_surat', Auth::user()->organization);
-            })->where('status_surat', '004');
+            })->whereIn('status_surat', ['001', '002', '003']);
         }
 
         if(isset($request->from) && $request->from == 'bulking'){
@@ -134,12 +134,15 @@ class SuratMasukController extends Controller
 
         $html = '';
         if(strtolower($loggedInOrg->org->nama) != 'taud' && strtolower($loggedInOrg->org->nama) != 'spri'){
-            if($data->status_surat == '001' && Auth::user()->hasPermissionTo('print-blanko')){
+            if($data->status_surat == '001')// && Auth::user()->hasPermissionTo('print-blanko'))
+            {
                 $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
-            } else if($data->status_surat == '110'){
-                if (Auth::user()->hasPermissionTo('kirim-disposisi')){
-                    $html .= '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
-                }
+            } else if($data->status_surat == '003'){
+                // if (Auth::user()->hasPermissionTo('kirim-disposisi')){
+                    $noAgenda = base64_encode($data->no_agenda);
+                    $html .= '<a href="'.url('transaction/disposisi/'.$noAgenda).'" class="btn btn-info btn-sm rounded-pill" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </a>';
+                    // $html .= '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
+                // }
                 $html .= '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
             } else if ($data->status_surat == '004') {
                 $disposisi = DisposisiSuratMasuk::where('tx_number', $data->tx_number)->count();
@@ -241,11 +244,11 @@ class SuratMasukController extends Controller
             $statusNext = '111';
             $loggedInOrg = User::with('org')->find(Auth::user()->id);
 
-            // if(strtolower($org->nama) == 'kadiv propam' && strtolower($loggedInOrg->org->nama) == 'taud'){
-            //     $statusNext = '111';
-            // } else {
-            //     $statusNext = '001';
-            // }
+            if(strtolower($org->nama) == 'kadiv propam' && strtolower($loggedInOrg->org->nama) == 'taud'){
+                $statusNext = '111';
+            } else {
+                $statusNext = '001';
+            }
 
             $insertedData = [
                 'tx_number' => $txNumber,
@@ -272,9 +275,9 @@ class SuratMasukController extends Controller
                 'jenis_surat' => (int)$request->jenis_surat
             ];
 
-            if($request->nomor_surat_asal != null){
-                SuratMasuk::where('no_surat', $request->nomor_surat_asal)->update(['status_surat' => '001']);
-            }
+            // if($request->nomor_surat_asal != null){
+            //     SuratMasuk::where('no_surat', $request->nomor_surat_asal)->update(['status_surat' => '001']);
+            // }
 
             SuratMasuk::create($insertedData);
 
@@ -714,7 +717,7 @@ class SuratMasukController extends Controller
                     ]);
 
                     $logData = [
-                        'txNumber' => $request->tx_number,
+                        'txNumber' => $request->txNumber[$i],
                         'status' => 'Surat '.$suratMasuk->first()->no_surat.' dilakukan perpindahan berkas dari TAUD ke SPRI',
                         'user' => Auth::user()->name,
                     ];

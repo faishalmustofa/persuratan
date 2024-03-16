@@ -112,10 +112,10 @@ class DisposisiController extends Controller
             $html = '<button class="btn btn-primary btn-sm rounded-pill" onclick="actionPrintBlanko(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Print Blanko" > <span class="mdi mdi-file-download-outline"></span> </button>';
         } else if($data->status_surat == '111' && $data->tujuanSurat->need_disposisi != 1) {
             $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
-        } else if($data->status_surat == '110'){
-            if (Auth::user()->hasPermissionTo('kirim-disposisi')){
+        } else if($data->status_surat == '110' || $data->status_surat == '003'){
+            // if (Auth::user()->hasPermissionTo('kirim-disposisi')){
                 $html = '<button class="btn btn-info btn-sm rounded-pill" onclick="kirimDisposisi(`'.$data->tx_number.'`, `'.$data->no_surat.'`, `'.$data->no_agenda.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Kirim Disposisi"> <span class="mdi mdi-file-send"></span> </button>';
-            }
+            // }
             $html .= '<button class="btn btn-danger btn-sm rounded-pill mt-2" onclick="revisiDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Revisi Disposisi" > <span class="mdi mdi-book-cancel"></span> </button>';
             $html .= '<button class="btn btn-secondary btn-sm rounded-pill mt-2" onclick="detailDisposisi(`'.$data->tx_number.'`)" data-bs-toggle="tooltip" data-bs-placement="top" title="Lihat Detail Disposisi"> <span class="mdi mdi-book-information-variant"></span> </button>';
         } else if ($data->status_surat == '004') {
