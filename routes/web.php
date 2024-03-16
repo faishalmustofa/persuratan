@@ -35,8 +35,12 @@ Route::middleware(['auth'])->group(function() {
     });
 
     Route::prefix('user')->group(function(){
-        Route::get('/list', [UserController::class, 'index']);
-        Route::post('/data', [UserController::class, 'data']);
+        Route::get('/list', [UserController::class, 'index'])->name('list.user');
+        Route::post('/data', [UserController::class, 'data'])->name('get.datatable.user');
+        Route::post('/store', [UserController::class, 'store'])->name('store.user');
+        Route::get('/edit/{id}', [UserController::class, 'edit'])->name('edit.user');
+        Route::post('/update/{id}', [UserController::class, 'update'])->name('update.user');
+        Route::get('/destroy/{id}', [UserController::class, 'destroy'])->name('delete.user');
     }); 
 
     Route::prefix('roles')->group(function(){

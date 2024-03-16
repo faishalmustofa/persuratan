@@ -20,19 +20,29 @@ $(function () {
 
     // Variable declaration for table
     var dt_user_table = $('.datatables-users'),
-        select2 = $('.select2'),
+        select2AddUser = $('#organization'),
+        select2EditUser = $('#edit-organization'),
         userView = baseUrl + 'app/user/view/account',
         statusObj = {
-        1: { title: 'Pending', class: 'bg-label-warning' },
-        2: { title: 'Active', class: 'bg-label-success' },
-        3: { title: 'Inactive', class: 'bg-label-secondary' }
+            1: { title: 'Pending', class: 'bg-label-warning' },
+            2: { title: 'Active', class: 'bg-label-success' },
+            3: { title: 'Inactive', class: 'bg-label-secondary' }
         };
 
-    if (select2.length) {
-        var $this = select2;
+    if (select2AddUser.length) {
+        var $this = select2AddUser;
         select2Focus($this);
         $this.wrap('<div class="position-relative"></div>').select2({
-        placeholder: 'Select Country',
+        placeholder: 'Select Organization',
+        dropdownParent: $this.parent()
+        });
+    }
+    
+    if (select2EditUser.length) {
+        var $this = select2EditUser;
+        select2Focus($this);
+        $this.wrap('<div class="position-relative"></div>').select2({
+        placeholder: 'Select Organization',
         dropdownParent: $this.parent()
         });
     }
@@ -52,11 +62,8 @@ $(function () {
                 }
             },
             columns: [
-                // columns according to JSON
                 { data: '' },
-                { data: 'id' },
                 { data: 'name' },
-                { data: 'email' },
                 { data: 'username' },
                 { data: 'organization' },
                 { data: 'jabatan' },
@@ -75,19 +82,8 @@ $(function () {
                     }
                 },
                 {
-                    // For Checkboxes
-                    targets: 1,
-                    orderable: false,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender: '<input type="checkbox" class="form-check-input">'
-                    }
-                },
-                {
                     // User full name and email
-                    targets: 2,
+                    targets: 1,
                     responsivePriority: 4,
                     render: function (data, type, full, meta) {
                         var $name = full['name'],
@@ -129,43 +125,13 @@ $(function () {
                     }
                 },
                 {
-                    // User Role
-                    targets: 3,
+                    // Username
+                    targets: 2,
                     render: function (data, type, full, meta) {
-                        var $role = full['email'];
-                        var roleBadgeObj = {
-                            Subscriber: '<i class="mdi mdi-account-outline mdi-20px text-primary me-2"></i>',
-                            Author: '<i class="mdi mdi-cog-outline mdi-20px text-warning me-2"></i>',
-                            Maintainer: '<i class="mdi mdi-chart-donut mdi-20px text-success me-2"></i>',
-                            Editor: '<i class="mdi mdi-pencil-outline mdi-20px text-info me-2"></i>',
-                            Admin: '<i class="mdi mdi-laptop mdi-20px text-danger me-2"></i>'
-                        };
-                        return "<span class='text-truncate d-flex align-items-center'>" + roleBadgeObj[$role] + $role + '</span>';
-                    }
-                },
-                {
-                    // Plans
-                    targets: 4,
-                    render: function (data, type, full, meta) {
-                        var $plan = full['username'];
+                        var $username = full['username'];
 
-                        return '<span class="text-heading">' + $plan + '</span>';
+                        return '<span class="text-heading">' + $username + '</span>';
                     }
-                },
-                {
-                    // User Status
-                    // targets: 6,
-                    // render: function (data, type, full, meta) {
-                    //     var $status = full['organization'];
-
-                    //     return (
-                    //     '<span class="badge rounded-pill ' +
-                    //     statusObj[$status].class +
-                    //     '" text-capitalized>' +
-                    //     statusObj[$status].title +
-                    //     '</span>'
-                    //     );
-                    // }
                 },
                 {
                     // Actions
@@ -174,15 +140,14 @@ $(function () {
                     searchable: false,
                     orderable: false,
                     render: function (data, type, full, meta) {
+                        var $id = full['id'];
                         return (
                             '<div class="d-inline-block text-nowrap">' +
                             '<button class="btn btn-sm btn-icon btn-text-secondary rounded-pill btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="mdi mdi-dots-vertical mdi-20px"></i></button>' +
                             '<div class="dropdown-menu dropdown-menu-end m-0">' +
-                            '<a href="' +
-                            userView +
-                            '" class="dropdown-item"><i class="mdi mdi-eye-outline me-2"></i><span>View</span></a>' +
-                            '<a href="javascript:;" class="dropdown-item"><i class="mdi mdi-pencil-outline me-2"></i><span>Edit</span></a>' +
-                            '<a href="javascript:;" class="dropdown-item delete-record"><i class="mdi mdi-delete-outline me-2"></i><span>Delete</span></a>' +
+                            '<a href="javascript:void(0)" class="dropdown-item" id="viewAccount"><i class="mdi mdi-eye-outline me-2"></i><span>View</span></a>' +
+                            '<a href="javascript:void(0)" class="dropdown-item" onclick="editAccount('+$id+')"><i class="mdi mdi-pencil-outline me-2"></i><span>Edit</span></a>' +
+                            '<a href="javascript:void(0)" class="dropdown-item delete-record" onclick="deleteAccount('+$id+')"><i class="mdi mdi-delete-outline me-2"></i><span>Delete</span></a>' +
                             '</div>' +
                             '</div>'
                         );
@@ -388,6 +353,7 @@ $(function () {
                     }
                 }
             },
+            
             initComplete: function () {
                 // Adding role filter once table initialized
                 this.api().columns(3).every(function () {
@@ -453,58 +419,168 @@ $(function () {
         $('.dataTables_filter .form-control').removeClass('form-control-sm');
         $('.dataTables_length .form-select').removeClass('form-select-sm');
     }, 300);
-});
 
-// Validation & Phone mask
-(function () {
-    const phoneMaskList = document.querySelectorAll('.phone-mask'),
-        addNewUserForm = document.getElementById('addNewUserForm');
-
-    // Phone Number
-    if (phoneMaskList) {
-        phoneMaskList.forEach(function (phoneMask) {
-        new Cleave(phoneMask, {
-            phone: true,
-            phoneRegionCode: 'US'
-        });
-        });
-    }
-
-    // Add New User Form Validation
-    const fv = FormValidation.formValidation(addNewUserForm, {
-        fields: {
-        userFullname: {
-            validators: {
-            notEmpty: {
-                message: 'Please enter fullname '
-            }
-            }
-        },
-        userEmail: {
-            validators: {
-            notEmpty: {
-                message: 'Please enter your email'
-            },
-            emailAddress: {
-                message: 'The value is not a valid email address'
-            }
-            }
-        }
-        },
-        plugins: {
-        trigger: new FormValidation.plugins.Trigger(),
-        bootstrap5: new FormValidation.plugins.Bootstrap5({
-            // Use this for enabling/changing valid/invalid class
-            eleValidClass: '',
-            rowSelector: function (field, ele) {
-            // field is the field name & ele is the field element
-            return '.mb-4';
-            }
-        }),
-        submitButton: new FormValidation.plugins.SubmitButton(),
-        // Submit the form when all fields are valid
-        // defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
-        autoFocus: new FormValidation.plugins.AutoFocus()
+    $('#form-tambah-user').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            postForm()
+            $(this).addClass('was-validated');
         }
     });
-})();
+    
+    $('#form-edit-user').on('submit', function (e) {
+        if (this.checkValidity()) {
+            e.preventDefault();
+            updateForm($('#idUser').val())
+            $(this).addClass('was-validated');
+        }
+    });
+});
+
+function postForm() {
+    let form =  $("#form-tambah-user").serialize()
+    ajaxPostJson('/user/store', form, 'input_success', 'input_error')
+}
+
+function updateForm(id) {
+    let form =  $("#form-edit-user").serialize()
+    id = btoa(id)
+    ajaxPostJson('/user/update/'+id, form, 'input_success', 'input_error')
+}
+
+function editAccount(id) {
+    id = btoa(id)
+    ajaxGetJson(`/user/edit/${id}`, 'returnDataEdit', 'error_get')
+}
+
+function deleteAccount(id) {
+    id = btoa(id)
+    ajaxGetJson(`/user/destroy/${id}`, 'input_success', 'error_get')
+}
+
+function returnDataEdit(res){
+    if (res.success) {
+        $('#offcanvasEditUser').offcanvas('show')
+
+        $('#idUser').attr('value',res.user.id)
+        $('#edit-user-fullname').attr('value',res.user.name)
+        $('#edit-username').attr('value',res.user.username)
+        $('#edit-user-email').attr('value',res.user.email)
+        $('#edit-organization').val(res.user.organization).trigger('change');
+        $('#edit-jabatan').attr('value',res.user.jabatan)
+    } else {
+        error_notif()
+    }
+}
+
+function input_success(data) {
+    Swal.close()
+
+    if (data.status != 200) {
+        var text = data.message
+        error_notif(text)
+        return false
+    }
+
+    Command: toastr["success"](data.message, data.title)
+
+    toastr.options = {
+      "closeButton": true,
+      "debug": false,
+      "newestOnTop": false,
+      "progressBar": true,
+      "positionClass": "toast-top-right",
+      "preventDuplicates": false,
+      "onclick": null,
+      "showDuration": "300",
+      "hideDuration": "1000",
+      "timeOut": "5000",
+      "extendedTimeOut": "1000",
+      "showEasing": "swing",
+      "hideEasing": "linear",
+      "showMethod": "fadeIn",
+      "hideMethod": "fadeOut"
+    }
+
+    Swal.fire({
+        icon: 'success',
+        showDenyButton: false,
+        title: "Success",
+        showCancelButton: false,
+        showConfirmButton: false,
+        timer: 1000
+    });
+
+    location.reload()
+    $('#form-tambah-user').removeClass('was-validated')
+}
+
+function input_error(err) {
+    Swal.close()
+    console.log(err)
+    Command: toastr["error"]("Harap coba lagi beberapa saat lagi", "Terjadi Kesalahan Terhadap Sistem")
+
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+}
+
+function error_notif(text){
+    Command: toastr["error"](text, "Gagal ambil Data")
+
+    toastr.options = {
+    "closeButton": true,
+    "debug": false,
+    "newestOnTop": false,
+    "progressBar": true,
+    "positionClass": "toast-top-right",
+    "preventDuplicates": false,
+    "onclick": null,
+    "showDuration": "300",
+    "hideDuration": "1000",
+    "timeOut": "5000",
+    "extendedTimeOut": "1000",
+    "showEasing": "swing",
+    "hideEasing": "linear",
+    "showMethod": "fadeIn",
+    "hideMethod": "fadeOut"
+    }
+}
+
+function error_get(err) {
+    console.log(err)
+    Swal.close()
+    Command: toastr["error"]("Harap coba lagi beberapa saat lagi", "Terjadi Kesalahan Saat Mengambil Data")
+
+    toastr.options = {
+        "closeButton": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": true,
+        "positionClass": "toast-top-right",
+        "preventDuplicates": false,
+        "onclick": null,
+        "showDuration": "300",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "fadeIn",
+        "hideMethod": "fadeOut"
+    }
+}

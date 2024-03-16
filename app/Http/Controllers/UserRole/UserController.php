@@ -7,8 +7,11 @@ use App\Models\User;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Master\Organization;
+use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
@@ -32,7 +35,14 @@ class UserController extends Controller
      */
     public function index(): View
     {
-        $data = ['users' => User::latest('id')->paginate(3)];
+        $organization = Organization::all();
+        $role = Role::all();
+        $data = [
+            'users' => User::latest('id')->paginate(3),
+            'organization' => $organization,
+            'roles' => $role,
+        ];
+
         return view('content.setting.user-list', $data);
     }
 
@@ -49,16 +59,31 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request): RedirectResponse
+    public function store(StoreUserRequest $request)
     {
-        $input = $request->all();
-        $input['password'] = Hash::make($request->password);
-
-        $user = User::create($input);
-        $user->assignRole($request->roles);
-
-        return redirect()->route('users.index')
-                ->withSuccess('New user is added successfully.');
+        DB::beginTransaction();
+        try {
+            $input = $request->all();
+            $input['password'] = Hash::make('Propam12345');
+            
+            $user = User::create($input);
+            // $user->assignRole($request->role);
+            
+            DB::commit();
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'message' => 'User baru telah ditambahkan.',
+                'title' => 'Berhasil tambah user baru.',
+                'user' => $user,
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Terjadi Kesalahan Pada Sistem, Harap Coba Lagi',
+                'detail' => $e
+            ]);
+        }
     }
 
     /**
@@ -74,7 +99,7 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(User $user): View
+    public function edit(User $user, $id)
     {
         // Check Only Super Admin can update his own Profile
         if ($user->hasRole('Super Admin')){
@@ -83,49 +108,112 @@ class UserController extends Controller
             }
         }
 
-        return view('users.edit', [
-            'user' => $user,
-            'roles' => Role::pluck('name')->all(),
-            'userRoles' => $user->roles->pluck('name')->all()
-        ]);
+        $id= base64_decode($id);
+        $data = User::find($id);
+
+        if ($data){
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'success' => true,
+                'message' => 'Berhasil ambil data.',
+                'user' => $data,
+            ]);
+        } else {
+            return response()->json([
+                'status' => JsonResponse::HTTP_OK,
+                'success' => false,
+                'message' => 'User tidak ditemukan.',
+            ]);
+        }
+
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(Request $request, User $user,$id)
     {
-        $input = $request->all();
- 
-        if(!empty($request->password)){
-            $input['password'] = Hash::make($request->password);
-        }else{
-            $input = $request->except('password');
+        DB::beginTransaction();
+        try {
+            $id = base64_decode($id);
+            $user = User::find($id);
+
+            if ($user) {
+                $user->update([
+                    'name' => $request->name,
+                    'username' => $request->username,
+                    'email' => $request->email,
+                    'organization' => $request->organization,
+                    'jabatan' => $request->jabatan,
+                ]);
+
+                DB::commit();
+                return response()->json([
+                    'status' => JsonResponse::HTTP_OK,
+                    'success' => true,
+                    'message' => 'Berhasil update data user.',
+                    'title' => 'User telah diupdate.',
+                    'user' => $user,
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'status' => JsonResponse::HTTP_OK,
+                    'success' => false,
+                    'message' => 'User tidak ditemukan.',
+                    'title' => 'User not found.',
+                ]);
+            }
+            
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Terjadi Kesalahan Pada Sistem, Harap Coba Lagi',
+                'detail' => $e
+            ]);
         }
-        
-        $user->update($input);
-
-        $user->syncRoles($request->roles);
-
-        return redirect()->back()
-                ->withSuccess('User is updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(User $user): RedirectResponse
+    public function destroy(User $user, $id)
     {
-        // About if user is Super Admin or User ID belongs to Auth User
-        if ($user->hasRole('Super Admin') || $user->id == auth()->user()->id)
-        {
-            abort(403, 'USER DOES NOT HAVE THE RIGHT PERMISSIONS');
-        }
+        DB::beginTransaction();
+        try {
+            $id = base64_decode($id);
+            $user = User::find($id);
 
-        $user->syncRoles([]);
-        $user->delete();
-        return redirect()->route('users.index')
-                ->withSuccess('User is deleted successfully.');
+            if ($user) {
+                $user->delete();
+
+                DB::commit();
+                return response()->json([
+                    'status' => JsonResponse::HTTP_OK,
+                    'success' => true,
+                    'message' => 'Berhasil hapus user.',
+                    'title' => 'User telah dihapus.',
+                    'user' => $user,
+                ]);
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'status' => JsonResponse::HTTP_OK,
+                    'success' => false,
+                    'message' => 'User tidak ditemukan.',
+                    'title' => 'User not found.',
+                ]);
+            }
+            
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => 'Terjadi Kesalahan Pada Sistem, Harap Coba Lagi',
+                'detail' => $e
+            ]);
+        }
     }
 
     public function data()
@@ -136,10 +224,13 @@ class UserController extends Controller
                 ->addIndexColumn()
                 ->editColumn('organization', function($query){
                     $org = Organization::where('id',$query->organization)->first();
-                    // $html = ;
 
                     return $org->nama;
                 })
+                // ->editColumn('email', function($query){
+
+                //     return $query->email;
+                // })
                 ->editColumn('action', function($query){
                     $html = "<a href='javascript:void(0)' class='btn btn-xs btn-warning' data-bs-toggle='tooltip' data-bs-placement='top' data-bs-title='Edit Permission'>
                                 <i class='fas fa-pencil'></i>

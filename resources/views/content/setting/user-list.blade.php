@@ -130,6 +130,7 @@
   </div>
 
 </div> --}}
+
 <!-- Users List Table -->
 <div class="card">
   <div class="card-header border-bottom">
@@ -145,9 +146,9 @@
       <thead class="table-light">
         <tr>
           <th></th>
-          <th></th>
+          {{-- <th></th> --}}
+          {{-- <th>Email</th> --}}
           <th>Nama</th>
-          <th>Email</th>
           <th>Username</th>
           <th>Organization</th>
           <th>Jabatan</th>
@@ -164,76 +165,101 @@
       <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body mx-0 flex-grow-0 h-100">
-      <form class="add-new-user pt-0" id="addNewUserForm" onsubmit="return false">
+      <form class="browser-default-validation" action="javascript:void(0)" id="form-tambah-user">
+        @csrf
         <div class="form-floating form-floating-outline mb-4">
-          <input type="text" class="form-control" id="add-user-fullname" placeholder="John Doe" name="userFullname" aria-label="John Doe" />
+          <input type="text" class="form-control" id="add-user-fullname" placeholder="Nama" name="name" aria-label="Nama" style="text-transform:uppercase"/>
           <label for="add-user-fullname">Nama</label>
         </div>
         <div class="form-floating form-floating-outline mb-4">
-          <input type="text" id="add-user-email" class="form-control" placeholder="john.doe@example.com" aria-label="john.doe@example.com" name="userEmail" />
-          <label for="add-user-email">Username</label>
+          <input type="username" id="username" class="form-control" placeholder="Username" aria-label="subbagbinfung" name="username" />
+          <label for="username">Username</label>
         </div>
         <div class="form-floating form-floating-outline mb-4">
-          <input type="text" id="add-user-contact" class="form-control phone-mask" placeholder="+1 (609) 988-44-11" aria-label="john.doe@example.com" name="userContact" />
-          <label for="add-user-contact">Email</label>
+          <input type="email" id="add-user-email" class="form-control" placeholder="test@example.com" aria-label="test@example.com" name="email" />
+          <label for="email">Email</label>
         </div>
         <div class="form-floating form-floating-outline mb-4">
-          <select id="country" class="select2 form-select">
+          <select id="organization" class="select2 form-select" name="organization">
             <option value="">Select</option>
-            <option value="Australia">Australia</option>
-            <option value="Bangladesh">Bangladesh</option>
-            <option value="Belarus">Belarus</option>
-            <option value="Brazil">Brazil</option>
-            <option value="Canada">Canada</option>
-            <option value="China">China</option>
-            <option value="France">France</option>
-            <option value="Germany">Germany</option>
-            <option value="India">India</option>
-            <option value="Indonesia">Indonesia</option>
-            <option value="Israel">Israel</option>
-            <option value="Italy">Italy</option>
-            <option value="Japan">Japan</option>
-            <option value="Korea">Korea, Republic of</option>
-            <option value="Mexico">Mexico</option>
-            <option value="Philippines">Philippines</option>
-            <option value="Russia">Russian Federation</option>
-            <option value="South Africa">South Africa</option>
-            <option value="Thailand">Thailand</option>
-            <option value="Turkey">Turkey</option>
-            <option value="Ukraine">Ukraine</option>
-            <option value="United Arab Emirates">United Arab Emirates</option>
-            <option value="United Kingdom">United Kingdom</option>
-            <option value="United States">United States</option>
+            @foreach ($organization as $org)
+                <option value="{{$org->id}}">{{ $org->nama }}</option>
+            @endforeach
           </select>
-          <label for="country">Organization</label>
+          <label for="organization">Organization</label>
         </div>
-        <div class="form-floating form-floating-outline mb-4">
-          <select id="user-role" class="form-select">
-            <option value="subscriber">Subscriber</option>
-            <option value="editor">Editor</option>
-            <option value="maintainer">Maintainer</option>
-            <option value="author">Author</option>
-            <option value="admin">Admin</option>
+
+        {{-- <div class="form-floating form-floating-outline mb-4">
+          <select id="user-role" class="form-select" name="role">
+            <option value="">Pilih Role</option>
+            @foreach ($roles as $role)
+                <option value="{{$role->id}}">{{ $role->name }}</option>
+            @endforeach
           </select>
           <label for="user-role">User Role</label>
-        </div>
-        <div class="form-floating form-floating-outline mb-4">
-          <input type="text" id="add-user-company" class="form-control" placeholder="Web Developer" aria-label="jdoe1" name="companyName" />
-          <label for="add-user-company">Jabatan</label>
-        </div>
-        {{-- <div class="form-floating form-floating-outline mb-4">
-          <select id="user-plan" class="form-select">
-            <option value="basic">Basic</option>
-            <option value="enterprise">Enterprise</option>
-            <option value="company">Company</option>
-            <option value="team">Team</option>
-          </select>
-          <label for="user-plan">Select Plan</label>
         </div> --}}
+
+        <div class="form-floating form-floating-outline mb-4">
+          <input type="text" id="jabatan" class="form-control" placeholder="Jabatan" aria-label="jdoe1" name="jabatan" style="text-transform:uppercase" />
+          <label for="jabatan">Jabatan</label>
+        </div>
         <button type="submit" class="btn btn-primary me-sm-3 me-1 data-submit">Submit</button>
         <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
       </form>
     </div>
   </div>
+  
+  <!-- Offcanvas to edit new user -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEditUser" aria-labelledby="offcanvasAddUserLabel">
+    <div class="offcanvas-header">
+      <h5 id="offcanvasAddUserLabel" class="offcanvas-title">Edit User</h5>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body mx-0 flex-grow-0 h-100">
+      <form class="browser-default-validation" action="javascript:void(0)" id="form-edit-user">
+        @csrf
+        <input type="hidden" name="id_user" id="idUser" value="">
+        <div class="form-floating form-floating-outline mb-4">
+          <input type="text" class="form-control" id="edit-user-fullname" placeholder="Nama" name="name" aria-label="Nama" style="text-transform:uppercase"/>
+          <label for="add-user-fullname">Nama</label>
+        </div>
+        <div class="form-floating form-floating-outline mb-4">
+          <input type="username" id="edit-username" class="form-control" placeholder="Username" aria-label="subbagbinfung" name="username" />
+          <label for="username">Username</label>
+        </div>
+        <div class="form-floating form-floating-outline mb-4">
+          <input type="email" id="edit-user-email" class="form-control" placeholder="test@example.com" aria-label="test@example.com" name="email" />
+          <label for="email">Email</label>
+        </div>
+        <div class="form-floating form-floating-outline mb-4">
+          <select id="edit-organization" class="select2 form-select" name="organization">
+            <option value="">Select</option>
+            @foreach ($organization as $org)
+                <option value="{{$org->id}}">{{ $org->nama }}</option>
+            @endforeach
+          </select>
+          <label for="edit-organization">Organization</label>
+        </div>
+
+        {{-- <div class="form-floating form-floating-outline mb-4">
+          <select id="user-role" class="form-select" name="role">
+            <option value="">Pilih Role</option>
+            @foreach ($roles as $role)
+                <option value="{{$role->id}}">{{ $role->name }}</option>
+            @endforeach
+          </select>
+          <label for="user-role">User Role</label>
+        </div> --}}
+
+        <div class="form-floating form-floating-outline mb-4">
+          <input type="text" id="edit-jabatan" class="form-control" placeholder="Jabatan" aria-label="jdoe1" name="jabatan" style="text-transform:uppercase" />
+          <label for="jabatan">Jabatan</label>
+        </div>
+        <button type="submit" class="btn btn-primary me-sm-3 me-1 data-submit">Update</button>
+        <button type="reset" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+      </form>
+    </div>
+  </div>
+
 </div>
 @endsection
