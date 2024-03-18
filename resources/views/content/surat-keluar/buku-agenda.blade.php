@@ -148,7 +148,7 @@
   <div class="col-md">
       <div class="card">
           <div class="card-header">
-              Log Data Agenda Surat Keluar
+              Data Agenda Surat Keluar
           </div>
           <div class="card-body">
             <div class="card-datatable table-responsive pt-0">

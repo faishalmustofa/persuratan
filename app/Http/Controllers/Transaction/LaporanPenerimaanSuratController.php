@@ -138,6 +138,8 @@ class LaporanPenerimaanSuratController extends Controller
             'status' => $status_surat,
             'updated_by' => $user->id,
             'posisi_surat' => $posisi,
+            'konseptor' => $dataSurat->konseptor,
+            'penandatangan' => $dataSurat->penandatangan_surat,
             'catatan' => $dataSurat->catatan,
         ]);
 

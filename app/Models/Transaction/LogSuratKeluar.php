@@ -30,6 +30,14 @@ class LogSuratKeluar extends Model
     function posisiSurat(){
         return $this->hasOne(Organization::class, 'id', 'posisi_surat');
     }
+    
+    function konseptorSurat(){
+        return $this->hasOne(User::class, 'id', 'posisi_surat');
+    }
+    
+    function penandatanganSurat(){
+        return $this->hasOne(Organization::class, 'id', 'posisi_surat');
+    }
 
     function tujuanSurat(){
         return $this->hasOne(EntityTujuanSurat::class, 'id', 'entity_tujuan_surat');

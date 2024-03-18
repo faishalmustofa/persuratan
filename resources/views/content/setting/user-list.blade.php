@@ -9,6 +9,18 @@
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css')}}">
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/select2/select2.css')}}" />
 <link rel="stylesheet" href="{{asset('assets/vendor/libs/@form-validation/umd/styles/index.min.css')}}" />
+<style>
+  .light-style table.dataTable thead th,
+  .light-style table.dataTable thead td,
+  .light-style table.dataTable thead tr, {
+    border-bottom: 1px solid;
+  }
+
+  .light-style table.dataTable tbody th, .light-style table.dataTable tbody td, .light-style table.dataTable tbody tr {
+    border-bottom: 1px solid;
+    border-radius: 50px;
+  }
+</style>
 
 @endsection
 
@@ -42,6 +54,10 @@
   </div>
 </div>
 <!--/ Toast with Animation -->
+
+<h4 class="py-3 mb-4">
+  <span class="text-muted fw-light">Pengaturan /</span> Daftar User
+</h4>
 
 {{-- <div class="row g-4 mb-4">
   <div class="col-sm-6 col-xl-3">

@@ -182,12 +182,14 @@ class SuratKeluarController extends Controller
             'status' => $status_surat,
             'updated_by' => $user->id,
             'posisi_surat' => $posisi,
+            'konseptor' => $dataSurat->konseptor,
+            'penandatangan' => $dataSurat->penandatangan_surat,
             'catatan' => $dataSurat->catatan,
         ]);
 
         return response()->json([
             'status' => JsonResponse::HTTP_OK,
-            'message' => 'Berhasil Melakukan Permintaan Nomor Surat',
+            'message' => 'BERHASIL MELAKUKAN PERMINTAAN NOMOR SURAT',
             'no_tx' => $dataSurat,
         ]);
     }
@@ -293,23 +295,23 @@ class SuratKeluarController extends Controller
                 'no_agenda' => null,
                 'no_surat' => 'BELUM DIBERI NOMOR',
                 'posisi_surat' => $asalSurat->id,
-                'jenis_surat' => $request->jenis_surat,
+                'jenis_surat' => strtoupper($request->jenis_surat),
                 'tgl_surat' => Carbon::createFromFormat('Y-m-d H:i',$request->tanggal_surat)->format('Y-m-d H:i:s'),
-                'perihal' => $request->perihal,
-                'lampiran' => $request->judul_lampiran,
-                'lampiran_type' => $request->lampiran_type,
+                'perihal' => strtoupper($request->perihal),
+                'lampiran' => strtoupper($request->judul_lampiran),
+                'lampiran_type' => strtoupper($request->lampiran_type),
                 'jml_lampiran' => $request->jumlah_lampiran,
-                'konseptor' => $request->konseptor,
+                'konseptor' => strtoupper($request->konseptor),
                 'unit_kerja' => $request->unit_kerja_pemohon ?? $user->organization,
                 'penandatangan_surat' => $request->penandatangan_surat,
-                'catatan' => $request->catatan,
+                'catatan' => strtoupper($request->catatan),
                 'created_by' => $user->id,
                 'status_surat' =>$status_surat->id,
                 'file_path' => $file_path,
                 'tujuan_surat' => $tujuanSurat->id,
                 'asal_surat' => $asalSurat->id,
                 'entity_tujuan_surat' => $entityTujuanSurat->id,
-                'entity_tujuan_surat_detail' => $request->entity_tujuan_surat_detail,
+                'entity_tujuan_surat_detail' => strtoupper($request->entity_tujuan_surat_detail),
             ];
             SuratKeluar::create($insertedData);
 
@@ -319,6 +321,8 @@ class SuratKeluarController extends Controller
                 'status' => $insertedData['status_surat'],
                 'updated_by' => $user->id,
                 'posisi_surat' => $insertedData['posisi_surat'],
+                'konseptor' => $insertedData['konseptor'],
+                'penandatangan' => $insertedData['penandatangan_surat'],
                 'catatan' => $insertedData['catatan'],
             ]);
 
@@ -492,23 +496,23 @@ class SuratKeluarController extends Controller
                 'no_agenda' => null,
                 'no_surat' => 'BELUM DIBERI NOMOR',
                 'posisi_surat' => $asalSurat->id,
-                'jenis_surat' => $request->jenis_surat,
+                'jenis_surat' => strtoupper($request->jenis_surat),
                 'tgl_surat' => $request->tanggal_surat,
-                'perihal' => $request->perihal,
-                'lampiran' => $request->judul_lampiran,
-                'lampiran_type' => $request->lampiran_type,
+                'perihal' => strtoupper($request->perihal),
+                'lampiran' => strtoupper($request->judul_lampiran),
+                'lampiran_type' => strtoupper($request->lampiran_type),
                 'jml_lampiran' => $request->jumlah_lampiran,
-                'konseptor' => $request->konseptor,
+                'konseptor' => strtoupper($request->konseptor),
                 'unit_kerja' => $request->unit_kerja_pemohon ?? $user->organization,
                 'penandatangan_surat' => $request->penandatangan_surat,
-                'catatan' => $request->catatan,
+                'catatan' => strtoupper($request->catatan),
                 'created_by' => $user->id,
                 'status_surat' => $status_surat,
                 'file_path' => $file,
                 'tujuan_surat' => $tujuanSurat->id,
                 'asal_surat' => $asalSurat->id,
                 'entity_tujuan_surat' => $entityTujuanSurat->id,
-                'entity_tujuan_surat_detail' => $request->entity_tujuan_surat_detail,
+                'entity_tujuan_surat_detail' => strtoupper($request->entity_tujuan_surat_detail),
             ];
             
 
@@ -520,10 +524,10 @@ class SuratKeluarController extends Controller
                 'status' => $surat->status_surat,
                 'updated_by' => $user->id,
                 'posisi_surat' => $surat->posisi_surat,
+                'konseptor' => $surat->konseptor,
+                'penandatangan' => $surat->penandatangan_surat,
                 'catatan' => $surat->catatan,
             ]);
-
-            // dd($log_surat);
 
             DB::commit();
             return response()->json([

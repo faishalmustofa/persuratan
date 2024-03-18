@@ -75,6 +75,11 @@
           "slug": "buku-agenda-surat-keluar"
         },
         {
+          "url": "transaction/buku-agenda-surat-keluar",
+          "name": "Telah Diberi Nomor",
+          "slug": "surat-telah-diberi-nomor"
+        },
+        {
           "url": "transaction/pengiriman-surat-keluar",
           "name": "Pengiriman Surat",
           "slug": "pengiriman-surat-keluar"
@@ -159,7 +164,18 @@
       "name": "Jenis Surat",
       "icon": "menu-icon tf-icons mdi mdi mdi-email-variant",
       "slug": "jenis-surat",
-      "url": "master-data/jenis-surat/"
+      "submenu": [
+        {
+          "url": "master-data/jenis-surat/",
+          "name": "Jenis Surat Masuk",
+          "slug": "jenis-surat-masuk"
+        },
+        {
+          "url": "master-data/jenis-surat/",
+          "name": "Jenis Surat Keluar",
+          "slug": "jenis-surat-keluar"
+        }
+      ]
     },
     {
       "name": "Status Disposisi",

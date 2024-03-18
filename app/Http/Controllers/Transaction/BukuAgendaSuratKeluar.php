@@ -83,6 +83,8 @@ class BukuAgendaSuratKeluar extends Controller
             'status' => $status_surat,
             'updated_by' => $user->id,
             'posisi_surat' => $posisi,
+            'konseptor' => $surat->konseptor,
+            'penandatangan' => $surat->penandatangan_surat,
             'catatan' => $surat->catatan,
         ]);
 
@@ -158,12 +160,15 @@ class BukuAgendaSuratKeluar extends Controller
             ->with('tujuanSurat')
             ->with('posisiSurat')
             ->with('suratKeluar')
+            ->with('updatedBy')
             ->distinct('tx_number')
             ->whereHas('posisiSurat',function($surat){
                 $user = Auth::getUser();
-                $surat->where('posisi_surat',$user->organization);
+                $surat->orWhere('posisi_surat',$user->organization);
             })
             ->get();
+
+        // dd($dataSurat);
 
 
         return DataTables::of($dataSurat)

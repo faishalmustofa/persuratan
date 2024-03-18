@@ -78,7 +78,7 @@ $customizerHidden = 'customizer-hide';
         <!-- /Logo -->
 
         <div class="card-body mt-2">
-          <h4 class="mb-2">Selamat datang! 👋</h4>
+          <h4 class="mb-2">Selamat datang!</h4>
           <p class="mb-4">Silakan masuk menggunakan akun anda</p>
 
           <form id="formAuthentication" class="needs-validation" novalidate>

@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('log_surat_keluars', function (Blueprint $table) {
-            $table->integer('posisi_surat');
-            $table->integer('updated_by');
+            $table->integer('konseptor')->nullable();
+            $table->integer('penandatangan')->nullable();
 
-            $table->foreign('updated_by')->references('id')->on('users');
-            $table->foreign('posisi_surat')->references('id')->on('organization');
+            $table->foreign('konseptor')->references('id')->on('users');
+            $table->foreign('penandatangan')->references('id')->on('organization');
         });
     }
 

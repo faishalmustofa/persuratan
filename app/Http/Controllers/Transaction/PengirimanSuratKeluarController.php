@@ -227,6 +227,8 @@ class PengirimanSuratKeluarController extends Controller
             'status' => $status_surat,
             'updated_by' => $user->id,
             'posisi_surat' => $posisi,
+            'konseptor' => $surat->konseptor,
+            'penandatangan' => $surat->penandatangan_surat,
             'catatan' => $surat->catatan,
         ]);
         return response()->json([
