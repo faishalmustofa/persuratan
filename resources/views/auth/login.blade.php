@@ -21,13 +21,12 @@ $customizerHidden = 'customizer-hide';
 <link rel="stylesheet" href="{{asset('assets/vendor/css/pages/page-auth.css')}}">
 <style>
   .authentication-basic {
-    /* background: url('../../assets/img/backgrounds/propam.png');
+    background: url('../../assets/img/backgrounds/bg-login.png');
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;
     height: 100vh;
-    width: 100%; */
-    background-color: #00004d;
+    width: 100%;
   }
 
   .authentication-inner {
@@ -67,7 +66,7 @@ $customizerHidden = 'customizer-hide';
     <div class="authentication-inner py-4">
 
       <!-- Login -->
-      <div class="card p-2">
+      <div class="card border-dark bg-body p-2">
         <!-- Logo -->
         <div class="app-brand justify-content-center mt-5">
           <a href="{{url('/')}}" class="app-brand-link gap-2">
